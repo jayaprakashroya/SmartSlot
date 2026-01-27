@@ -4,16 +4,10 @@ djangorestframework>=3.14.0
 
 # Database
 mysqlclient>=2.2.7
-psycopg2-binary>=2.9.9
+psycopg2-binary>=2.9.11
 dj-database-url>=2.1.0
 
-# Computer Vision & AI
-opencv-python>=4.8.0
-easyocr>=1.7.0
-cvzone>=1.6.0
-ultralytics>=8.0.0
-numpy<2.0
-matplotlib>=3.8.0
+# Image Processing
 Pillow>=10.0.0
 
 # Web Server & Deployment
@@ -25,11 +19,26 @@ python-decouple>=3.8
 requests>=2.31.0
 Werkzeug>=3.0.0
 
-# Optional: Production Email
-django-anymail>=10.0
+# ===== OPTIONAL: ML/AI Detection (requires more memory) =====
+# Uncomment these only if using YOLOv8 detection on Starter tier or higher
+# and set ENABLE_YOLOV8=true environment variable
 
-# Optional: Storage (S3)
-boto3>=1.28.0
-django-storages>=1.14.2
+# opencv-python>=4.8.0
+# ultralytics>=8.0.0
+# torch>=2.0.0
+# torchvision>=0.15.0
+# easyocr>=1.7.0
+# cvzone>=1.6.0
+# numpy<2.0
+# matplotlib>=3.8.0
+# scipy>=1.8.0
+# scikit-image>=0.20.0
+
+# ===== OPTIONAL: Production Services =====
+# Uncomment if using email or S3 storage
+
+# django-anymail>=10.0
+# boto3>=1.28.0
+# django-storages>=1.14.2
 
 # python 3.10.9

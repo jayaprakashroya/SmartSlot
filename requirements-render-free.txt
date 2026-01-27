@@ -1,0 +1,22 @@
+# Lightweight requirements for Render Free Tier
+# This file has minimal dependencies to fit in 512 MB RAM
+
+# Core Django
+django>=4.2
+djangorestframework>=3.14.0
+
+# Database
+psycopg2-binary>=2.9.11
+dj-database-url>=2.1.0
+
+# Image Processing (minimal)
+Pillow>=10.0.0
+
+# Web Server & Deployment
+gunicorn>=21.2.0
+whitenoise>=6.6.0
+
+# Utilities
+python-decouple>=3.8
+requests>=2.31.0
+Werkzeug>=3.0.0
