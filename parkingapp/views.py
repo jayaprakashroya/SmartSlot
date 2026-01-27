@@ -218,19 +218,28 @@ def LoginPage(request):
     return render(request, 'loginpage.html')
 
 def AdminLoginPage(request):
-    """Dedicated admin login page - for admin users only"""
+    """Dedicated admin login page - for admin users only - Accepts username or email"""
     if request.method == 'POST':
-        email = request.POST.get('email', '').strip().lower()
+        username_or_email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '')
         
         # Input validation
-        if not email or not password:
-            messages.error(request, 'Email and password are required.')
+        if not username_or_email or not password:
+            messages.error(request, 'Username/Email and password are required.')
             return render(request, 'admin_login.html')
         
-        # Try Django authentication first
+        # Try Django authentication first with username
         try:
-            user = authenticate(request, username=email, password=password)
+            user = authenticate(request, username=username_or_email, password=password)
+            
+            # If username auth fails, try email
+            if user is None:
+                try:
+                    user_obj = User.objects.get(email=username_or_email)
+                    user = authenticate(request, username=user_obj.username, password=password)
+                except User.DoesNotExist:
+                    user = None
+            
             if user is not None and (user.is_staff or user.is_superuser):
                 login(request, user)
                 messages.success(request, 'Admin Login Successful!')
@@ -244,7 +253,7 @@ def AdminLoginPage(request):
         except Exception as e:
             import logging
             logger = logging.getLogger(__name__)
-            logger.error(f'Admin login error for {email}: {str(e)}')
+            logger.error(f'Admin login error for {username_or_email}: {str(e)}')
             messages.error(request, 'Login error. Please try again.')
             return render(request, 'admin_login.html')
     

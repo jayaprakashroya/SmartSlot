@@ -70,7 +70,7 @@ WSGI_APPLICATION = 'ParkingProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# Check if DATABASE_URL is set (Render/Production), otherwise use MySQL (Development)
+# Check if DATABASE_URL is set (Render/Production), otherwise use SQLite (Development)
 if os.getenv('DATABASE_URL'):
     DATABASES = {
         'default': dj_database_url.config(
@@ -80,15 +80,11 @@ if os.getenv('DATABASE_URL'):
         )
     }
 else:
-    # Development settings
+    # Development settings - Use SQLite by default
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'smart_carparking_monitoring',
-            'USER': 'root',
-            'PASSWORD': '9014',
-            'HOST': 'localhost',
-            'PORT': '3306'
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
 
@@ -123,6 +119,12 @@ USE_I18N = True
 
 USE_TZ = True
 
+
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'parkingapp.auth_backend.EmailOrUsernameBackend',  # Custom backend for email/username login
+    'django.contrib.auth.backends.ModelBackend',  # Django default backend
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
