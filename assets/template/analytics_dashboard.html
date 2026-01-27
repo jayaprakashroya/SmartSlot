@@ -1,0 +1,847 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Analytics Dashboard - SmartSlot</title>
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f5f7fa;
+        }
+
+        .dashboard-wrapper {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 30px 20px;
+            color: white;
+            position: sticky;
+            top: 0;
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-menu a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-title h1 {
+            font-size: 2.5rem;
+            color: #1a1a2e;
+            margin-bottom: 5px;
+        }
+
+        .dashboard-title p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #1e3c72;
+            background: white;
+            color: #1e3c72;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: #1e3c72;
+            color: white;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-top: 5px solid #667eea;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .kpi-card.available {
+            border-top-color: #00d084;
+        }
+
+        .kpi-card.occupied {
+            border-top-color: #ff4757;
+        }
+
+        .kpi-card.peak {
+            border-top-color: #ff9f43;
+        }
+
+        .kpi-card.revenue {
+            border-top-color: #667eea;
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .kpi-label {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .kpi-icon {
+            font-size: 2rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 5px;
+        }
+
+        .kpi-change {
+            font-size: 0.85rem;
+            color: #00d084;
+        }
+
+        .kpi-change.down {
+            color: #ff4757;
+        }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .chart-card:hover {
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-title i {
+            color: #667eea;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 350px;
+        }
+
+        /* Alert Cards */
+        .alerts-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 40px;
+        }
+
+        .alert-item {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 5px solid;
+        }
+
+        .alert-item.critical {
+            background: #fff3cd;
+            border-left-color: #ff4757;
+        }
+
+        .alert-item.warning {
+            background: #f8f9fa;
+            border-left-color: #ff9f43;
+        }
+
+        .alert-item.info {
+            background: #e3f2fd;
+            border-left-color: #667eea;
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .alert-content h4 {
+            color: #1a1a2e;
+            margin-bottom: 5px;
+        }
+
+        .alert-content p {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Statistics Table */
+        .table-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+        }
+
+        .table-card table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-card th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #1a1a2e;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .table-card td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            color: #666;
+        }
+
+        .table-card tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-high {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .filter-controls {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <i class="fa fa-parking"></i>
+                SmartSlot
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="{% url 'dashboard' %}" class="active"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                <li><a href="{% url 'smart_car_parking' %}"><i class="fa fa-video-camera"></i> Smart Parking</a></li>
+                <li><a href="{% url 'detect_numberplate' %}"><i class="fa fa-hashtag"></i> License Plate</a></li>
+                <li><a href="#"><i class="fa fa-bar-chart"></i> Analytics</a></li>
+                <li><a href="#"><i class="fa fa-cog"></i> Settings</a></li>
+                <li><a href="{% url 'login' %}"><i class="fa fa-sign-out"></i> Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>📊 Analytics Dashboard</h1>
+                    <p>Real-time parking lot analytics and insights</p>
+                </div>
+                <div class="filter-controls">
+                    <button class="filter-btn active">Today</button>
+                    <button class="filter-btn">Week</button>
+                    <button class="filter-btn">Month</button>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card available">
+                    <div class="kpi-header">
+                        <div>
+                            <div class="kpi-label">Available Spaces</div>
+                            <div class="kpi-value">185</div>
+                            <div class="kpi-change"><i class="fa fa-arrow-up"></i> +12% from yesterday</div>
+                        </div>
+                        <div class="kpi-icon">🟢</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card occupied">
+                    <div class="kpi-header">
+                        <div>
+                            <div class="kpi-label">Occupied Spaces</div>
+                            <div class="kpi-value">315</div>
+                            <div class="kpi-change down"><i class="fa fa-arrow-down"></i> -8% from yesterday</div>
+                        </div>
+                        <div class="kpi-icon">🔴</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card peak">
+                    <div class="kpi-header">
+                        <div>
+                            <div class="kpi-label">Peak Hour</div>
+                            <div class="kpi-value">5:30 PM</div>
+                            <div class="kpi-change"><i class="fa fa-clock-o"></i> 87% occupancy</div>
+                        </div>
+                        <div class="kpi-icon">⏰</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card revenue">
+                    <div class="kpi-header">
+                        <div>
+                            <div class="kpi-label">Revenue Today</div>
+                            <div class="kpi-value">$2,450</div>
+                            <div class="kpi-change"><i class="fa fa-arrow-up"></i> +15% from yesterday</div>
+                        </div>
+                        <div class="kpi-icon">💰</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card" style="border-top-color: #00d084;">
+                    <div class="kpi-header">
+                        <div>
+                            <div class="kpi-label">System Health</div>
+                            <div class="kpi-value">99.8%</div>
+                            <div class="kpi-change"><i class="fa fa-heart"></i> All systems operational</div>
+                        </div>
+                        <div class="kpi-icon">✅</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card" style="border-top-color: #667eea;">
+                    <div class="kpi-header">
+                        <div>
+                            <div class="kpi-label">Active Sensors</div>
+                            <div class="kpi-value">156</div>
+                            <div class="kpi-change"><i class="fa fa-check"></i> All sensors online</div>
+                        </div>
+                        <div class="kpi-icon">📡</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fa fa-line-chart"></i> Occupancy Trend (24h)</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fa fa-pie-chart"></i> Space Distribution</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fa fa-bar-chart"></i> Daily Revenue</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fa fa-area-chart"></i> Zone Comparison</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="zoneChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts Section -->
+            <div class="alerts-section">
+                <h3 class="chart-title" style="margin-bottom: 25px;"><i class="fa fa-bell"></i> System Alerts & Notifications</h3>
+                
+                <div class="alert-item critical">
+                    <div class="alert-icon">⚠️</div>
+                    <div class="alert-content">
+                        <h4>High Occupancy Alert</h4>
+                        <p>Basement Level 2 is at 90% capacity. Consider opening alternative parking areas.</p>
+                    </div>
+                </div>
+
+                <div class="alert-item warning">
+                    <div class="alert-icon">ℹ️</div>
+                    <div class="alert-content">
+                        <h4>Peak Hour Approaching</h4>
+                        <p>Expected peak occupancy at 5:30 PM. Prepare additional staff if needed.</p>
+                    </div>
+                </div>
+
+                <div class="alert-item info">
+                    <div class="alert-icon">✓</div>
+                    <div class="alert-content">
+                        <h4>System Status: Healthy</h4>
+                        <p>All parking lot sensors are functioning normally. Last sync: 2 minutes ago.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Table -->
+            <div class="table-card">
+                <h3 class="chart-title"><i class="fa fa-table"></i> Parking Lot Summary & Analytics</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>📍 Lot Name</th>
+                            <th>✅ Available</th>
+                            <th>🚗 Occupied</th>
+                            <th>📊 Occupancy</th>
+                            <th>⏱️ Avg Duration</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Main Parking - Zone A</strong></td>
+                            <td style="color: #00d084; font-weight: 600;">45</td>
+                            <td style="color: #ff4757; font-weight: 600;">55</td>
+                            <td>55%</td>
+                            <td>2h 15m</td>
+                            <td><span class="status-badge status-medium">Medium</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Main Parking - Zone B</strong></td>
+                            <td style="color: #00d084; font-weight: 600;">78</td>
+                            <td style="color: #ff4757; font-weight: 600;">22</td>
+                            <td>22%</td>
+                            <td>1h 45m</td>
+                            <td><span class="status-badge status-high">Low</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Basement Level 1</strong></td>
+                            <td style="color: #00d084; font-weight: 600;">32</td>
+                            <td style="color: #ff4757; font-weight: 600;">68</td>
+                            <td>68%</td>
+                            <td>3h 20m</td>
+                            <td><span class="status-badge status-low">High</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Basement Level 2</strong></td>
+                            <td style="color: #00d084; font-weight: 600;">30</td>
+                            <td style="color: #ff4757; font-weight: 600;">70</td>
+                            <td>70%</td>
+                            <td>3h 45m</td>
+                            <td><span class="status-badge status-low">High</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>VIP/Reserved Parking</strong></td>
+                            <td style="color: #00d084; font-weight: 600;">12</td>
+                            <td style="color: #ff4757; font-weight: 600;">8</td>
+                            <td>40%</td>
+                            <td>4h 10m</td>
+                            <td><span class="status-badge status-high">Low</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Quick Actions Section -->
+            <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08); margin-bottom: 40px;">
+                <h3 class="chart-title" style="margin-bottom: 25px;"><i class="fa fa-bolt"></i> Quick Actions</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <button style="padding: 15px 25px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(102, 126, 234, 0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(102, 126, 234, 0.3)'">
+                        <i class="fa fa-refresh"></i> Refresh Data
+                    </button>
+                    <button style="padding: 15px 25px; background: white; color: #667eea; border: 2px solid #667eea; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.background='#667eea'; this.style.color='white'" onmouseout="this.style.background='white'; this.style.color='#667eea'">
+                        <i class="fa fa-download"></i> Export Report
+                    </button>
+                    <button style="padding: 15px 25px; background: white; color: #667eea; border: 2px solid #667eea; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.background='#667eea'; this.style.color='white'" onmouseout="this.style.background='white'; this.style.color='#667eea'">
+                        <i class="fa fa-print"></i> Print Dashboard
+                    </button>
+                    <button style="padding: 15px 25px; background: white; color: #667eea; border: 2px solid #667eea; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.background='#667eea'; this.style.color='white'" onmouseout="this.style.background='white'; this.style.color='#667eea'">
+                        <i class="fa fa-cog"></i> Configure Alerts
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics Section -->
+        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08); margin-bottom: 40px;">
+            <h3 class="chart-title" style="margin-bottom: 25px;"><i class="fa fa-bar-chart"></i> Performance Metrics</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(0, 208, 132, 0.1)); padding: 20px; border-radius: 10px; border-left: 4px solid #667eea;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                        <h4 style="margin: 0; color: #333; font-size: 14px;">Detection Accuracy</h4>
+                        <i class="fa fa-check-circle" style="font-size: 20px; color: #00d084;"></i>
+                    </div>
+                    <div style="font-size: 32px; font-weight: bold; color: #667eea;">98.5%</div>
+                    <div style="font-size: 12px; color: #666; margin-top: 10px;">↑ 2.3% from last month</div>
+                    <div style="width: 100%; height: 4px; background: #eee; margin-top: 10px; border-radius: 2px; overflow: hidden;">
+                        <div style="width: 98.5%; height: 100%; background: linear-gradient(90deg, #667eea, #00d084);"></div>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, rgba(118, 75, 162, 0.1), rgba(102, 126, 234, 0.1)); padding: 20px; border-radius: 10px; border-left: 4px solid #764ba2;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                        <h4 style="margin: 0; color: #333; font-size: 14px;">Avg Detection Time</h4>
+                        <i class="fa fa-hourglass-end" style="font-size: 20px; color: #764ba2;"></i>
+                    </div>
+                    <div style="font-size: 32px; font-weight: bold; color: #764ba2;">1.2s</div>
+                    <div style="font-size: 12px; color: #666; margin-top: 10px;">↓ 0.3s improvement</div>
+                    <div style="width: 100%; height: 4px; background: #eee; margin-top: 10px; border-radius: 2px; overflow: hidden;">
+                        <div style="width: 85%; height: 100%; background: linear-gradient(90deg, #764ba2, #667eea);"></div>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, rgba(0, 208, 132, 0.1), rgba(102, 126, 234, 0.1)); padding: 20px; border-radius: 10px; border-left: 4px solid #00d084;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                        <h4 style="margin: 0; color: #333; font-size: 14px;">System Uptime</h4>
+                        <i class="fa fa-server" style="font-size: 20px; color: #00d084;"></i>
+                    </div>
+                    <div style="font-size: 32px; font-weight: bold; color: #00d084;">99.8%</div>
+                    <div style="font-size: 12px; color: #666; margin-top: 10px;">No incidents this week</div>
+                    <div style="width: 100%; height: 4px; background: #eee; margin-top: 10px; border-radius: 2px; overflow: hidden;">
+                        <div style="width: 99.8%; height: 100%; background: linear-gradient(90deg, #00d084, #667eea);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Traffic Patterns Section -->
+        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08); margin-bottom: 40px;">
+            <h3 class="chart-title" style="margin-bottom: 25px;"><i class="fa fa-line-chart"></i> Traffic Patterns</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 25px; border-radius: 12px; box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 12px 35px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(102, 126, 234, 0.3)'">
+                    <div style="font-size: 13px; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px;">Peak Hour</div>
+                    <div style="font-size: 28px; font-weight: bold; margin-top: 12px;">5:30 PM - 6:15 PM</div>
+                    <div style="font-size: 12px; opacity: 0.8; margin-top: 8px;">Monday to Friday</div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #ff4757, #ee5a6f); color: white; padding: 25px; border-radius: 12px; box-shadow: 0 8px 25px rgba(255, 71, 87, 0.3); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 12px 35px rgba(255, 71, 87, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(255, 71, 87, 0.3)'">
+                    <div style="font-size: 13px; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px;">Lowest Traffic</div>
+                    <div style="font-size: 28px; font-weight: bold; margin-top: 12px;">2:00 AM - 4:00 AM</div>
+                    <div style="font-size: 12px; opacity: 0.8; margin-top: 8px;">Daily average</div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #ffa502, #ffb520); color: white; padding: 25px; border-radius: 12px; box-shadow: 0 8px 25px rgba(255, 165, 2, 0.3); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 12px 35px rgba(255, 165, 2, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(255, 165, 2, 0.3)'">
+                    <div style="font-size: 13px; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px;">Avg Duration</div>
+                    <div style="font-size: 28px; font-weight: bold; margin-top: 12px;">2h 35m</div>
+                    <div style="font-size: 12px; opacity: 0.8; margin-top: 8px;">Across all zones</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background: #1a1a2e; color: white; padding: 30px; text-align: center; margin-top: 40px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-bottom: 30px; text-align: left;">
+            <div>
+                <h4 style="margin-bottom: 15px; font-size: 1.1rem;">🅿️ SmartSlot</h4>
+                <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">Advanced AI-powered parking management system providing real-time insights and analytics.</p>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 15px; font-size: 1.1rem;">📊 Features</h4>
+                <ul style="list-style: none; color: rgba(255,255,255,0.7); font-size: 0.9rem;">
+                    <li>✓ Real-time Detection</li>
+                    <li>✓ Analytics Dashboard</li>
+                    <li>✓ License Plate Recognition</li>
+                    <li>✓ Occupancy Tracking</li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 15px; font-size: 1.1rem;">📞 Support</h4>
+                <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">
+                    Email: info@smartslot.com<br>
+                    Phone: +91 90147 92534<br>
+                    Location: Puttaparthi
+                </p>
+            </div>
+        </div>
+        <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin-bottom: 20px;">
+        <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">© 2026 SmartSlot. All rights reserved. | Powered by Advanced AI & Computer Vision</p>
+    </footer>
+
+    <script>
+        // Occupancy Trend Chart
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: ['12am', '3am', '6am', '9am', '12pm', '3pm', '6pm', '9pm', '12am'],
+                datasets: [{
+                    label: 'Occupancy %',
+                    data: [15, 12, 25, 45, 65, 72, 87, 65, 35],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#667eea',
+                    pointBorderColor: '#667eea',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { font: { family: "'Poppins', sans-serif" } }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Distribution Chart
+        const distCtx = document.getElementById('distributionChart').getContext('2d');
+        new Chart(distCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Available', 'Occupied'],
+                datasets: [{
+                    data: [185, 315],
+                    backgroundColor: ['#00d084', '#ff4757'],
+                    borderColor: ['#00d084', '#ff4757'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 12, family: "'Poppins', sans-serif" },
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
+
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Daily Revenue ($)',
+                    data: [2100, 2300, 2150, 2450, 2600, 3100, 2900],
+                    backgroundColor: [
+                        '#667eea',
+                        '#667eea',
+                        '#667eea',
+                        '#764ba2',
+                        '#764ba2',
+                        '#00d084',
+                        '#00d084'
+                    ],
+                    borderRadius: 5,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { font: { family: "'Poppins', sans-serif" } }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Zone Comparison Chart
+        const zoneCtx = document.getElementById('zoneChart').getContext('2d');
+        new Chart(zoneCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Zone A', 'Zone B', 'Basement L1', 'Basement L2', 'VIP'],
+                datasets: [{
+                    label: 'Occupancy Rate %',
+                    data: [55, 22, 68, 70, 40],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.25)',
+                    pointBackgroundColor: '#667eea',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { font: { family: "'Poppins', sans-serif" } }
+                    }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

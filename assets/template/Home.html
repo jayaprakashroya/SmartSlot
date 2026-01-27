@@ -1,0 +1,511 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>SmartSlot - Smart Parking System</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+ 
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}">
+    
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/vibrant-theme.css' %}">
+  </head>
+
+  <body>
+		<div class="wrap">
+	    <div class="container">
+				<div class="row justify-content-between">
+					<div class="col-md-3 d-flex align-items-center">
+						<a class="navbar-brand" href="{% url 'home' %}">SmartSlot</a>
+					</div>
+					<div class="col-md-7">
+						<div class="row">
+							<div class="col">
+								<div class="top-wrap d-flex">
+									<div class="icon d-flex align-items-center justify-content-center"><span class="fa fa-location-arrow"></span></div>
+									<div class="text"><span>Address</span><span>Puttaparthi</span></div>
+								</div>
+							</div>
+							<div class="col">
+								<div class="top-wrap d-flex">
+									<div class="icon d-flex align-items-center justify-content-center"><span class="fa fa-phone"></span></div>
+									<div class="text"><span>Call us</span><span>+91 90147 92534</span></div>
+								</div>
+							</div>
+							<div class="col">
+								<div class="top-wrap d-flex">
+									<div class="icon d-flex align-items-center justify-content-center"><span class="fa fa-envelope"></span></div>
+									<div class="text"><span>Email</span><span>info@smartslot.com</span></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<nav class="navbar navbar-expand-lg navbar-light ftco_navbar ftco-navbar-light" id="ftco-navbar">
+	    <div class="container">
+	      <a class="navbar-brand d-lg-none" href="{% url 'home' %}">🚗 Carpark</a>
+	      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+	        <span class="fa fa-bars"></span> Menu
+	      </button>
+	      <div class="collapse navbar-collapse" id="ftco-nav">
+	         <ul class="navbar-nav mx-auto">
+	        	<li class="nav-item"><a href="{% url 'home' %}" class="nav-link active">Home</a></li>
+	        	<li class="nav-item"><a href="{% url 'about' %}" class="nav-link">About</a></li>
+	        	<li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
+	        	<li class="nav-item"><a href="{% url 'login' %}" class="nav-link btn btn-info text-white ml-3">Login</a></li>
+	        </ul> 
+	      </div>
+	    </div>
+	  </nav>
+    <!-- END nav -->
+    <!--slider starts -->
+    <div class="hero-wrap">
+	    <div class="home-slider owl-carousel">
+        <div class="slider-item" style="background-image:url({% static 'images/best.png' %});">
+          <div class="overlay"></div>
+	        <div class="container">
+	          <div class="row no-gutters slider-text align-items-center justify-content-start">
+		          <div class="col-md-6 ftco-animate">
+		          	 
+		          </div>
+		        </div>
+	        </div>
+	      </div>
+	      <div class="slider-item" style="background-image:url({% static 'images/smartslot.png' %});">
+	      	<div class="overlay"></div>
+	        <div class="container">
+	          <div class="row no-gutters slider-text align-items-center justify-content-start">
+		          
+		        </div>
+	        </div>
+	      </div>
+	      <div class="slider-item" style="background-image:url({% static 'images/image.png' %});">
+	      	<div class="overlay"></div>
+	        <div class="container">
+	          <div class="row no-gutters slider-text align-items-center justify-content-start">
+		          
+		        </div>
+	        </div>
+	      </div>
+	    </div>
+	  </div>
+		
+		<section class="intro">
+			<div class="container intro-wrap">
+				<div class="row no-gutters">
+					 
+				</div>
+			</div>	
+		</section>
+    <!--our services starts -->
+    <section class="ftco-section" style="background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%); padding: 100px 0;">
+    	<div class="container">
+    		<div class="row justify-content-center pb-5 mb-5">
+          <div class="col-md-8 heading-section text-center ftco-animate">
+          	<span class="subheading" style="color: #667eea; font-size: 1rem; font-weight: 600;">Smart Parking Solution</span>
+            <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 20px;">🅿️ Smart Parking Made Simple</h2>
+            <p style="font-size: 1.1rem; color: #666; line-height: 1.8;">Experience the future of parking management with intelligent detection and real-time analytics</p>
+          </div>
+        </div>
+
+        <!-- Main Hero Card -->
+        <div class="row mb-5">
+          <div class="col-lg-12">
+            <div style="background: white; border-radius: 20px; padding: 50px; box-shadow: 0 15px 50px rgba(0,0,0,0.1); border-top: 5px solid #667eea;">
+              <h3 style="color: #1a1a2e; font-size: 28px; font-weight: 700; margin-bottom: 20px;">SmartSlot – Intelligent Parking Management System</h3>
+              <p style="color: #555; font-size: 1.05rem; line-height: 1.9; margin-bottom: 0;">
+                SmartSlot is a cutting-edge, AI-powered parking management solution engineered to revolutionize how urban areas handle parking. Our advanced computer vision technology detects available parking slots in real-time, reduces search time by up to 85%, and improves overall parking efficiency. The system integrates seamlessly with existing infrastructure and provides actionable insights through an intuitive dashboard.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key Features Grid -->
+    		<div class="row">
+          <!-- Feature 1: Park Faster -->
+          <div class="col-md-6 col-lg-6 ftco-animate" style="margin-bottom: 40px;">
+            <div style="background: white; border-radius: 15px; padding: 40px; box-shadow: 0 10px 35px rgba(0,0,0,0.08); border-left: 5px solid #667eea; transition: all 0.3s ease; height: 100%;" onmouseover="this.style.boxShadow='0 15px 50px rgba(102, 126, 234, 0.2)'; this.style.transform='translateY(-5px)'" onmouseout="this.style.boxShadow='0 10px 35px rgba(0,0,0,0.08)'; this.style.transform='translateY(0)'">
+              <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
+                <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; flex-shrink: 0; margin-right: 20px;">
+                  🚗
+                </div>
+                <div>
+                  <h3 style="color: #1a1a2e; font-size: 22px; font-weight: 700; margin-bottom: 10px;">Park Faster. Drive Smarter.</h3>
+                </div>
+              </div>
+              <p style="color: #666; font-size: 1rem; line-height: 1.8;">
+                Finding a parking slot is one of the biggest challenges in crowded urban areas. SmartSlot eliminates this frustration by providing a real-time, clear view of parking availability. Save up to 30 minutes per parking session, reduce fuel consumption, and avoid unnecessary traffic congestion with our intelligent system.
+              </p>
+              <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #f0f0f0;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: #667eea; font-weight: 600;">⏱️ Average Time Saved</span>
+                  <span style="color: #764ba2; font-weight: 700;">8.5 mins</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature 2: Real-World Deployment -->
+          <div class="col-md-6 col-lg-6 ftco-animate" style="margin-bottom: 40px;">
+            <div style="background: white; border-radius: 15px; padding: 40px; box-shadow: 0 10px 35px rgba(0,0,0,0.08); border-left: 5px solid #764ba2; transition: all 0.3s ease; height: 100%;" onmouseover="this.style.boxShadow='0 15px 50px rgba(118, 75, 162, 0.2)'; this.style.transform='translateY(-5px)'" onmouseout="this.style.boxShadow='0 10px 35px rgba(0,0,0,0.08)'; this.style.transform='translateY(0)'">
+              <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
+                <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; flex-shrink: 0; margin-right: 20px;">
+                  🌍
+                </div>
+                <div>
+                  <h3 style="color: #1a1a2e; font-size: 22px; font-weight: 700; margin-bottom: 10px;">Designed for Real-World Parking Areas</h3>
+                </div>
+              </div>
+              <p style="color: #666; font-size: 1rem; line-height: 1.8;">
+                SmartSlot is purpose-built for diverse real-world environments including hospitals, shopping malls, office complexes, public parking facilities, and smart city infrastructure. Our adaptive algorithms handle both small and large parking layouts, supporting any configuration from compact residential areas to sprawling commercial centers.
+              </p>
+              <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #f0f0f0;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: #667eea; font-weight: 600;">🏢 Deployment Types</span>
+                  <span style="color: #764ba2; font-weight: 700;">50+ Locations</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature 3: Smart & Flexible -->
+          <div class="col-md-6 col-lg-6 ftco-animate" style="margin-bottom: 40px;">
+            <div style="background: white; border-radius: 15px; padding: 40px; box-shadow: 0 10px 35px rgba(0,0,0,0.08); border-left: 5px solid #00d084; transition: all 0.3s ease; height: 100%;" onmouseover="this.style.boxShadow='0 15px 50px rgba(0, 208, 132, 0.2)'; this.style.transform='translateY(-5px)'" onmouseout="this.style.boxShadow='0 10px 35px rgba(0,0,0,0.08)'; this.style.transform='translateY(0)'">
+              <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
+                <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #00d084 0%, #00a86b 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; flex-shrink: 0; margin-right: 20px;">
+                  🔄
+                </div>
+                <div>
+                  <h3 style="color: #1a1a2e; font-size: 22px; font-weight: 700; margin-bottom: 10px;">Smart, Flexible, and Future-Ready</h3>
+                </div>
+              </div>
+              <p style="color: #666; font-size: 1rem; line-height: 1.8;">
+                SmartSlot is designed with flexibility at its core. Whether you're using sample videos for academic projects or connecting live CCTV feeds for real-world deployment, our system scales effortlessly. Built with AI-ready architecture, SmartSlot can be enhanced with advanced features like predictive analytics, mobile app integration, and real-time notifications.
+              </p>
+              <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #f0f0f0;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: #667eea; font-weight: 600;">📊 Detection Modes</span>
+                  <span style="color: #00d084; font-weight: 700;">4 Methods</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature 4: Why Choose SmartSlot -->
+          <div class="col-md-6 col-lg-6 ftco-animate" style="margin-bottom: 40px;">
+            <div style="background: white; border-radius: 15px; padding: 40px; box-shadow: 0 10px 35px rgba(0,0,0,0.08); border-left: 5px solid #ff4757; transition: all 0.3s ease; height: 100%;" onmouseover="this.style.boxShadow='0 15px 50px rgba(255, 71, 87, 0.2)'; this.style.transform='translateY(-5px)'" onmouseout="this.style.boxShadow='0 10px 35px rgba(0,0,0,0.08)'; this.style.transform='translateY(0)'">
+              <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
+                <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #ff4757 0%, #ee5a52 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; flex-shrink: 0; margin-right: 20px;">
+                  ⚡
+                </div>
+                <div>
+                  <h3 style="color: #1a1a2e; font-size: 22px; font-weight: 700; margin-bottom: 10px;">Why Choose SmartSlot?</h3>
+                </div>
+              </div>
+              <ul style="color: #666; font-size: 1rem; line-height: 2; list-style: none; padding: 0; margin: 0;">
+                <li style="display: flex; align-items: center; margin-bottom: 12px;">
+                  <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #e8f5e9; border-radius: 50%; margin-right: 12px; color: #00d084; font-weight: bold;">✓</span>
+                  <span><strong>Easy to use</strong> with intuitive interface</span>
+                </li>
+                <li style="display: flex; align-items: center; margin-bottom: 12px;">
+                  <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #e8f5e9; border-radius: 50%; margin-right: 12px; color: #00d084; font-weight: bold;">✓</span>
+                  <span><strong>98% accuracy rate</strong> in detection</span>
+                </li>
+                <li style="display: flex; align-items: center; margin-bottom: 12px;">
+                  <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #e8f5e9; border-radius: 50%; margin-right: 12px; color: #00d084; font-weight: bold;">✓</span>
+                  <span><strong>Reduces congestion</strong> significantly</span>
+                </li>
+                <li style="display: flex; align-items: center; margin-bottom: 12px;">
+                  <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #e8f5e9; border-radius: 50%; margin-right: 12px; color: #00d084; font-weight: bold;">✓</span>
+                  <span><strong>Improves efficiency</strong> & space utilization</span>
+                </li>
+                <li style="display: flex; align-items: center;">
+                  <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #e8f5e9; border-radius: 50%; margin-right: 12px; color: #00d084; font-weight: bold;">✓</span>
+                  <span><strong>Smart city ready</strong> for future integration</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Impact Statistics -->
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 60px 40px; color: white; margin-top: 60px; text-align: center;">
+          <h3 style="font-size: 32px; font-weight: 700; margin-bottom: 50px;">SmartSlot Impact</h3>
+          <div class="row">
+            <div class="col-md-3 col-sm-6" style="margin-bottom: 30px;">
+              <div style="font-size: 3rem; font-weight: 800; margin-bottom: 10px;">85%</div>
+              <div style="font-size: 1.1rem; opacity: 0.9;">Search Time Reduced</div>
+            </div>
+            <div class="col-md-3 col-sm-6" style="margin-bottom: 30px;">
+              <div style="font-size: 3rem; font-weight: 800; margin-bottom: 10px;">98%</div>
+              <div style="font-size: 1.1rem; opacity: 0.9;">Detection Accuracy</div>
+            </div>
+            <div class="col-md-3 col-sm-6" style="margin-bottom: 30px;">
+              <div style="font-size: 3rem; font-weight: 800; margin-bottom: 10px;">24/7</div>
+              <div style="font-size: 1.1rem; opacity: 0.9;">Real-Time Monitoring</div>
+            </div>
+            <div class="col-md-3 col-sm-6" style="margin-bottom: 30px;">
+              <div style="font-size: 3rem; font-weight: 800; margin-bottom: 10px;">99.8%</div>
+              <div style="font-size: 1.1rem; opacity: 0.9;">System Uptime</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div style="text-align: center; margin-top: 60px;">
+          <h3 style="color: #1a1a2e; font-size: 26px; font-weight: 700; margin-bottom: 30px;">Ready to Experience Smart Parking?</h3>
+          <div>
+            <a href="{% url 'login' %}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 18px 50px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; display: inline-block; transition: all 0.3s ease; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3); margin-right: 20px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 40px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(102, 126, 234, 0.3)'">
+              Get Started Now →
+            </a>
+            <a href="{% url 'about' %}" style="background: white; color: #667eea; padding: 18px 50px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; display: inline-block; transition: all 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid #667eea;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+              Learn More
+            </a>
+          </div>
+        </div>
+    	</div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="ftco-section" style="background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); padding: 80px 0;">
+      <div class="container">
+        <div class="row justify-content-center pb-5 mb-3">
+          <div class="col-md-8 heading-section text-center ftco-animate">
+            <span class="subheading" style="color: #667eea;">Sample Results</span>
+            <h2 style="color: #1a1a2e;">🎯 See SmartSlot In Action</h2>
+            <p style="color: #333; font-size: 1.1rem;">Real-world examples of our smart parking detection system analyzing parking spaces</p>
+          </div>
+        </div>
+
+        <!-- Gallery Grid -->
+        <div class="row" style="margin-bottom: 50px;">
+          <div class="col-md-6 mb-4">
+            <div style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); transition: all 0.3s ease;" class="gallery-item">
+              <div style="position: relative; height: 300px; background: linear-gradient(135deg, #f0f5ff 0%, #ffffff 100%); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                <img src="{% static 'images/Multi-Lane Parking Detection.png' %}" style="max-width: 100%; max-height: 100%; object-fit: cover;" alt="Multi-Lane Parking Detection">
+              </div>
+              <div style="padding: 25px;">
+                <h4 style="color: #1a1a2e; font-weight: 600; margin-bottom: 10px;">Multi-Lane Parking Detection</h4>
+                <p style="color: #666; margin-bottom: 15px;">Accurate detection across multiple parking lanes with real-time occupancy tracking.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="background: #00d084; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">Available: 45</span>
+                  <span style="background: #ff4757; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">Occupied: 25</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-4">
+            <div style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); transition: all 0.3s ease;" class="gallery-item">
+              <div style="position: relative; height: 300px; background: linear-gradient(135deg, #f0f5ff 0%, #ffffff 100%); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                <img src="{% static 'images/Reserved Spot Recognition.png' %}" style="max-width: 100%; max-height: 100%; object-fit: cover;" alt="Reserved Spot Recognition">
+              </div>
+              <div style="padding: 25px;">
+                <h4 style="color: #1a1a2e; font-weight: 600; margin-bottom: 10px;">Reserved Spot Recognition</h4>
+                <p style="color: #666; margin-bottom: 15px;">Smart identification of reserved parking spaces and special parking zones.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="background: #00d084; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">Available: 32</span>
+                  <span style="background: #ff4757; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">Occupied: 18</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-4">
+            <div style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); transition: all 0.3s ease;" class="gallery-item">
+              <div style="position: relative; height: 300px; background: linear-gradient(135deg, #f0f5ff 0%, #ffffff 100%); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                <img src="{% static 'images/Night Vision Detection.png' %}" style="max-width: 100%; max-height: 100%; object-fit: cover;" alt="Night Vision Detection">
+              </div>
+              <div style="padding: 25px;">
+                <h4 style="color: #1a1a2e; font-weight: 600; margin-bottom: 10px;">Night Vision Detection</h4>
+                <p style="color: #666; margin-bottom: 15px;">Advanced detection capability even in low-light conditions and night parking scenarios.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="background: #00d084; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">Available: 38</span>
+                  <span style="background: #ff4757; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">Occupied: 32</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-4">
+            <div style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); transition: all 0.3s ease;" class="gallery-item">
+              <div style="position: relative; height: 300px; background: linear-gradient(135deg, #f0f5ff 0%, #ffffff 100%); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                <img src="{% static 'images/Angled Spot Tracking.png' %}" style="max-width: 100%; max-height: 100%; object-fit: cover;" alt="Angled Spot Tracking">
+              </div>
+              <div style="padding: 25px;">
+                <h4 style="color: #1a1a2e; font-weight: 600; margin-bottom: 10px;">Angled Spot Tracking</h4>
+                <p style="color: #666; margin-bottom: 15px;">Effective detection of diagonally parked vehicles and angled parking spaces.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="background: #00d084; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">Available: 28</span>
+                  <span style="background: #ff4757; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">Occupied: 42</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statistics Banner -->
+        <div style="background: white; border-radius: 15px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin-bottom: 30px;">
+          <div class="row text-center">
+            <div class="col-md-3 mb-4">
+              <div style="font-size: 2.5rem; font-weight: 700; color: #667eea; margin-bottom: 10px;">98%</div>
+              <div style="color: #666; font-weight: 500;">Accuracy Rate</div>
+            </div>
+            <div class="col-md-3 mb-4">
+              <div style="font-size: 2.5rem; font-weight: 700; color: #764ba2; margin-bottom: 10px;">50+</div>
+              <div style="color: #666; font-weight: 500;">Parking Lots</div>
+            </div>
+            <div class="col-md-3 mb-4">
+              <div style="font-size: 2.5rem; font-weight: 700; color: #00d084; margin-bottom: 10px;">1000+</div>
+              <div style="color: #666; font-weight: 500;">Daily Users</div>
+            </div>
+            <div class="col-md-3 mb-4">
+              <div style="font-size: 2.5rem; font-weight: 700; color: #ff4757; margin-bottom: 10px;"><2min</div>
+              <div style="color: #666; font-weight: 500;">Detection Time</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA Button -->
+        <div style="text-align: center;">
+          <a href="{% url 'login' %}" style="background: white; color: #667eea; padding: 15px 50px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; box-shadow: 0 8px 25px rgba(0,0,0,0.2); display: inline-block; transition: all 0.3s ease;">
+            Try SmartSlot Now →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!--footer starts here-->
+    <style>
+    .footer-content {
+      max-width: 300px; 
+      margin: 25 auto;
+      height: 300%;
+    }
+    </style>
+  
+    <footer class="footer ftco-section">
+      <div class="container">
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="ftco-footer-widget mb-4">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2228.4584176469575!2d77.77896733595391!3d14.151119365454761!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bb17acde35dafe9%3A0xb255df3b9d412222!2s5Q2H%2BWFQ%2C%2016%2F440%2C%20Fem%20Shalom%20Prayer%20Church%20Area%2C%20Mamillakunta%2C%20Puttaparthi%2C%20Puttahi%2C%20Andhra%20Pradesh%20515134!5e1!3m2!1sen!2sin!4v1769160187684!5m2!1sen!2sin" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+          </div>
+          
+          <div class="col-md-3">
+            <div class="ftco-footer-widget mb-4"> 
+                <h2 class="logo"><a href="#">SmartSlot</a></h2>
+                <p style="font-size: 14px;">SmartSlot is a video-based smart parking system that detects parking slot availability using computer vision techniques. The system works with sample videos and CCTV camera footage to identify free and occupied parking spaces efficiently.</p>
+                <ul class="ftco-footer-social list-unstyled float-md-left float-lft mt-4">
+                <li class="ftco-animate"><a href="#"><span class="fa fa-twitter"></span></a></li>
+                <li class="ftco-animate"><a href="#"><span class="fa fa-facebook"></span></a></li>
+                <li class="ftco-animate"><a href="#"><span class="fa fa-instagram"></span></a></li>
+                </ul>
+            </div>
+          </div>
+          
+          <div class="col-md-3">
+            <div class="ftco-footer-widget mb-4">
+                <h2 class="ftco-heading-2">Parking Services</h2>
+                <ul style="font-size: 14px; list-style: none; padding: 0; color: #ffffff; font-weight: 500;">
+                  <li style="margin-bottom: 8px; color: #ffffff; font-weight: 500;">• Video-based parking slot detection</li>
+                  <li style="margin-bottom: 8px; color: #ffffff; font-weight: 500;">• Computer vision–based slot analysis</li>
+                  <li style="margin-bottom: 8px; color: #ffffff; font-weight: 500;">• CCTV camera-based parking monitoring</li>
+                  <li style="margin-bottom: 8px; color: #ffffff; font-weight: 500;">• Visual parking availability indicators</li>
+                  <li style="margin-bottom: 8px; color: #ffffff; font-weight: 500;">• Web-based parking management dashboard</li>
+                </ul>
+            </div>
+          </div>
+          
+          <div class="col-md-3">
+            <div class="ftco-footer-widget mb-4">
+                <h2 class="ftco-heading-2">Contact Information</h2>
+                <div class="block-23 mb-3" style="font-size: 13px;">
+                  <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 10px;"><span class="icon fa fa-map-marker"></span><span class="text"> Plot No 12, Near Sri Sathya Sai Institute of Higher Medical Sciences, Prasanthi Nilayam Road, Puttaparthi, Anantapur District, Andhra Pradesh – 515134</span></li>
+                    <li style="margin-bottom: 10px;"><a href="tel:+919014792534"><span class="icon fa fa-phone"></span><span class="text">+91 90147 92534</span></a></li>
+                    <li><a href="mailto:info@smartslot.com"><span class="icon fa fa-paper-plane"></span><span class="text">info@smartslot.com</span></a></li>
+                  </ul>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    
+      <script src="{% static 'js/jquery.min.js' %}"></script>
+      <script src="{% static 'js/jquery-migrate-3.0.1.min.js' %}"></script>
+      <script src="{% static 'js/popper.min.js' %}"></script>
+      <script src="{% static 'js/bootstrap.min.js' %}"></script>
+      <script src="{% static 'js/jquery.easing.1.3.js' %}"></script>
+      <script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
+      <script src="{% static 'js/jquery.stellar.min.js' %}"></script>
+      <script src="{% static 'js/jquery.animateNumber.min.js' %}"></script>
+      <script src="{% static 'js/bootstrap-datepicker.js' %}"></script>
+      <script src="{% static 'js/jquery.timepicker.min.js' %}"></script>
+      <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+      <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+      <script src="{% static 'js/scrollax.min.js' %}"></script>
+      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+      <script src="{% static 'js/google-map.js' %}"></script>
+      <script src="{% static 'js/main.js' %}"></script>
+      {% if messages %}
+      {% for message in messages %}
+          {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+              <script>swal({
+                      title: "Success!",
+                      text: "{{message}}",
+                      icon: "success",
+                      button: "OK",
+                  });
+              </script>
+          
+          {% elif message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+              <script>swal({
+                      title: "Warning :)",
+                      text: "{{message}}",
+                      icon: "warning",
+                      button: "OK",
+                  
+                  });
+              </script>
+          {% elif message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+              <script>swal({
+                      title: "info :)",
+                      text: "{{message}}",
+                      icon: "info",
+                      button: "OK",
+                  });
+              </script>
+          {% elif message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+              <script>swal({
+                      title: "error :)",
+                      text: "{{message}}",
+                      icon: "error",
+                      button: "OK",
+                  });
+              </script>
+          {% endif %}
+      {% endfor %}
+  {% endif %}
+  </body>
+</html>

@@ -1,0 +1,392 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Analysis Results - SmartSlot</title>
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .results-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card.available {
+            border-top: 5px solid #00d084;
+        }
+
+        .stat-card.occupied {
+            border-top: 5px solid #ff4757;
+        }
+
+        .stat-card.efficiency {
+            border-top: 5px solid #667eea;
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 5px;
+        }
+
+        .stat-subtext {
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        .chart-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 25px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 350px;
+            margin-bottom: 20px;
+        }
+
+        .analysis-image {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .analysis-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            max-height: 500px;
+        }
+
+        .analysis-image h3 {
+            color: #1a1a2e;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .timeline-item {
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .timeline-item.completed {
+            color: #00d084;
+        }
+
+        .timeline-item i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .timeline-item p {
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .insights {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            margin-bottom: 30px;
+        }
+
+        .insights h4 {
+            color: #1a1a2e;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .insight-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .insight-item i {
+            color: #667eea;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .chart-wrapper {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="results-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🅿️ Parking Analysis Results</h1>
+            <p>Real-time parking space detection and analysis</p>
+        </div>
+
+        <!-- Statistics Grid -->
+        <div class="results-grid">
+            <div class="stat-card available">
+                <div class="stat-icon">🟢</div>
+                <div class="stat-label">Available Spaces</div>
+                <div class="stat-value">{{ available_spaces }}</div>
+                <div class="stat-subtext">Ready to park</div>
+            </div>
+
+            <div class="stat-card occupied">
+                <div class="stat-icon">🔴</div>
+                <div class="stat-label">Occupied Spaces</div>
+                <div class="stat-value">{{ occupied_spaces }}</div>
+                <div class="stat-subtext">Currently in use</div>
+            </div>
+
+            <div class="stat-card efficiency">
+                <div class="stat-icon">📊</div>
+                <div class="stat-label">Occupancy Rate</div>
+                <div class="stat-value">{{ occupancy_rate }}%</div>
+                <div class="stat-subtext">Parking lot usage</div>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline">
+            <div class="timeline-item completed">
+                <i class="fa fa-upload"></i>
+                <p>File Uploaded</p>
+            </div>
+            <div class="timeline-item completed">
+                <i class="fa fa-cogs"></i>
+                <p>Processing</p>
+            </div>
+            <div class="timeline-item completed">
+                <i class="fa fa-bar-chart"></i>
+                <p>Analysis Done</p>
+            </div>
+            <div class="timeline-item completed">
+                <i class="fa fa-check"></i>
+                <p>Complete</p>
+            </div>
+        </div>
+
+        <!-- Analysis Image -->
+        <div class="analysis-image">
+            <h3>Detection Visualization</h3>
+            <p style="color: #999; margin-bottom: 15px;">Green boxes = Available | Red boxes = Occupied</p>
+            <img src="{{ result_image }}" alt="Parking Analysis Result">
+        </div>
+
+        <!-- Insights -->
+        <div class="insights">
+            <h4>📈 Key Insights</h4>
+            <div class="insight-item">
+                <i class="fa fa-lightbulb-o"></i>
+                <span>Best time to park: Early morning (5-7 AM)</span>
+            </div>
+            <div class="insight-item">
+                <i class="fa fa-lightbulb-o"></i>
+                <span>Peak occupancy: {{ peak_time }}</span>
+            </div>
+            <div class="insight-item">
+                <i class="fa fa-lightbulb-o"></i>
+                <span>Average parking duration: 2-3 hours</span>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="chart-section">
+            <h3 class="chart-title">Occupancy Analysis</h3>
+            <div class="chart-wrapper">
+                <canvas id="occupancyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{% url 'smart_car_parking' %}" class="btn btn-primary">
+                <i class="fa fa-arrow-left"></i> Analyze Another
+            </a>
+            <button onclick="window.print()" class="btn btn-secondary">
+                <i class="fa fa-print"></i> Print Report
+            </button>
+            <button onclick="downloadReport()" class="btn btn-secondary">
+                <i class="fa fa-download"></i> Download Report
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Occupancy Chart
+        const ctx = document.getElementById('occupancyChart').getContext('2d');
+        const occupancyChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Available Spaces', 'Occupied Spaces'],
+                datasets: [{
+                    data: [parseInt('{{ available_spaces }}'), parseInt('{{ occupied_spaces }}')],
+                    backgroundColor: ['#00d084', '#ff4757'],
+                    borderColor: ['#00d084', '#ff4757'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 12, family: "'Poppins', sans-serif" },
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
+
+        function downloadReport() {
+            alert('Report download feature coming soon!');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">🔔 Notifications</h2>
+
+            <!-- Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Unread</h5>
+                            <p class="card-text display-4">{{ unread_count }}</p>
+                            <small>notification(s) need attention</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications List -->
+            <div class="card">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">📬 Notification Feed</h5>
+                    {% if unread_count > 0 %}
+                    <span class="badge badge-warning">{{ unread_count }} New</span>
+                    {% endif %}
+                </div>
+                <div class="card-body p-0">
+                    {% if notifications %}
+                    <div class="list-group list-group-flush">
+                        {% for notification in notifications %}
+                        <div class="list-group-item {% if not notification.is_read %}bg-light border-left border-warning border-5{% endif %}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <div>
+                                    <!-- Notification Type Badge -->
+                                    <span class="badge badge-primary mb-2">
+                                        {% if notification.notification_type == 'spot_available' %}
+                                            🅿️ Spot Available
+                                        {% elif notification.notification_type == 'parking_expiring' %}
+                                            ⏳ Parking Expiring
+                                        {% elif notification.notification_type == 'payment_due' %}
+                                            💳 Payment Due
+                                        {% elif notification.notification_type == 'reservation_reminder' %}
+                                            📋 Reservation Reminder
+                                        {% elif notification.notification_type == 'parking_complete' %}
+                                            ✓ Parking Complete
+                                        {% elif notification.notification_type == 'promotion' %}
+                                            🎉 Promotion
+                                        {% else %}
+                                            ℹ️ General
+                                        {% endif %}
+                                    </span>
+                                    
+                                    <h5 class="mb-1">{{ notification.title }}</h5>
+                                    <p class="mb-1 text-dark">{{ notification.message }}</p>
+                                    
+                                    <!-- Notification Channels -->
+                                    <small class="text-muted">
+                                        {% if notification.email_sent %}
+                                            <span title="Email sent">📧</span>
+                                        {% endif %}
+                                        {% if notification.sms_sent %}
+                                            <span title="SMS sent">📱</span>
+                                        {% endif %}
+                                        {% if notification.in_app %}
+                                            <span title="In-app">💬</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+
+                                <div class="text-right">
+                                    <small class="text-muted d-block">
+                                        {{ notification.sent_at|date:"Y-m-d H:i" }}
+                                    </small>
+                                    
+                                    {% if not notification.is_read %}
+                                    <button class="btn btn-sm btn-outline-primary mt-2 mark-read" 
+                                            data-notification-id="{{ notification.notification_id }}">
+                                        Mark as Read
+                                    </button>
+                                    {% else %}
+                                    <small class="text-success">✓ Read</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="p-4">
+                        <div class="alert alert-info mb-0">
+                            No notifications yet. You'll receive notifications for parking events.
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Mark notification as read
+document.querySelectorAll('.mark-read').forEach(button => {
+    button.addEventListener('click', function() {
+        const notificationId = this.getAttribute('data-notification-id');
+        
+        fetch(`{% url 'mark_notification_read' 0 %}`.replace('0', notificationId), {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                this.closest('.list-group-item').classList.remove('bg-light', 'border-left', 'border-warning', 'border-5');
+                this.innerHTML = '<small class="text-success">✓ Read</small>';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+});
+</script>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: none;
+        margin-bottom: 20px;
+    }
+    
+    .list-group-item {
+        border-left: 4px solid transparent;
+        transition: all 0.3s ease;
+    }
+    
+    .list-group-item.bg-light {
+        border-left-color: #ffc107;
+    }
+    
+    .badge {
+        padding: 0.5em 0.75em;
+        font-size: 0.85em;
+    }
+</style>
+{% endblock %}

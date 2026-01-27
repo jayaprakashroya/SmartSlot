@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payments{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">💳 Payment Management</h2>
+            
+            <!-- Payment Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Paid</h5>
+                            <p class="card-text display-4">${{ total_paid }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Pending Payments</h5>
+                            <p class="card-text display-4">{{ pending_count }}</p>
+                            <small>Amount: ${{ pending_amount }}</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Quick Action</h5>
+                            <a href="{% url 'reserve_parking' %}" class="btn btn-light btn-sm">
+                                Make Reservation
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Payments Alert -->
+            {% if pending_count > 0 %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <h4 class="alert-heading">⚠️ Pending Payments</h4>
+                <p>You have <strong>{{ pending_count }}</strong> pending payment(s) totaling <strong>${{ pending_amount }}</strong></p>
+                <hr>
+                <p class="mb-0">Please complete payment to avoid late fees.</p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endif %}
+
+            <!-- Payment History Table -->
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">📋 Payment History</h5>
+                </div>
+                <div class="card-body">
+                    {% if payments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Transaction ID</th>
+                                    <th>Status</th>
+                                    <th>Parking Session</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in payments %}
+                                <tr>
+                                    <td>{{ payment.created_at|date:"Y-m-d H:i" }}</td>
+                                    <td><strong>${{ payment.amount }}</strong></td>
+                                    <td>
+                                        <span class="badge badge-info">
+                                            {{ payment.get_payment_method_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if payment.transaction_id %}
+                                            <code>{{ payment.transaction_id }}</code>
+                                        {% else %}
+                                            <em>-</em>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if payment.payment_status == 'success' %}
+                                            <span class="badge badge-success">✓ Success</span>
+                                        {% elif payment.payment_status == 'pending' %}
+                                            <span class="badge badge-warning">⏳ Pending</span>
+                                        {% elif payment.payment_status == 'failed' %}
+                                            <span class="badge badge-danger">✗ Failed</span>
+                                        {% elif payment.payment_status == 'refunded' %}
+                                            <span class="badge badge-secondary">↩️ Refunded</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'parking_history' %}" class="btn btn-link btn-sm">
+                                            View Session
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        No payment history. Start parking to make payments!
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: none;
+        margin-bottom: 20px;
+    }
+    
+    code {
+        background-color: #f4f4f4;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.85em;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Parking Map{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #map {
+        height: 600px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    .lot-info {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .occupancy-high { background-color: #fee; border-left: 4px solid #dc3545; }
+    .occupancy-medium { background-color: #ffeaa7; border-left: 4px solid #ffc107; }
+    .occupancy-low { background-color: #d4edda; border-left: 4px solid #28a745; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">🗺️ Parking Lot Map & Navigation</h2>
+    
+    <!-- Map -->
+    <div id="map"></div>
+    
+    <!-- Lot List with Details -->
+    <h3 class="mt-5 mb-3">📍 Available Parking Lots</h3>
+    <div class="row">
+        {% for lot in lots %}
+        <div class="col-md-6 mb-3">
+            <div class="lot-info {% if lot.available_spots == 0 %}occupancy-high{% elif lot.available_spots < lot.total_spots|mul:0.3 %}occupancy-medium{% else %}occupancy-low{% endif %}">
+                <h5>{{ lot.lot_name }}</h5>
+                <div class="mb-2">
+                    <strong>Availability:</strong> {{ lot.available_spots }}/{{ lot.total_spots }} spots available
+                    <div class="progress mt-2" style="height: 20px;">
+                        {% with occupancy=lot.total_spots|sub:lot.available_spots|div:lot.total_spots|mul:100 %}
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: {{ occupancy }}%"
+                             aria-valuenow="{{ occupancy }}" aria-valuemin="0" aria-valuemax="100">
+                            {{ occupancy|floatformat:1 }}% Full
+                        </div>
+                        {% endwith %}
+                    </div>
+                </div>
+                
+                <div class="mb-2">
+                    <a href="{% url 'api_lot_directions' lot.lot_id %}" class="btn btn-primary btn-sm">
+                        📍 Get Directions
+                    </a>
+                    <a href="{% url 'reserve_parking' %}" class="btn btn-success btn-sm">
+                        🎫 Reserve Spot
+                    </a>
+                </div>
+                
+                <small class="text-muted">
+                    {% if lot.available_spots == 0 %}
+                    <span class="badge badge-danger">Full</span>
+                    {% elif lot.available_spots < lot.total_spots|mul:0.3 %}
+                    <span class="badge badge-warning">Limited Spots</span>
+                    {% else %}
+                    <span class="badge badge-success">Available</span>
+                    {% endif %}
+                </small>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+// Initialize map
+const map = L.map('map').setView([37.7749, -122.4194], 13); // Default: San Francisco
+
+// Add map tiles
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
+}).addTo(map);
+
+// Add parking lots
+const lots = {{ lot_data|safe }};
+
+lots.forEach(lot => {
+    if (lot.latitude && lot.longitude) {
+        const color = lot.occupancy_percent > 80 ? 'red' : lot.occupancy_percent > 50 ? 'orange' : 'green';
+        const marker = L.circleMarker([lot.latitude, lot.longitude], {
+            radius: 10,
+            fillColor: color,
+            color: '#000',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.8
+        }).addTo(map);
+        
+        marker.bindPopup(`
+            <strong>${lot.name}</strong><br>
+            Available: ${lot.available_spots}/${lot.total_spots}<br>
+            Occupancy: ${lot.occupancy_percent}%<br>
+            <a href="/reserve-parking/" class="btn btn-sm btn-primary mt-2">Reserve</a>
+        `);
+    }
+});
+
+// Fit bounds
+if (lots.length > 0) {
+    const group = new L.featureGroup(map._layers);
+    map.fitBounds(group.getBounds().pad(0.1));
+}
+</script>
+{% endblock %}

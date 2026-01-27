@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#007bff">
+    <meta name="description" content="Smart Parking System - Find, reserve, and pay for parking spots with real-time availability">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SmartParking">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+    
+    <!-- App Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="/static/images/apple-touch-icon.png">
+    
+    <title>{% block title %}Smart Parking System{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- Leaflet CSS (for maps) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --secondary-color: #6c757d;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 70px;
+        }
+        
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.3rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: #fff !important;
+            text-decoration: underline;
+        }
+        
+        .nav-link.active {
+            border-bottom: 3px solid #fff;
+            padding-bottom: 10px;
+        }
+        
+        .card {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+        
+        .btn {
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .alert {
+            border-radius: 6px;
+            border: none;
+        }
+        
+        .badge {
+            padding: 0.5em 0.75em;
+            font-weight: 500;
+        }
+        
+        .footer {
+            background-color: #343a40;
+            color: #fff;
+            padding: 30px 0;
+            margin-top: 50px;
+            text-align: center;
+        }
+        
+        .pwa-install-prompt {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            padding: 15px;
+            z-index: 1000;
+            max-width: 300px;
+            display: none;
+        }
+        
+        .pwa-install-prompt.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .online-status {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            padding: 10px;
+            text-align: center;
+            background-color: #ffc107;
+            color: #333;
+            display: none;
+            z-index: 999;
+            font-weight: 500;
+        }
+        
+        .online-status.offline {
+            display: block;
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+            
+            .navbar {
+                padding: 0.5rem 0;
+            }
+            
+            .nav-link {
+                padding: 0.5rem 0.5rem !important;
+                margin-left: 5px;
+                font-size: 0.9rem;
+            }
+            
+            .pwa-install-prompt {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+        
+        /* Loading animation */
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Online/Offline Status -->
+    <div id="onlineStatus" class="online-status">
+        ⚠️ You are currently offline. Some features may be limited.
+    </div>
+    
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">🅿️ SmartParking</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    {% if request.session.user_email %}
+                        <!-- User Menu -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/parking-map/">🗺️ Find Parking</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/parking-history/">📋 My History</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/my-reservations/">📅 Reservations</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/payments/">💳 Payments</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/purchase-pass/">🎟️ Passes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/notifications/">🔔 Alerts</a>
+                        </li>
+                        
+                        {% if request.session.is_admin %}
+                            <!-- Admin Menu -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown">
+                                    👨‍💼 Admin
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="adminDropdown">
+                                    <a class="dropdown-item" href="/admin-dashboard/">📊 Dashboard</a>
+                                    <a class="dropdown-item" href="/staff-dashboard/">👥 Staff</a>
+                                    <a class="dropdown-item" href="/analytics-dashboard/">📈 Analytics</a>
+                                    <a class="dropdown-item" href="/revenue-report/">💰 Revenue</a>
+                                    <a class="dropdown-item" href="/peak-hours-forecast/">📉 Forecast</a>
+                                    <a class="dropdown-item" href="/report-sensor-fault/">⚠️ Faults</a>
+                                    <hr class="dropdown-divider">
+                                    <a class="dropdown-item" href="/admin/">Django Admin</a>
+                                </div>
+                            </li>
+                        {% endif %}
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout/">🚪 Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login/">🔐 Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/signup/">✍️ Sign Up</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container-fluid">
+        {% block content %}{% endblock %}
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer mt-5">
+        <div class="container">
+            <p class="mb-2">&copy; 2024 Smart Parking System. All rights reserved.</p>
+            <p class="mb-0">
+                <small>
+                    <a href="#" style="color: #aaa;">Privacy Policy</a> | 
+                    <a href="#" style="color: #aaa;">Terms of Service</a> | 
+                    <a href="#" style="color: #aaa;">Support</a>
+                </small>
+            </p>
+        </div>
+    </footer>
+    
+    <!-- PWA Install Prompt -->
+    <div id="pwaPrompt" class="pwa-install-prompt">
+        <h6>📲 Install SmartParking?</h6>
+        <p class="small mb-2">Get quick access from your home screen</p>
+        <div class="d-flex gap-2">
+            <button id="pwaInstall" class="btn btn-primary btn-sm flex-grow-1">Install</button>
+            <button id="pwaDismiss" class="btn btn-secondary btn-sm">Not Now</button>
+        </div>
+    </div>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Leaflet JS (for maps) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/service-worker.js').then(registration => {
+                    console.log('Service Worker registered:', registration);
+                }).catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+            });
+        }
+        
+        // PWA Install Prompt
+        let deferredPrompt;
+        const pwaPrompt = document.getElementById('pwaPrompt');
+        const pwaInstall = document.getElementById('pwaInstall');
+        const pwaDismiss = document.getElementById('pwaDismiss');
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            pwaPrompt.classList.add('show');
+        });
+        
+        pwaInstall?.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to the install prompt: ${outcome}`);
+                deferredPrompt = null;
+                pwaPrompt.classList.remove('show');
+            }
+        });
+        
+        pwaDismiss?.addEventListener('click', () => {
+            pwaPrompt.classList.remove('show');
+        });
+        
+        // Online/Offline Status
+        const onlineStatus = document.getElementById('onlineStatus');
+        
+        window.addEventListener('online', () => {
+            onlineStatus.classList.remove('offline');
+        });
+        
+        window.addEventListener('offline', () => {
+            onlineStatus.classList.add('offline');
+        });
+        
+        // Check initial connection
+        if (!navigator.onLine) {
+            onlineStatus.classList.add('offline');
+        }
+        
+        // Sync message handler
+        if ('serviceWorker' in navigator && 'SyncManager' in window) {
+            navigator.serviceWorker.ready.then(registration => {
+                navigator.serviceWorker.controller?.postMessage({
+                    type: 'REGISTER_BACKGROUND_SYNC'
+                });
+            });
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

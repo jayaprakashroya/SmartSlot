@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Parking Lot Status - SmartSlot{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    {% if status %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>📍 {{ status.lot_name }} - Parking Status</h2>
+                    
+                    <!-- Lot Selector Dropdown -->
+                    {% if all_lots.count > 1 %}
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                Other Lots
+                            </button>
+                            <ul class="dropdown-menu">
+                                {% for lot in all_lots %}
+                                    {% if lot.lot_id != current_lot_id %}
+                                        <li><a class="dropdown-item" href="{% url 'parking_lot_status' lot.lot_id %}">
+                                            {{ lot.lot_name }}
+                                        </a></li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Spots</h5>
+                        <h2 class="display-4">{{ status.total_spots }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Occupied</h5>
+                        <h2 class="display-4">{{ status.occupied_spots }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Available</h5>
+                        <h2 class="display-4">{{ status.available_spots }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Occupancy Rate</h5>
+                        <h2 class="display-4">{{ status.occupancy_rate }}%</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Occupancy Bar Chart -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Occupancy Overview</h5>
+                        <div class="progress" style="height: 30px;">
+                            <div class="progress-bar bg-danger" role="progressbar" 
+                                 style="width: {{ status.occupancy_rate }}%;" 
+                                 aria-valuenow="{{ status.occupancy_rate }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                <strong>{{ status.occupied_spots }}/{{ status.total_spots }} Occupied</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Parking Spots Grid -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">🅿️ Parking Spots</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for spot in status.spots %}
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3">
+                                    <div class="spot-card {% if spot.is_occupied %}occupied{% else %}available{% endif %}"
+                                         data-spot="{{ spot.spot_number }}"
+                                         data-vehicle="{{ spot.vehicle_plate|default:'Empty' }}"
+                                         title="{% if spot.is_occupied %}{{ spot.vehicle_plate }} parked by {{ spot.vehicle_owner }}{% else %}Available{% endif %}">
+                                        <div class="spot-number">
+                                            {{ spot.spot_number }}
+                                        </div>
+                                        <div class="spot-status">
+                                            {% if spot.is_occupied %}
+                                                <i class="bi bi-car-front"></i>
+                                                <small class="d-block mt-1">{{ spot.vehicle_plate }}</small>
+                                                <small class="text-muted d-block">{{ spot.spot_type }}</small>
+                                            {% else %}
+                                                <i class="bi bi-check-circle"></i>
+                                                <small class="d-block mt-1">Available</small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4 mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Legend</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <span class="badge bg-danger p-2 me-2"></span>
+                                <strong>Occupied:</strong> Vehicle parked
+                            </div>
+                            <div class="col-md-4">
+                                <span class="badge bg-success p-2 me-2"></span>
+                                <strong>Available:</strong> Empty spot
+                            </div>
+                            <div class="col-md-4">
+                                <span class="badge bg-secondary p-2 me-2"></span>
+                                <strong>Reserved:</strong> Special spots
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-warning" role="alert">
+            <h4 class="alert-heading">⚠️ No Parking Data</h4>
+            <p>No parking lot is configured. Please contact the administrator to set up parking lots.</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .spot-card {
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #f5f5f5 !important;
+        border-color: #999 !important;
+    }
+    
+    /* EMPTY/AVAILABLE SPOTS - MUST BE GREEN */
+    .spot-card.available {
+        background-color: #d4edda !important;
+        border-color: #28a745 !important;
+        color: #155724;
+    }
+    
+    .spot-card.available:hover {
+        background-color: #c3e6cb !important;
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3) !important;
+    }
+    
+    /* OCCUPIED SPOTS - MUST BE RED */
+    .spot-card.occupied {
+        background-color: #f8d7da !important;
+        border-color: #dc3545 !important;
+        color: #721c24;
+    }
+    
+    .spot-card.occupied:hover {
+        background-color: #f5c6cb !important;
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3) !important;
+    }
+    
+    .spot-number {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+    
+    .spot-status {
+        font-size: 0.9em;
+    }
+    
+    .spot-status i {
+        font-size: 1.8em;
+        margin-bottom: 5px;
+    }
+    
+    .card {
+        border: 1px solid #dee2e6;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+</style>
+{% endblock %}

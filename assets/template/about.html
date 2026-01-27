@@ -1,0 +1,285 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>SmartSlot - About Us</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+ 
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}">
+    
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}">
+
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  </head>
+  {% if messages %}
+        {% for message in messages %}
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                <script>swal({
+                        title: "Success!",
+                        text: "{{message}}",
+                        icon: "success",
+                        button: "OK",
+                    });
+                </script>
+            
+            {% elif message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+                <script>swal({
+                        title: "Warning :)",
+                        text: "{{message}}",
+                        icon: "warning",
+                        button: "OK",
+                    
+                    });
+                </script>
+            {% elif message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+                <script>swal({
+                        title: "info :)",
+                        text: "{{message}}",
+                        icon: "info",
+                        button: "OK",
+                    });
+                </script>
+            {% elif message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                <script>swal({
+                        title: "error :)",
+                        text: "{{message}}",
+                        icon: "error",
+                        button: "OK",
+                    });
+                </script>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+  <body>
+		<div class="wrap">
+	    <div class="container">
+				<div class="row justify-content-between">
+					<div class="col-md-3 d-flex align-items-center">
+						<a class="navbar-brand" href="#">SmartSlot</a>
+					</div>
+					<div class="col-md-7">
+						<div class="row">
+							<div class="col">
+								<div class="top-wrap d-flex">
+									<div class="icon d-flex align-items-center justify-content-center"><span class="fa fa-location-arrow"></span></div>
+									<div class="text"><span>Address</span><span>Puttaparthi</span></div>
+								</div>
+							</div>
+							<div class="col">
+								<div class="top-wrap d-flex">
+									<div class="icon d-flex align-items-center justify-content-center"><span class="fa fa-phone"></span></div>
+									<div class="text"><span>Call us</span><span>+91 90147 92534</span></div>
+								</div>
+							</div>
+							<div class="col-md-3 d-flex justify-content-end align-items-center">
+								<div class="social-media">
+                                    <p class="mb-0 d-flex">
+                                        <a href="#" class="d-flex align-items-center justify-content-center"><span class="fa fa-facebook"><i class="sr-only">Facebook</i></span></a>
+                                        <a href="#" class="d-flex align-items-center justify-content-center"><span class="fa fa-twitter"><i class="sr-only">Twitter</i></span></a>
+                                        <a href="#" class="d-flex align-items-center justify-content-center"><span class="fa fa-instagram"><i class="sr-only">Instagram</i></span></a>
+                                        <a href="#" class="d-flex align-items-center justify-content-center"><span class="fa fa-dribbble"><i class="sr-only">Dribbble</i></span></a>
+                                    </p>
+				                </div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
+	    <div class="container">
+	    
+	      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+	        <span class="fa fa-bars"></span> Menu
+	      </button>
+				<form action="#" class="searchform order-lg-last">
+          <div class="form-group d-flex">
+            <input type="text" class="form-control pl-3" placeholder="Search">
+            <button type="submit" placeholder="" class="form-control search"><span class="fa fa-search"></span></button>
+          </div>
+        </form>
+	      <div class="collapse navbar-collapse" id="ftco-nav">
+	        <ul class="navbar-nav mr-auto">
+	        	<li class="nav-item"><a href="{% url 'home' %}" class="nav-link">Home</a></li>
+	        	<li class="nav-item"><a href="{% url 'about' %}" class="nav-link">About</a></li>
+	        	<li class="nav-item"><a href="{% url 'login' %}" class="nav-link">Login</a></li>
+	          <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
+	        </ul>
+	      </div>
+	    </div>
+	  </nav>
+
+
+    <section class="ftco-section">
+    	<div class="container">
+    		<div class="row justify-content-center pb-5 mb-3">
+          <div class="col-md-7 heading-section text-center ftco-animate">
+          	<span class="subheading">We offer parking services</span>
+            <h2>SmartSlot Services</h2>
+          </div>
+        </div>
+    		<div class="row">
+          <div class="col-md-4 services ftco-animate">
+            <div class="d-block d-flex">
+              <div class="media-body pl-3">
+                <h3 class="heading">📹 Video-Based Parking Detection Technology</h3>
+                <p>The Smart Car Parking System uses a video-based detection approach to identify parking slot occupancy. Instead of deploying physical sensors, the system processes sample parking lot videos captured from surveillance cameras.</p>
+              </div>
+            </div>
+            <div class="d-block d-flex">
+              <div class="media-body pl-3">
+                <h3 class="heading">🧠 Computer Vision–Based Slot Detection</h3>
+                <p>Computer vision techniques are used to analyze each frame of the input video. Predefined parking slot regions are marked, and the system checks for vehicle presence using image processing algorithms.</p>
+              </div>
+            </div> 
+
+          </div>
+          <div class="col-md-4 services ftco-animate">
+            <div class="d-block d-flex">
+              <div class="media-body pl-3">
+                <h3 class="heading">🎥 Camera-Based Monitoring System</h3>
+                <p>A single camera can monitor multiple parking slots simultaneously, making the system scalable and efficient. The use of cameras eliminates the need for installing individual sensors for each slot.</p>
+              </div>
+            </div> 
+            <div class="d-block d-flex">
+              <div class="media-body pl-3">
+                <h3 class="heading">📊 Occupancy Detection Using Visual Indicators</h3>
+                <p>The system visually represents parking availability by marking slots as Green (Vacant) and Red (Occupied). These indicators help users quickly understand parking status and improve usability.</p>
+              </div>
+            </div>    
+          </div>
+
+          <div class="col-md-4 services ftco-animate">
+            <div class="d-block d-flex">
+              <div class="media-body pl-3">
+                <h3 class="heading">💰 Cost-Effective and Scalable Solution</h3>
+                <p>Since the proposed system uses sample video input, it avoids expensive IoT hardware such as IR, PIR, or ground sensors. This makes the solution cost-effective, easy to maintain, and scalable for larger parking areas.</p>
+              </div>
+            </div>
+            <div class="d-block d-flex">
+              <div class="media-body pl-3">
+                <h3 class="heading">🌐 Web-Based Monitoring and CCTV Integration</h3>
+                <p>The Smart Car Parking System provides a web-based interface to display parking slot availability. The system works with sample parking videos as well as CCTV camera footage, enabling remote access and seamless integration with existing surveillance infrastructure.</p>
+              </div>
+            </div>       
+          </div>
+        </div>
+    	</div>
+    </section><br><br>
+    
+   	
+    <section class="ftco-section ftco-no-pt ftco-no-pb bg-light">
+    	<div class="container">
+    		<div class="row d-flex no-gutters">
+    			<div class="col-md-6 d-flex">
+    				<div class="img img-video d-flex align-self-stretch align-items-center justify-content-center mb-4 mb-sm-0" style="background-image:url({% static 'images/ABT.png' %}); background-size: cover; background-position: center;">
+    				</div>
+    			</div>
+    			<div class="col-md-6 pl-md-5">
+    				<div class="row justify-content-start py-5">
+		          <div class="col-md-12 heading-section ftco-animate">
+		          	<span class="subheading">Welcome to SmartSlot</span>
+		            <h2 class="mb-4">Video-Based Smart Parking Slot Detection System</h2>
+		            <p>SmartSlot is a computer vision–based smart parking system that detects parking slot availability using sample video input. The system processes recorded or live parking lot video footage captured through surveillance cameras.</p>
+		            <p>By analyzing video frames, SmartSlot identifies occupied and vacant parking slots without using physical sensors. This approach reduces hardware cost and enables easy deployment in existing parking infrastructures.</p>
+		            <div class="tabulation-2 mt-4">
+									<ul class="nav nav-pills nav-fill d-md-flex d-block">
+									  <li class="nav-item mb-md-0 mb-2">
+									    <a class="nav-link active py-2" data-toggle="tab" href="#home1">Project Objective</a>
+									  </li>
+									  <li class="nav-item px-lg-2 mb-md-0 mb-2">
+									    <a class="nav-link py-2" data-toggle="tab" href="#home2">System Working</a>
+									  </li>
+									  <li class="nav-item">
+									    <a class="nav-link py-2 mb-md-0 mb-2" data-toggle="tab" href="#home3">Key Advantages</a>
+									  </li>
+									</ul>
+									<div class="tab-content rounded mt-2">
+									  <div class="tab-pane container p-0 active" id="home1">
+									  	<p>The objective of SmartSlot is to detect parking slot occupancy by processing sample parking videos and applying image processing techniques to accurately classify free and occupied slots.</p>
+									  </div>
+									  <div class="tab-pane container p-0 fade" id="home2">
+									  	<p><strong>• Input parking area sample video</strong><br>
+									  	<strong>• Extract frames from the video</strong><br>
+									  	<strong>• Detect parking slot regions</strong><br>
+									  	<strong>• Analyze occupancy using computer vision</strong><br>
+									  	<strong>• Display slot availability visually</strong></p>
+									  </div>
+									  <div class="tab-pane container p-0 fade" id="home3">
+									  	<p><strong>• No hardware sensors required</strong><br>
+									  	<strong>• Uses existing CCTV cameras</strong><br>
+									  	<strong>• Low-cost and scalable solution</strong><br>
+									  	<strong>• Accurate detection using video analysis</strong><br>
+									  	<strong>• Suitable for smart city applications</strong></p>
+									  </div>
+									</div>
+								</div>
+		          </div>
+		        </div>
+	        </div>
+        </div>
+    	</div>
+    </section>
+
+    <footer class="footer ftco-section">
+      <div class="container">
+        <div class="row mb-5">
+          <div class="col-md-6 col-lg-6">
+            <div class="ftco-footer-widget mb-4"> 
+                <h2 class="logo"><a href="#">SmartSlot</a></h2>
+                <p style="font-size: 14px; color: #ffffff; font-weight: 500;">SmartSlot is a video-based smart parking system that detects parking slot availability using computer vision techniques. The system works with sample videos and CCTV camera footage to identify free and occupied parking spaces efficiently.</p>
+                <ul class="ftco-footer-social list-unstyled float-md-left float-lft mt-4">
+                <li class="ftco-animate"><a href="#"><span class="fa fa-twitter"></span></a></li>
+                <li class="ftco-animate"><a href="#"><span class="fa fa-facebook"></span></a></li>
+                <li class="ftco-animate"><a href="#"><span class="fa fa-instagram"></span></a></li>
+                </ul>
+            </div>
+          </div>
+          
+          <div class="col-md-6 col-lg-6">
+            <div class="ftco-footer-widget mb-4">
+                <h2 class="ftco-heading-2">Contact information</h2>
+                <div class="block-23 mb-3" style="font-size: 16px;">
+                  <ul>
+                    <li><span class="icon fa fa-map-marker"></span><span class="text"> Plot No 12, Near Sri Sathya Sai Institute of Higher Medical Sciences, Prasanthi Nilayam Road, Puttaparthi, Anantapur District, Andhra Pradesh – 515134 (Opposite to / Beside Sri Sathya Sai Hospital)</span></li>
+                    <li><a href="tel:+919014792534"><span class="icon fa fa-phone"></span><span class="text">+91 90147 92534</span></a></li>
+                    <li><a href="mailto:info@smartslot.com"><span class="icon fa fa-paper-plane"></span><span class="text">info@smartslot.com</span></a></li>
+                  </ul>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+      <script src="{% static 'js/jquery-migrate-3.0.1.min.js' %}"></script>
+      <script src="{% static 'js/popper.min.js' %}"></script>
+      <script src="{% static 'js/bootstrap.min.js' %}"></script>
+      <script src="{% static 'js/jquery.easing.1.3.js' %}"></script>
+      <script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
+      <script src="{% static 'js/jquery.stellar.min.js' %}"></script>
+      <script src="{% static 'js/jquery.animateNumber.min.js' %}"></script>
+      <script src="{% static 'js/bootstrap-datepicker.js' %}"></script>
+      <script src="{% static 'js/jquery.timepicker.min.js' %}"></script>
+      <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+      <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+      <script src="{% static 'js/scrollax.min.js' %}"></script>
+      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+      <script src="{% static 'js/google-map.js' %}"></script>
+      <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

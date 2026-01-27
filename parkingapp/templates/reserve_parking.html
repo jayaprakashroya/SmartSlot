@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reserve Parking{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">🎫 Reserve Your Parking Spot</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        {% if messages %}
+                        <div class="alert alert-dismissible fade show" role="alert">
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Parking Lot Selection -->
+                        <div class="form-group">
+                            <label for="parking_lot"><strong>Select Parking Lot</strong></label>
+                            <select class="form-control" id="parking_lot" name="parking_lot" required>
+                                <option value="">-- Choose a parking lot --</option>
+                                {% for lot in lots %}
+                                <option value="{{ lot.lot_id }}">
+                                    {{ lot.lot_name }} ({{ lot.available_spots }}/{{ lot.total_spots }} available)
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Reservation Dates -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="reserved_from"><strong>From Date & Time</strong></label>
+                                    <input type="datetime-local" class="form-control" id="reserved_from" name="reserved_from" required>
+                                    <small class="form-text text-muted">Start of your reservation</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="reserved_until"><strong>To Date & Time</strong></label>
+                                    <input type="datetime-local" class="form-control" id="reserved_until" name="reserved_until" required>
+                                    <small class="form-text text-muted">End of your reservation</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vehicle Type -->
+                        <div class="form-group">
+                            <label for="vehicle_type"><strong>Vehicle Type</strong></label>
+                            <select class="form-control" id="vehicle_type" name="vehicle_type" required>
+                                <option value="car">🚗 Car</option>
+                                <option value="bike">🏍️ Bike</option>
+                                <option value="truck">🚚 Truck</option>
+                                <option value="van">🚐 Van</option>
+                            </select>
+                        </div>
+
+                        <!-- License Plate -->
+                        <div class="form-group">
+                            <label for="license_plate"><strong>License Plate (Optional)</strong></label>
+                            <input type="text" class="form-control" id="license_plate" name="license_plate" placeholder="ABC-1234">
+                            <small class="form-text text-muted">Your vehicle's license plate number</small>
+                        </div>
+
+                        <!-- Estimated Cost -->
+                        <div class="alert alert-info" role="alert">
+                            <h6>💰 Estimated Cost</h6>
+                            <p id="estimated-cost">
+                                Enter dates to calculate estimated cost
+                            </p>
+                            <small class="text-muted">Reservation fee is 15% of estimated parking cost</small>
+                        </div>
+
+                        <!-- Submit -->
+                        <button type="submit" class="btn btn-success btn-block btn-lg">
+                            ✓ Reserve Spot
+                        </button>
+
+                        <a href="{% url 'parking_history' %}" class="btn btn-secondary btn-block mt-2">
+                            Back to History
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Info -->
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">ℹ️ How Reservations Work</h5>
+                </div>
+                <div class="card-body">
+                    <ol>
+                        <li>Choose your parking lot</li>
+                        <li>Select dates and times</li>
+                        <li>Pick your vehicle type</li>
+                        <li>Pay reservation fee (15%)</li>
+                        <li>Spot is guaranteed!</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">📋 Benefits</h5>
+                </div>
+                <div class="card-body">
+                    <ul>
+                        <li>✓ Guaranteed spot</li>
+                        <li>✓ No searching</li>
+                        <li>✓ Save time</li>
+                        <li>✓ Plan ahead</li>
+                        <li>✓ Easy cancellation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Calculate estimated cost
+document.getElementById('reserved_from').addEventListener('change', calculateCost);
+document.getElementById('reserved_until').addEventListener('change', calculateCost);
+
+function calculateCost() {
+    const from = document.getElementById('reserved_from').value;
+    const until = document.getElementById('reserved_until').value;
+    
+    if (from && until) {
+        const fromDate = new Date(from);
+        const untilDate = new Date(until);
+        const hours = (untilDate - fromDate) / (1000 * 60 * 60);
+        
+        if (hours > 0) {
+            const hourlyRate = 2.50; // Default rate
+            const estimatedFee = hours * hourlyRate;
+            const reservationFee = estimatedFee * 0.15;
+            
+            document.getElementById('estimated-cost').innerHTML = `
+                <strong>Hourly Rate:</strong> $${hourlyRate}<br>
+                <strong>Duration:</strong> ${hours.toFixed(2)} hours<br>
+                <strong>Estimated Parking:</strong> $${estimatedFee.toFixed(2)}<br>
+                <strong>Reservation Fee (15%):</strong> $${reservationFee.toFixed(2)}<br>
+                <hr>
+                <strong>Total Reservation Fee: $${reservationFee.toFixed(2)}</strong>
+            `;
+        }
+    }
+}
+</script>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: none;
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}

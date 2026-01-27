@@ -1,0 +1,500 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Parking Lot Heatmap - Real-Time Occupancy{% endblock %}
+
+{% block content %}
+<style>
+    .heatmap-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 30px;
+        border-radius: 15px;
+        margin: 20px 0;
+        color: white;
+    }
+
+    .heatmap-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .heatmap-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+    }
+
+    .stat-value {
+        font-size: 32px;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        opacity: 0.9;
+        text-transform: uppercase;
+    }
+
+    .occupancy-bar {
+        background: rgba(255, 255, 255, 0.1);
+        height: 20px;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+
+    .occupancy-fill {
+        background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcf7f);
+        height: 100%;
+        transition: width 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 10px;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .lot-grid {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .lot-title {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .spot-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .spot {
+        aspect-ratio: 1;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .spot:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .spot-green {
+        background: linear-gradient(135deg, #11998e, #38ef7d);
+    }
+
+    .spot-yellow {
+        background: linear-gradient(135deg, #f2994e, #f2c94c);
+        color: #333;
+    }
+
+    .spot-red {
+        background: linear-gradient(135deg, #eb3349, #f45c43);
+    }
+
+    .spot-info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 5px;
+        font-size: 9px;
+        text-align: center;
+        opacity: 0;
+        transform: translateY(100%);
+        transition: all 0.3s ease;
+    }
+
+    .spot:hover .spot-info {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .legend {
+        display: flex;
+        gap: 30px;
+        justify-content: center;
+        margin: 20px 0;
+        flex-wrap: wrap;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .legend-color {
+        width: 30px;
+        height: 30px;
+        border-radius: 5px;
+    }
+
+    .controls {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-custom {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-refresh {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-refresh:hover {
+        background: #5568d3;
+        transform: translateY(-2px);
+    }
+
+    .btn-analytics {
+        background: #764ba2;
+        color: white;
+    }
+
+    .btn-analytics:hover {
+        background: #663a8a;
+        transform: translateY(-2px);
+    }
+
+    .update-timer {
+        text-align: center;
+        margin-top: 20px;
+        color: #999;
+        font-size: 12px;
+    }
+
+    .pulse {
+        animation: pulse-animation 2s infinite;
+    }
+
+    @keyframes pulse-animation {
+        0% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.5;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        max-width: 500px;
+        width: 90%;
+    }
+
+    .modal-close {
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        color: #999;
+    }
+
+    .modal-close:hover {
+        color: #333;
+    }
+</style>
+
+<div class="heatmap-container">
+    <div class="heatmap-header">
+        <h1>🔥 Parking Lot Heatmap</h1>
+        <p>Real-Time Occupancy Status - {{ heatmap.lot_name }}</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="heatmap-stats">
+        <div class="stat-card">
+            <div class="stat-label">Total Spots</div>
+            <div class="stat-value">{{ heatmap.total_spots }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Occupied</div>
+            <div class="stat-value" style="color: #ff6b6b;">{{ heatmap.occupied }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Available</div>
+            <div class="stat-value" style="color: #6bcf7f;">{{ heatmap.available }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Occupancy Rate</div>
+            <div class="stat-value">{{ heatmap.occupancy_rate }}%</div>
+            <div class="occupancy-bar">
+                <div class="occupancy-fill" style="width: {{ heatmap.occupancy_rate }}%;">
+                    {{ heatmap.occupancy_rate }}%
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+    <div class="legend-item">
+        <div class="legend-color spot-green"></div>
+        <span>🟢 Empty/Available</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-color spot-red"></div>
+        <span>🔴 Occupied</span>
+    </div>
+</div>
+
+<!-- Controls -->
+<div class="controls">
+    <div class="btn-group">
+        <button class="btn-custom btn-refresh" onclick="refreshHeatmap()">
+            🔄 Refresh Now
+        </button>
+        <button class="btn-custom btn-analytics" onclick="showAnalytics()">
+            📊 View Analytics
+        </button>
+        <button class="btn-custom btn-refresh" onclick="startAutoRefresh()">
+            ⏱️ Auto-Refresh (5s)
+        </button>
+    </div>
+</div>
+
+<!-- Parking Lot Grid -->
+<div class="lot-grid">
+    <div class="lot-title">{{ heatmap.lot_name }} - Parking Spaces</div>
+    <div class="spot-grid" id="spotGrid">
+        {% for spot in heatmap.spots %}
+        <div class="spot spot-{{ spot.color }}" data-spot-id="{{ spot.spot_id }}" onclick="showSpotDetails({{ spot.spot_id }})">
+            <span>{{ spot.spot_number }}</span>
+            <div class="spot-info">
+                {% if spot.is_occupied %}
+                    <div>🔴 Occupied</div>
+                    <div>{{ spot.vehicle_plate }}</div>
+                {% else %}
+                    <div>🟢 Empty</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="update-timer">
+    <span class="pulse">●</span> Last updated: <span id="lastUpdate">Just now</span>
+    | Auto-refresh: <span id="autoRefreshStatus">OFF</span>
+</div>
+
+<!-- Spot Details Modal -->
+<div id="spotModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeSpotModal()">&times;</span>
+        <h2 id="spotModalTitle">Spot Details</h2>
+        <div id="spotModalContent">
+            <!-- Populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Modal -->
+<div id="analyticsModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeAnalyticsModal()">&times;</span>
+        <h2>📊 Parking Analytics</h2>
+        <div id="analyticsContent">
+            <!-- Populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<script>
+let autoRefreshInterval = null;
+const lot_id = {{ heatmap.lot_id | default:"1" }};
+
+async function refreshHeatmap() {
+    try {
+        const response = await fetch(`/api/heatmap-realtime/${lot_id}/`);
+        const data = await response.json();
+        
+        if (data.status === 'error') {
+            console.error('Heatmap API error:', data.message);
+            return;
+        }
+        
+        // Update stats with proper selectors
+        const statValues = document.querySelectorAll('.stat-value');
+        if (statValues.length >= 3) {
+            statValues[0].textContent = data.occupied || 0;  // Occupied count
+            statValues[1].textContent = data.available || 0; // Available count
+            statValues[2].textContent = data.occupancy_rate || 0; // Occupancy rate
+        }
+        
+        // Update occupancy bar
+        const occupancyFill = document.querySelector('.occupancy-fill');
+        if (occupancyFill) {
+            const rate = data.occupancy_rate || 0;
+            occupancyFill.style.width = rate + '%';
+            occupancyFill.textContent = rate + '%';
+        }
+        
+        // Update ALL spots (including empty ones with green color)
+        if (data.spots && data.spots.length > 0) {
+            data.spots.forEach(spot => {
+                const spotEl = document.querySelector(`[data-spot-id="${spot.spot_id}"]`);
+                if (spotEl) {
+                    // Remove old color classes
+                    spotEl.classList.remove('spot-green', 'spot-yellow', 'spot-red');
+                    // Add new color class
+                    spotEl.classList.add(`spot-${spot.color}`);
+                    
+                    // Update info
+                    const info = spotEl.querySelector('.spot-info');
+                    if (info) {
+                        if (spot.is_occupied) {
+                            info.innerHTML = `<div>🔴 Occupied</div><div>${spot.vehicle_plate || 'Unknown'}</div>`;
+                        } else {
+                            info.innerHTML = `<div>🟢 Empty</div>`;
+                        }
+                    }
+                }
+            });
+        }
+        
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+    } catch (error) {
+        console.error('Error refreshing heatmap:', error);
+        document.getElementById('lastUpdate').textContent = 'Error loading';
+    }
+}
+
+function startAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+        document.getElementById('autoRefreshStatus').textContent = 'OFF';
+    } else {
+        autoRefreshInterval = setInterval(refreshHeatmap, 5000);
+        document.getElementById('autoRefreshStatus').textContent = 'ON (5s)';
+    }
+}
+
+async function showAnalytics() {
+    try {
+        const response = await fetch(`/api/heatmap-analytics/${lot_id}/`);
+        const analytics = await response.json();
+        
+        const content = `
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                <h3>Occupancy Status: <strong style="color: ${analytics.status === 'Full' ? 'red' : 'green'}">${analytics.status}</strong></h3>
+                <p>Total Spots: ${analytics.total_spots}</p>
+                <p>Occupied: ${analytics.occupied}</p>
+                <p>Available: ${analytics.available}</p>
+                <p>Occupancy Rate: ${analytics.occupancy_rate}%</p>
+                
+                <h3>Zone Status</h3>
+                <p>🟢 Free Zones: ${analytics.free_zones}</p>
+                <p>🟡 Medium Zones: ${analytics.medium_zones}</p>
+                <p>🔴 Busy Zones: ${analytics.busy_zones}</p>
+                
+                <h3>Recommended Free Spots</h3>
+                <ul>
+                    ${analytics.recommended_spots.map(spot => 
+                        `<li>${spot.spot_number} - Free</li>`
+                    ).join('')}
+                </ul>
+            </div>
+        `;
+        
+        document.getElementById('analyticsContent').innerHTML = content;
+        document.getElementById('analyticsModal').classList.add('show');
+    } catch (error) {
+        console.error('Error loading analytics:', error);
+    }
+}
+
+function showSpotDetails(spotId) {
+    const spotModal = document.getElementById('spotModal');
+    document.getElementById('spotModalTitle').textContent = `Spot Details - ${spotId}`;
+    document.getElementById('spotModalContent').innerHTML = `
+        <p><strong>Spot ID:</strong> ${spotId}</p>
+        <p><strong>Status:</strong> <span class="pulse">●</span> Live</p>
+        <p><a href="/admin-dashboard/" class="btn btn-primary">Manage in Admin Dashboard</a></p>
+    `;
+    spotModal.classList.add('show');
+}
+
+function closeSpotModal() {
+    document.getElementById('spotModal').classList.remove('show');
+}
+
+function closeAnalyticsModal() {
+    document.getElementById('analyticsModal').classList.remove('show');
+}
+
+// Auto-refresh every 30 seconds by default
+setInterval(refreshHeatmap, 30000);
+</script>
+
+{% endblock %}
