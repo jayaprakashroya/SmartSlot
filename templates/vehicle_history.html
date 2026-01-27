@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Vehicle Parking History - SmartSlot{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">📋 Parking History</h2>
+                    <p class="mb-0 mt-2" style="font-size: 0.9em;">View all parking sessions for your vehicle</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="POST" class="mb-4">
+                        {% csrf_token %}
+                        <div class="input-group input-group-lg">
+                            <input type="text" 
+                                   name="license_plate" 
+                                   class="form-control" 
+                                   placeholder="Enter License Plate (e.g., ABC 1234)" 
+                                   required>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> Search History
+                            </button>
+                        </div>
+                    </form>
+                    
+                    {% if history %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>🕐 Check-In</th>
+                                        <th>🚶 Check-Out</th>
+                                        <th>🅿️ Spot</th>
+                                        <th>⏱️ Duration</th>
+                                        <th>💳 Fee</th>
+                                        <th>✔️ Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in history %}
+                                        <tr class="{% if record.is_active %}table-info{% endif %}">
+                                            <td>
+                                                {{ record.checkin_time|date:"M d, Y - H:i" }}
+                                            </td>
+                                            <td>
+                                                {% if record.checkout_time %}
+                                                    {{ record.checkout_time|date:"M d, Y - H:i" }}
+                                                {% else %}
+                                                    <span class="badge bg-warning text-dark">Still Parked</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if record.parking_spot %}
+                                                    <span class="badge bg-primary">{{ record.parking_spot.spot_number }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">N/A</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">{{ record.get_duration_display }}</span>
+                                            </td>
+                                            <td>
+                                                {% if record.parking_fee > 0 %}
+                                                    <strong>${{ record.parking_fee }}</strong>
+                                                {% else %}
+                                                    <span class="text-muted">Free</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if record.is_active %}
+                                                    <span class="badge bg-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Completed</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">📊 Summary</h5>
+                                        <p><strong>Total Sessions:</strong> {{ history.count }}</p>
+                                        <p><strong>Currently Parked:</strong> 
+                                            {% if history.0.is_active %}
+                                                <span class="badge bg-warning text-dark">Yes</span>
+                                            {% else %}
+                                                <span class="badge bg-success">No</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% elif search_attempted %}
+                        <div class="alert alert-info" role="alert">
+                            <p>No parking history found for this vehicle.</p>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-light text-center" role="alert">
+                            <p class="text-muted">
+                                <i class="bi bi-info-circle" style="font-size: 2em;"></i><br>
+                                Enter your license plate to view parking history
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

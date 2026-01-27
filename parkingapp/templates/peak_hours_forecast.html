@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Peak Hours Forecast{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">📈 Peak Hours Forecast (Admin)</h2>
+    
+    <!-- Summary -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Peak Hours</h5>
+                    <p class="card-text display-5">{{ peak_hours|length }}</p>
+                    <small>Hours with >70% occupancy</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hourly Forecast Chart -->
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">⏰ 24-Hour Occupancy Forecast</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="forecastChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Detailed Forecast Table -->
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">📊 Hour-by-Hour Breakdown</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Time</th>
+                            <th>Expected Occupancy</th>
+                            <th>Peak Level</th>
+                            <th>Expected Sessions</th>
+                            <th>Recommendation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for hour in forecast %}
+                        <tr class="{% if hour.is_peak %}table-warning{% endif %}">
+                            <td><strong>{{ hour.hour }}</strong></td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar {% if hour.is_peak %}bg-danger{% else %}bg-success{% endif %}" 
+                                         style="width: {{ hour.occupancy_percent }}%">
+                                        {{ hour.occupancy_percent }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if hour.is_peak %}
+                                    <span class="badge badge-danger">🔴 High</span>
+                                {% else %}
+                                    <span class="badge badge-success">🟢 Low</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ hour.expected_sessions }}</td>
+                            <td>{{ hour.recommendation }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recommendations -->
+    <div class="card mt-4 bg-light">
+        <div class="card-header">
+            <h5 class="mb-0">💡 Operational Recommendations</h5>
+        </div>
+        <div class="card-body">
+            <ul>
+                <li><strong>Staff Scheduling:</strong> Increase staff during {{ peak_hours|first|default:"peak hours" }}</li>
+                <li><strong>Dynamic Pricing:</strong> Implement surge pricing during peak times</li>
+                <li><strong>Marketing:</strong> Promote off-peak parking discounts</li>
+                <li><strong>Capacity Planning:</strong> Plan expansions based on peak usage patterns</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const ctx = document.getElementById('forecastChart').getContext('2d');
+const forecastData = {{ forecast|safe }};
+
+// Prepare data for chart
+const hours = forecastData.map(f => f.hour);
+const occupancy = forecastData.map(f => f.occupancy_percent);
+const colors = forecastData.map(f => f.is_peak ? 'rgba(220, 53, 69, 0.7)' : 'rgba(40, 167, 69, 0.7)');
+
+const chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: hours,
+        datasets: [{
+            label: 'Expected Occupancy (%)',
+            data: occupancy,
+            backgroundColor: colors,
+            borderColor: colors.map(c => c.replace('0.7', '1')),
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) { return value + '%'; }
+                }
+            }
+        },
+        plugins: {
+            legend: { display: true },
+            tooltip: {
+                callbacks: {
+                    afterLabel: function(context) {
+                        const idx = context.dataIndex;
+                        return forecastData[idx].recommendation;
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+
+<style>
+    .table-warning {
+        background-color: #fff3cd;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Reservations{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">🎫 My Reservations</h2>
+
+            <!-- Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Active</h5>
+                            <p class="card-text display-4">{{ active_count }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action -->
+            <div class="mb-3">
+                <a href="{% url 'reserve_parking' %}" class="btn btn-primary btn-lg">
+                    + Make New Reservation
+                </a>
+            </div>
+
+            <!-- Reservations Table -->
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">📋 All Reservations</h5>
+                </div>
+                <div class="card-body">
+                    {% if reservations %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Parking Lot</th>
+                                    <th>From</th>
+                                    <th>Until</th>
+                                    <th>Vehicle</th>
+                                    <th>License Plate</th>
+                                    <th>Fee</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reservation in reservations %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ reservation.parking_lot.lot_name }}</strong>
+                                    </td>
+                                    <td>{{ reservation.reserved_from|date:"Y-m-d H:i" }}</td>
+                                    <td>{{ reservation.reserved_until|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        <span class="badge badge-info">{{ reservation.vehicle_type|title }}</span>
+                                    </td>
+                                    <td>
+                                        {% if reservation.license_plate %}
+                                            <code>{{ reservation.license_plate }}</code>
+                                        {% else %}
+                                            <em class="text-muted">-</em>
+                                        {% endif %}
+                                    </td>
+                                    <td><strong>${{ reservation.reservation_fee }}</strong></td>
+                                    <td>
+                                        {% if reservation.status == 'active' %}
+                                            <span class="badge badge-success">✓ Active</span>
+                                        {% elif reservation.status == 'used' %}
+                                            <span class="badge badge-primary">Used</span>
+                                        {% elif reservation.status == 'cancelled' %}
+                                            <span class="badge badge-danger">✗ Cancelled</span>
+                                        {% elif reservation.status == 'expired' %}
+                                            <span class="badge badge-secondary">Expired</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if reservation.status == 'active' %}
+                                            <a href="{% url 'cancel_reservation' reservation.reservation_id %}" 
+                                               class="btn btn-sm btn-danger"
+                                               onclick="return confirm('Are you sure?')">
+                                                Cancel
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        No reservations yet. <a href="{% url 'reserve_parking' %}">Make your first reservation</a>!
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: none;
+        margin-bottom: 20px;
+    }
+    
+    code {
+        background-color: #f4f4f4;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.85em;
+    }
+</style>
+{% endblock %}

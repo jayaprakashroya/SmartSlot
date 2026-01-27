@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Find My Car - SmartSlot{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2 class="mb-0">🚗 Find My Car</h2>
+                    <p class="mb-0 mt-2" style="font-size: 0.9em;">Enter your license plate to locate your parked vehicle</p>
+                </div>
+                
+                <div class="card-body p-5">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="POST" class="mb-4">
+                        {% csrf_token %}
+                        <div class="input-group input-group-lg">
+                            <input type="text" 
+                                   name="license_plate" 
+                                   class="form-control" 
+                                   placeholder="Enter License Plate (e.g., ABC 1234)" 
+                                   required
+                                   style="font-size: 1.1em; letter-spacing: 0.1em;">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> Search
+                            </button>
+                        </div>
+                        <small class="text-muted mt-2 d-block">
+                            Format: ABC 1234 or ABC1234 (spaces optional)
+                        </small>
+                    </form>
+                    
+                    {% if result and search_attempted %}
+                        <div class="alert alert-success" role="alert">
+                            <h4 class="alert-heading">✅ Vehicle Found!</h4>
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>License Plate:</strong><br>
+                                       <span class="badge bg-dark" style="font-size: 1.1em; letter-spacing: 0.1em; padding: 0.5em 1em;">
+                                           {{ result.license_plate }}
+                                       </span>
+                                    </p>
+                                    <p><strong>Vehicle Type:</strong><br>{{ result.vehicle_type }}</p>
+                                    <p><strong>Owner:</strong><br>{{ result.owner_name }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Parking Lot:</strong><br>
+                                       <span class="badge bg-info">{{ result.parking_lot }}</span>
+                                    </p>
+                                    <p><strong>Parking Spot:</strong><br>
+                                       <span class="badge bg-success" style="font-size: 1.2em; padding: 0.5em 1em;">
+                                           {{ result.spot_number }}
+                                       </span>
+                                    </p>
+                                    <p><strong>Spot Type:</strong><br>{{ result.spot_type }}</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Parked Since:</strong><br>
+                                       {{ result.checkin_time|date:"M d, Y - H:i" }}
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Duration Parked:</strong><br>
+                                       <span class="badge bg-warning text-dark">{{ result.duration }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 p-3" style="background-color: #f0f8ff; border-radius: 8px;">
+                                <h5>📍 Parking Location Details</h5>
+                                <p class="mb-1"><strong>Coordinates:</strong> X: {{ result.x_position }}, Y: {{ result.y_position }}</p>
+                                <p class="text-muted small">Use these coordinates to locate your vehicle in the parking lot</p>
+                            </div>
+                        </div>
+                    {% elif search_attempted %}
+                        <div class="alert alert-info" role="alert">
+                            <h4 class="alert-heading">ℹ️ Vehicle Not Found</h4>
+                            <p>Please check the license plate and try again. Make sure your vehicle is currently parked in our facility.</p>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-light text-center" role="alert">
+                            <p class="text-muted">
+                                <i class="bi bi-info-circle" style="font-size: 2em;"></i><br>
+                                Enter your license plate to find your vehicle's location
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="card-footer bg-light text-center">
+                    <small class="text-muted">
+                        For assistance, contact support: <strong>+1-800-PARKING</strong>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-header h2 {
+        font-weight: 300;
+        letter-spacing: 0.05em;
+    }
+    
+    .input-group-lg > .form-control {
+        border-color: #dee2e6;
+        border-right: none;
+    }
+    
+    .input-group-lg > .btn {
+        border-radius: 0.375rem;
+    }
+    
+    .badge {
+        font-weight: 500;
+        font-size: 0.95em;
+    }
+</style>
+{% endblock %}

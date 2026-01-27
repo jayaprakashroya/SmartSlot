@@ -1,0 +1,404 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>smart car parking system</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+ 
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}">
+    
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}">
+
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+<style>
+  .ftco-appointment{
+    height: 100vh;
+  }
+</style>
+
+  </head>
+
+  <body>
+		<div class="wrap">
+	    <div class="container">
+				<div class="row justify-content-between">
+					<div class="col-md-3 d-flex align-items-center">
+					<a class="navbar-brand" href="#">SmartSlot</a>
+					</div>
+					<div class="col-md-7">
+						<div class="row">
+							<div class="col">
+								<div class="top-wrap d-flex">
+									<div class="icon d-flex align-items-center justify-content-center"><span class="fa fa-location-arrow"></span></div>
+									<div class="text"><span>Address</span><span>Puttaparthi</span></div>
+								</div>
+							</div>
+							<div class="col">
+								<div class="top-wrap d-flex">
+									<div class="icon d-flex align-items-center justify-content-center"><span class="fa fa-phone"></span></div>
+									<div class="text"><span>Call us</span><span>+91 90147 92534</span></div>
+								</div>
+							</div>
+							<div class="col-md-3 d-flex justify-content-end align-items-center">
+								<div class="social-media">
+					    		<p class="mb-0 d-flex">
+					    			<a href="#" class="d-flex align-items-center justify-content-center"><span class="fa fa-facebook"><i class="sr-only">Facebook</i></span></a>
+					    			<a href="#" class="d-flex align-items-center justify-content-center"><span class="fa fa-twitter"><i class="sr-only">Twitter</i></span></a>
+					    			<a href="#" class="d-flex align-items-center justify-content-center"><span class="fa fa-instagram"><i class="sr-only">Instagram</i></span></a>
+					    			<a href="#" class="d-flex align-items-center justify-content-center"><span class="fa fa-dribbble"><i class="sr-only">Dribbble</i></span></a>
+					    		</p>
+				        </div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
+	    <div class="container">
+	    
+	      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+	        <span class="fa fa-bars"></span> Menu
+	      </button>
+				<form action="#" class="searchform order-lg-last">
+          <div class="form-group d-flex">
+            <input type="text" class="form-control pl-3" placeholder="Search">
+            <button type="submit" placeholder="" class="form-control search"><span class="fa fa-search"></span></button>
+          </div>
+        </form>
+	      <div class="collapse navbar-collapse" id="ftco-nav">
+          <ul class="navbar-nav mr-auto" style="flex-wrap: nowrap; gap: 8px;">
+	        	<li class="nav-item" style="white-space: nowrap;"><a href="{% url 'dashboard' %}" class="nav-link" style="font-size: 13px;">Dashboard</a></li>
+	        	<li class="nav-item" style="white-space: nowrap;"><a href="{% url 'find_my_car' %}" class="nav-link" style="font-size: 13px;">Find My Car</a></li>
+	        	<li class="nav-item" style="white-space: nowrap;"><a href="{% url 'parking_lot_status' %}" class="nav-link" style="font-size: 13px;">Parking Status</a></li>
+	        	<li class="nav-item" style="white-space: nowrap;"><a href="{% url 'vehicle_history' %}" class="nav-link" style="font-size: 13px;">Vehicle History</a></li>	        		
+	        	<li class="nav-item" style="white-space: nowrap;"><a href="{% url 'smart_car_parking' %}" class="nav-link" style="font-size: 13px;">Smart Parking</a></li>
+              <li class="nav-item" style="white-space: nowrap;"><a href="{% url 'detect_numberplate' %}" class="nav-link" style="font-size: 13px;">License Plate</a></li>
+				    <li class="nav-item" style="white-space: nowrap;"><a href="{% url 'login' %}" class="nav-link" style="font-size: 13px;">Logout</a></li>
+          </ul>
+	      </div>
+	    </div>
+	  </nav>
+<!--page content starts here -->
+<section class="ftco-appointment ftco-section ftco-no-pt ftco-no-pb" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #0066cc 100%); min-height: 100vh;">
+    <div class="container-fluid">
+      <div class="row no-gutters" style="min-height: 100vh;">
+        <!-- Left side with image -->
+        <div class="col-lg-6 d-flex align-items-center justify-content-center" style="padding: 60px 40px; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); min-height: 100vh;">
+          <div style="width: 100%; max-width: 700px; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);">
+            <img src="{% static 'images/license.png' %}" alt="License Plate Detection" style="width: 100%; height: auto; display: block;">
+          </div>
+        </div>
+        <!-- Right side with form -->
+        <div class="col-lg-6 d-flex align-items-center" style="padding: 40px 20px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(245, 245, 255, 0.98));">
+          <div class="w-100">
+            <div class="px-5 ftco-animate heading-section heading-section-white">
+                <h1>DETECT LICENSE PLATE</h1>
+                <p style="font-size: 1.1rem; color: #333; margin-bottom: 25px; line-height: 1.6;">
+                  Upload an image to instantly detect and recognize vehicle license plates using advanced OCR technology. Get accurate plate numbers in seconds.
+                </p>
+                
+                <!-- Features list -->
+                <div style="margin-bottom: 30px; padding: 15px; background: rgba(30, 60, 114, 0.08); border-radius: 10px; border-left: 4px solid #1e3c72;">
+                  <div style="display: flex; align-items: center; margin-bottom: 12px; color: #1a1a2e;">
+                    <span style="font-size: 1.5rem; margin-right: 12px; color: #1e3c72;">✓</span>
+                    <span>Accurate license plate recognition</span>
+                  </div>
+                  <div style="display: flex; align-items: center; margin-bottom: 12px; color: #1a1a2e;">
+                    <span style="font-size: 1.5rem; margin-right: 12px; color: #1e3c72;">✓</span>
+                    <span>OCR-powered text extraction</span>
+                  </div>
+                  <div style="display: flex; align-items: center; color: #1a1a2e;">
+                    <span style="font-size: 1.5rem; margin-right: 12px; color: #1e3c72;">✓</span>
+                    <span>Fast and reliable processing</span>
+                  </div>
+                </div> 
+                  <form action="{% url 'detect_numberplate' %}" class="appointment" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Progress Indicator -->
+                    <div style="margin-bottom: 30px; padding: 20px; background: rgba(30, 60, 114, 0.08); border-radius: 10px; display: none;" id="progressSection">
+                      <div style="display: flex; justify-content: space-between; margin-bottom: 15px; color: #1e3c72; font-weight: 600;">
+                        <span>Processing Status</span>
+                        <span id="progressPercent">0%</span>
+                      </div>
+                      <div style="width: 100%; height: 8px; background: #ddd; border-radius: 10px; overflow: hidden;">
+                        <div id="progressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #1e3c72, #2a5298); transition: width 0.3s ease; border-radius: 10px;"></div>
+                      </div>
+                      <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 8px;">
+                        <div style="display: flex; align-items: center; color: #333; font-size: 0.95rem;">
+                          <i class="fa fa-spinner fa-spin" style="margin-right: 10px; color: #1e3c72;"></i>
+                          <span id="statusText">Uploading image...</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <div class="form-field">
+                            <div class="select-wrap">
+                              <div class="col-md-12">
+                                <div class="col-md-12">
+                                  <div class="form-group">
+                                    <div class="custom-file-upload">
+                                      <div class='file file--upload'>
+                                        {% comment %} <label for='input-file'>
+                                          <i class="material-icons">cloud_upload</i>Upload
+                                        </label> {% endcomment %}
+                                        {% comment %} <input name="upload_file"  type='file'/>  {% endcomment %}
+                                      </div><br>
+                                      <div style="box-shadow: 20px 20px 50px 0px grey;" class="custom-file pmd-custom-file-outline mb-5">
+                                        <input type="file" name="upload_file" class="custom-file-input" id="fileInput">
+                                        <label class="custom-file-label is-valid" for="fileInput" id="fileLabel">Choose file</label>
+                                       
+                                    </div> <br>
+                                      <input  type="submit" class="btn btn-info" style="font-size: large;"> 
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+</section> 
+<style>
+/* Modern styling for the form container */
+.ftco-appointment {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+  padding: 0 !important;
+}
+
+.heading-section-white h1 {
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  color: #1a1a2e !important;
+  margin-bottom: 30px !important;
+  text-shadow: none !important;
+}
+
+.appointment {
+  background: rgba(255, 255, 255, 0.98);
+  padding: 50px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.custom-file-input {
+  display: block;
+  width: 100%;
+  height: auto;
+  padding: 0;
+}
+
+.custom-file-label {
+  padding: 30px 25px !important;
+  font-size: 1.2rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  outline: 0 !important;
+  user-select: none !important;
+  border: 2px dashed #1e3c72 !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #f0f5ff 0%, #ffffff 100%) !important;
+  color: #1e3c72 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  transition: all 0.4s ease !important;
+  min-height: 120px !important;
+}
+
+.custom-file-label:hover {
+  border-color: #1e3c72 !important;
+  background: linear-gradient(135deg, #e8f1ff 0%, #f5f5ff 100%) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 20px rgba(30, 60, 114, 0.25) !important;
+  color: #1e3c72 !important;
+}
+
+.custom-file-label:active {
+  transform: translateY(0) !important;
+}
+
+.btn-info {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+  border: none !important;
+  padding: 18px 40px !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+  width: 100% !important;
+  transition: all 0.3s ease !important;
+  margin-top: 20px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  box-shadow: 0 8px 25px rgba(30, 60, 114, 0.4) !important;
+  color: white !important;
+}
+
+.btn-info:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 10px 30px rgba(30, 60, 114, 0.5) !important;
+}
+
+.btn-info:active {
+  transform: translateY(0) !important;
+}
+
+.form-group {
+  margin-bottom: 25px !important;
+}
+
+.overlay {
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+
+@media (max-width: 768px) {
+  .heading-section-white h1 {
+    font-size: 2rem !important;
+  }
+  
+  .appointment {
+    padding: 25px;
+  }
+  
+  .custom-file-label {
+    padding: 15px 20px !important;
+    font-size: 1rem !important;
+  }
+}
+  </style>
+<!--footer starts here-->
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'js/jquery-migrate-3.0.1.min.js' %}"></script>
+<script src="{% static 'js/popper.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/jquery.easing.1.3.js' %}"></script>
+<script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
+<script src="{% static 'js/jquery.stellar.min.js' %}"></script>
+<script src="{% static 'js/jquery.animateNumber.min.js' %}"></script>
+<script src="{% static 'js/bootstrap-datepicker.js' %}"></script>
+<script src="{% static 'js/jquery.timepicker.min.js' %}"></script>
+<script src="{% static 'js/owl.carousel.min.js' %}"></script>
+<script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+<script src="{% static 'js/scrollax.min.js' %}"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+<script src="{% static 'js/google-map.js' %}"></script>
+<script src="{% static 'js/main.js' %}"></script>
+{% if messages %}
+{% for message in messages %}
+    {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+        <script>swal({
+                title: "Success!",
+                text: "{{message}}",
+                icon: "success",
+                button: "OK",
+            });
+        </script>
+    
+    {% elif message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+        <script>swal({
+                title: "Warning :)",
+                text: "{{message}}",
+                icon: "warning",
+                button: "OK",
+            
+            });
+        </script>
+    {% elif message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+        <script>swal({
+                title: "info :)",
+                text: "{{message}}",
+                icon: "info",
+                button: "OK",
+            });
+        </script>
+    {% elif message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+        <script>swal({
+                title: "error :)",
+                text: "{{message}}",
+                icon: "error",
+                button: "OK",
+            });
+        </script>
+    {% endif %}
+{% endfor %}
+{% endif %}
+<script>
+  // Display file name when file is selected
+  const fileInput = document.getElementById('fileInput');
+  const fileLabel = document.getElementById('fileLabel');
+  
+  if (fileInput) {
+    fileInput.addEventListener('change', function() {
+      if (this.files && this.files.length > 0) {
+        fileLabel.textContent = this.files[0].name;
+      }
+    });
+  }
+
+  // Progress bar on form submission
+  const form = document.querySelector('.appointment').closest('form');
+  if (form) {
+    form.addEventListener('submit', function() {
+      const progressSection = document.getElementById('progressSection');
+      const progressBar = document.getElementById('progressBar');
+      const progressPercent = document.getElementById('progressPercent');
+      const statusText = document.getElementById('statusText');
+      
+      progressSection.style.display = 'block';
+      
+      const statuses = [
+        { percent: 15, text: 'Uploading image...' },
+        { percent: 35, text: 'Analyzing license plate...' },
+        { percent: 55, text: 'Running OCR detection...' },
+        { percent: 75, text: 'Extracting text...' },
+        { percent: 95, text: 'Finalizing results...' }
+      ];
+      
+      let currentStatus = 0;
+      const progressInterval = setInterval(() => {
+        if (currentStatus < statuses.length) {
+          const status = statuses[currentStatus];
+          progressBar.style.width = status.percent + '%';
+          progressPercent.textContent = status.percent + '%';
+          statusText.textContent = status.text;
+          currentStatus++;
+        } else {
+          clearInterval(progressInterval);
+          progressBar.style.width = '100%';
+          progressPercent.textContent = '100%';
+          statusText.textContent = 'Complete! Showing results...';
+        }
+      }, 800);
+    });
+  }
+</script>
+  </body>
+  </html>      

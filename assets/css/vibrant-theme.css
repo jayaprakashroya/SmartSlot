@@ -1,0 +1,535 @@
+/* ============================================
+   VIBRANT LIGHT THEME - SMART CAR PARKING
+   ============================================ */
+
+:root {
+  --primary-color: #FF6B35;
+  --secondary-color: #004E89;
+  --accent-color: #1AC8ED;
+  --success-color: #06D6A0;
+  --warning-color: #F77F00;
+  --light-bg: #F8F9FA;
+  --white: #FFFFFF;
+  --text-dark: #1a1a1a;
+  --text-light: #666666;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--light-bg);
+  color: var(--text-dark);
+  font-family: 'Poppins', sans-serif;
+}
+
+/* ============================================
+   TOP HEADER & CONTACT INFO
+   ============================================ */
+
+.wrap {
+  background: linear-gradient(135deg, var(--secondary-color) 0%, #003d6b 100%);
+  padding: 20px 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.wrap .top-wrap {
+  gap: 15px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.wrap .top-wrap:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.wrap .icon {
+  width: 50px;
+  height: 50px;
+  background: var(--accent-color);
+  border-radius: 50%;
+  color: var(--white);
+  font-size: 18px;
+  box-shadow: 0 4px 10px rgba(26, 200, 237, 0.3);
+}
+
+.wrap .text {
+  display: flex;
+  flex-direction: column;
+  color: var(--white);
+}
+
+.wrap .text span:first-child {
+  font-size: 12px;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.wrap .text span:last-child {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.navbar-brand {
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  color: var(--accent-color) !important;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: 1px;
+}
+
+.navbar-brand:hover {
+  color: var(--primary-color) !important;
+}
+
+.social-media a {
+  width: 40px;
+  height: 40px;
+  background: var(--accent-color);
+  border-radius: 50%;
+  color: var(--white);
+  transition: all 0.3s ease;
+  margin: 0 5px;
+}
+
+.social-media a:hover {
+  background: var(--primary-color);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(255, 107, 53, 0.4);
+}
+
+/* ============================================
+   NAVIGATION BAR
+   ============================================ */
+
+.ftco_navbar {
+  background: var(--white) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 15px 0 !important;
+}
+
+.ftco_navbar .navbar-nav .nav-link {
+  color: var(--text-dark) !important;
+  font-weight: 600;
+  font-size: 15px;
+  position: relative;
+  transition: all 0.3s ease;
+  margin: 0 5px;
+  padding: 8px 15px !important;
+}
+
+.ftco_navbar .navbar-nav .nav-link:hover,
+.ftco_navbar .navbar-nav .nav-link.active {
+  color: var(--primary-color) !important;
+}
+
+.ftco_navbar .navbar-nav .nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  transition: width 0.3s ease;
+}
+
+.ftco_navbar .navbar-nav .nav-link:hover::after {
+  width: 100%;
+}
+
+.searchform {
+  background: var(--light-bg);
+  border-radius: 25px;
+  padding: 5px 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.searchform .form-control {
+  border: none;
+  background: transparent;
+  color: var(--text-dark);
+  font-size: 14px;
+}
+
+.searchform .search {
+  background: var(--primary-color);
+  border: none;
+  color: var(--white);
+  border-radius: 50%;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.searchform .search:hover {
+  background: var(--accent-color);
+  transform: scale(1.1);
+}
+
+.navbar-toggler {
+  border: 2px solid var(--primary-color) !important;
+  padding: 5px 10px !important;
+}
+
+.navbar-toggler:focus {
+  box-shadow: none;
+  outline: 2px solid var(--accent-color);
+}
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+
+.hero-wrap {
+  position: relative;
+  height: 500px;
+  overflow: hidden;
+}
+
+.hero-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.7), rgba(26, 200, 237, 0.7));
+  z-index: 1;
+}
+
+.slider-item {
+  background-size: cover !important;
+  background-position: center !important;
+  position: relative;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 78, 137, 0.6), rgba(255, 107, 53, 0.4));
+  z-index: 0;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.btn {
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  padding: 12px 35px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 14px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--warning-color));
+  color: var(--white);
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--warning-color), var(--primary-color));
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+  color: var(--white);
+}
+
+.btn-info {
+  background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
+  color: var(--white);
+  box-shadow: 0 4px 15px rgba(26, 200, 237, 0.3);
+}
+
+.btn-info:hover {
+  background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(26, 200, 237, 0.4);
+  color: var(--white);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--success-color), #00a380);
+  color: var(--white);
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #00a380, var(--success-color));
+  transform: translateY(-3px);
+}
+
+/* ============================================
+   FORMS
+   ============================================ */
+
+.form-control,
+.form-group input,
+.form-group textarea {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px 15px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.15);
+  outline: none;
+}
+
+/* ============================================
+   CARDS & SECTIONS
+   ============================================ */
+
+.ftco-section {
+  padding: 60px 0;
+}
+
+.heading-section {
+  margin-bottom: 50px;
+}
+
+.heading-section h1 {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.heading-section.heading-section-white h1 {
+  color: var(--white);
+  background: none;
+  -webkit-text-fill-color: unset;
+}
+
+.heading-section p {
+  font-size: 16px;
+  color: var(--text-light);
+  line-height: 1.8;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+.footer {
+  background: linear-gradient(135deg, var(--secondary-color), #002a4a);
+  color: var(--white);
+  padding: 60px 0 20px;
+}
+
+.ftco-footer-widget h2 {
+  color: var(--accent-color);
+  font-weight: 800;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.ftco-footer-widget p {
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.8;
+}
+
+.ftco-footer-social a {
+  width: 40px;
+  height: 40px;
+  background: var(--accent-color);
+  border-radius: 50%;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  margin-right: 10px;
+}
+
+.ftco-footer-social a:hover {
+  background: var(--primary-color);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+}
+
+.footer-link {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.footer-link:hover {
+  color: var(--accent-color);
+  margin-left: 5px;
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+
+.divider {
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  margin: 20px 0;
+  border-radius: 2px;
+}
+
+.badge-primary {
+  background: var(--primary-color);
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-success {
+  background: var(--success-color);
+}
+
+/* ============================================
+   FOOTER STYLING
+   ============================================ */
+
+.footer {
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  padding: 50px 0;
+}
+
+.footer .ftco-footer-widget {
+  margin-bottom: 30px;
+}
+
+.footer .ftco-heading-2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.footer .logo {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--accent-color);
+  margin-bottom: 15px;
+}
+
+.footer .block-23 li {
+  margin-bottom: 12px;
+}
+
+.footer .block-23 li .text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #ddd;
+}
+
+.footer .block-23 li a {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer .block-23 li a:hover {
+  color: var(--primary-color);
+}
+
+.ftco-footer-social {
+  gap: 10px;
+}
+
+.ftco-footer-social li a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.ftco-footer-social li a:hover {
+  background: var(--accent-color);
+  transform: translateY(-3px);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .heading-section h1 {
+    font-size: 28px;
+  }
+
+  .ftco_navbar .navbar-nav .nav-link {
+    margin: 8px 0;
+  }
+
+  .social-media {
+    margin-top: 15px;
+  }
+
+  .wrap .top-wrap {
+    margin-bottom: 15px;
+  }
+
+  .hero-wrap {
+    height: 300px;
+  }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ftco-animate {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.navbar {
+  animation: slideInDown 0.6s ease-out;
+}

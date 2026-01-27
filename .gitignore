@@ -1,0 +1,81 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+parkingenv/
+.venv
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+/media/
+/static/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Model files (YOLOv8 models - these are large)
+*.pt
+yolov8*.pt
+
+# Datasets (large files)
+Parking Dataset/
+Car License Plate Dataset/
+
+# Temporary files
+*.tmp
+temp*.txt
+*.temp
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Environment files
+.env
+.env.local
+
+# Node modules (if any frontend)
+node_modules/
+npm-debug.log
+
+# Cache
+*.cache
+.cache/
+
+# Config backups
+*.backup
+*.bak

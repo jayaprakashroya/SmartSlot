@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline Mode - Sync Queue</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .sync-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 5px solid #0d6efd;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .back-btn { margin-bottom: 20px; }
+        .sync-actions { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="back-btn">
+            <a href="/admin-dashboard/" class="btn btn-primary">← Back to Dashboard</a>
+        </div>
+
+        <div class="header">
+            <h2>🌐 Internet Outage Mode - Pending Sync Queue</h2>
+            <p class="text-muted">Records waiting to be synced when connection returns</p>
+            <h5>Pending Records: <span class="badge bg-danger">{{ pending_sync.count }}</span></h5>
+        </div>
+
+        {% if pending_sync.records %}
+            {% for record in pending_sync.records %}
+            <div class="sync-item">
+                <div class="row">
+                    <div class="col-md-8">
+                        <strong>Sync ID:</strong> {{ record.sync_id }}<br/>
+                        <strong>Type:</strong> <span class="badge bg-info">{{ record.record_type }}</span><br/>
+                        <strong>Created:</strong> {{ record.created_at }}<br/>
+                        <small class="text-muted">Data: {{ record.data_preview }}</small>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-sm btn-success">Sync Now</button>
+                        <button class="btn btn-sm btn-danger">Delete</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; padding: 40px;">
+                <h5>✅ All records synced</h5>
+                <p class="text-muted">No pending syncs in queue</p>
+            </div>
+        {% endif %}
+
+        <div class="sync-actions">
+            <a href="/api/sync-pending-records/" class="btn btn-lg btn-success">
+                ▶️ Force Sync All Records
+            </a>
+        </div>
+    </div>
+</body>
+</html>

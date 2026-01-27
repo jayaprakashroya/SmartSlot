@@ -1,0 +1,10 @@
+django>=4.2
+mysqlclient>=2.2.7
+opencv-python
+easyocr
+cvzone
+numpy<2.0
+matplotlib
+Pillow
+
+# python 3.10.9
