@@ -322,6 +322,24 @@
     </div>
 </div>
 
+<!-- Additional Features Row -->
+<div class="controls" style="margin-top: 20px;">
+    <div class="btn-group">
+        <button class="btn-custom" style="background: #28a745; color: white;" onclick="goToParkingHistory()">
+            📋 Parking History
+        </button>
+        <button class="btn-custom" style="background: #17a2b8; color: white;" onclick="goToReservations()">
+            📅 Reservations
+        </button>
+        <button class="btn-custom" style="background: #ffc107; color: #333;" onclick="goToNotifications()">
+            🔔 Notifications
+        </button>
+        <button class="btn-custom" style="background: #6f42c1; color: white;" onclick="goToRealTimeStatus()">
+            ⚡ Real-Time Status
+        </button>
+    </div>
+</div>
+
 <!-- Parking Lot Grid -->
 <div class="lot-grid">
     <div class="lot-title">{{ heatmap.lot_name }} - Parking Spaces</div>
@@ -491,6 +509,23 @@ function closeSpotModal() {
 
 function closeAnalyticsModal() {
     document.getElementById('analyticsModal').classList.remove('show');
+}
+
+// Feature Navigation Functions
+function goToParkingHistory() {
+    window.location.href = '/parking-history/';
+}
+
+function goToReservations() {
+    window.location.href = '/my-reservations/';
+}
+
+function goToNotifications() {
+    window.location.href = '/notifications/';
+}
+
+function goToRealTimeStatus() {
+    window.location.href = '/api/parking-status/';
 }
 
 // Auto-refresh every 30 seconds by default
