@@ -109,7 +109,40 @@ python manage.py runserver
 
 Access the application at `http://localhost:8000`
 
-## 📁 Project Structure
+## � Deployment
+
+### Deploy to Render (Recommended)
+
+**One-Click Deployment:**
+1. Go to [Render.com](https://render.com)
+2. Connect your GitHub account
+3. Select this repository
+4. Render automatically detects and deploys
+
+**Manual Deployment:**
+For detailed step-by-step instructions, see [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md)
+
+**What You Need:**
+- Render account (free)
+- PostgreSQL database (free tier available)
+- Environment variables configured
+
+**Quick Setup:**
+```bash
+git push origin main  # Render auto-deploys on push
+```
+
+### Other Deployment Options
+
+- **Railway**: `railway up` (modern, easy)
+- **PythonAnywhere**: Web-based Python hosting
+- **Heroku**: Classic Docker deployment
+- **AWS/Azure**: Enterprise solutions
+- **Docker**: Containerized deployment
+
+See [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md) for complete deployment guide.
+
+## �📁 Project Structure
 
 ```
 SmartSlot/

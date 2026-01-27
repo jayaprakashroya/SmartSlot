@@ -1,10 +1,35 @@
+# Core Django
 django>=4.2
+djangorestframework>=3.14.0
+
+# Database
 mysqlclient>=2.2.7
-opencv-python
-easyocr
-cvzone
+psycopg2-binary>=2.9.9
+dj-database-url>=2.1.0
+
+# Computer Vision & AI
+opencv-python>=4.8.0
+easyocr>=1.7.0
+cvzone>=1.6.0
+ultralytics>=8.0.0
 numpy<2.0
-matplotlib
-Pillow
+matplotlib>=3.8.0
+Pillow>=10.0.0
+
+# Web Server & Deployment
+gunicorn>=21.2.0
+whitenoise>=6.6.0
+
+# Utilities
+python-decouple>=3.8
+requests>=2.31.0
+Werkzeug>=3.0.0
+
+# Optional: Production Email
+django-anymail>=10.0
+
+# Optional: Storage (S3)
+boto3>=1.28.0
+django-storages>=1.14.2
 
 # python 3.10.9
