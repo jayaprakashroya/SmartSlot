@@ -23,18 +23,24 @@ logger = logging.getLogger(__name__)
 from parkingapp.detection_config import PIXEL_COUNT_THRESHOLDS, get_pixel_threshold
 
 # YOLOv8 Integration
+# Only enable on production with sufficient memory (Starter tier+) or development
+ENABLE_YOLOV8 = os.getenv('ENABLE_YOLOV8', 'False').lower() == 'true'
 YOLOV8_AVAILABLE = False
-try:
-    from parkingapp.yolov8_detection import ParkingSpaceDetector
-    YOLOV8_AVAILABLE = True
-except ImportError as e:
-    print(f"[WARNING] YOLOv8 not available. Error: {e}")
-    print("[INFO] Install with: pip install ultralytics")
-    print("[INFO] Create parkingapp/yolov8_detection.py with ParkingSpaceDetector class")
-except ModuleNotFoundError:
-    print("[WARNING] yolov8_detection module not found. Please create parkingapp/yolov8_detection.py")
-except Exception as e:
-    print(f"[WARNING] YOLOv8 import error: {type(e).__name__}: {e}")
+
+if ENABLE_YOLOV8:
+    try:
+        from parkingapp.yolov8_detection import ParkingSpaceDetector
+        YOLOV8_AVAILABLE = True
+    except ImportError as e:
+        print(f"[WARNING] YOLOv8 not available. Error: {e}")
+        print("[INFO] Install with: pip install ultralytics")
+        print("[INFO] Create parkingapp/yolov8_detection.py with ParkingSpaceDetector class")
+    except ModuleNotFoundError:
+        print("[WARNING] yolov8_detection module not found. Please create parkingapp/yolov8_detection.py")
+    except Exception as e:
+        print(f"[WARNING] YOLOv8 import error: {type(e).__name__}: {e}")
+else:
+    print("[INFO] YOLOv8 disabled (requires ENABLE_YOLOV8=true env variable)")
 
 # Global YOLOv8 detector instance (initialized once for performance)
 yolo_detector = None
