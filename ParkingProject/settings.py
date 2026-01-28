@@ -44,6 +44,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'parkingapp.rbac.RoleBasedAccessMiddleware',  # Role-Based Access Control
 ]
 
 ROOT_URLCONF = 'ParkingProject.urls'
@@ -59,6 +60,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'parkingapp.rbac.role_context',  # Role context processor
             ],
         },
     },
@@ -147,10 +149,44 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # URL Configuration
 APPEND_SLASH = True
 
+# Email Configuration for Notifications
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Console for development
+# For production, use:
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = os.getenv('EMAIL_USER', 'your-email@gmail.com')
+# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD', 'your-app-password')
+
+DEFAULT_FROM_EMAIL = 'noreply@smartparking.com'
+SERVER_EMAIL = 'noreply@smartparking.com'
+
+# Payment Configuration (Stripe-like)
+PAYMENT_ENABLED = True
+PAYMENT_GATEWAY = 'mock'  # Use 'mock' for testing, 'stripe' for production
+STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY', '')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
+
 # Login settings
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'admin_dashboard'
 LOGOUT_REDIRECT_URL = 'home'
+
+# Role-Based Access Control
+USER_ROLES = {
+    'admin': 'Administrator',
+    'manager': 'Parking Manager',
+    'attendant': 'Parking Attendant',
+    'user': 'Regular User'
+}
+
+ROLE_PERMISSIONS = {
+    'admin': ['view_all', 'manage_users', 'manage_payments', 'manage_parking', 'view_analytics'],
+    'manager': ['view_all', 'manage_parking', 'manage_payments', 'view_analytics'],
+    'attendant': ['view_parking', 'update_occupancy'],
+    'user': ['view_parking', 'view_own_payments']
+}
 
 # Production Security Settings
 if not DEBUG:
