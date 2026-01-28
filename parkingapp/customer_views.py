@@ -70,7 +70,6 @@ def find_my_car(request):
     return render(request, 'find_my_car.html', context)
 
 
-@login_required
 def parking_lot_status(request, lot_id=None):
     """
     Display current status of parking lot
@@ -102,7 +101,6 @@ def parking_lot_status(request, lot_id=None):
         return render(request, 'parking_lot_status.html', {'lot_status': None})
 
 
-@login_required
 def parking_lot_status_all_lots(request):
     """
     Display status of ALL parking lots on one page
