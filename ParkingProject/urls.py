@@ -31,7 +31,7 @@ urlpatterns = [
     
     # Customer-facing routes for parking spot tracking
     path('find-my-car/', customer_views.find_my_car, name='find_my_car'),
-    path('parking-lot-status/', customer_views.parking_lot_status, name='parking_lot_status'),
+    path('parking-lot-status/', customer_views.parking_lot_status_all_lots, name='parking_lot_status'),
     path('parking-lot-status/<int:lot_id>/', customer_views.parking_lot_status, name='parking_lot_status_detail'),
     path('vehicle-history/', customer_views.vehicle_history, name='vehicle_history'),
     
