@@ -9,6 +9,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .models import ParkingLot, Vehicle, ParkedVehicle, ParkingSpot
 from .parking_manager import ParkingManager
@@ -69,6 +70,7 @@ def find_my_car(request):
     return render(request, 'find_my_car.html', context)
 
 
+@login_required
 def parking_lot_status(request, lot_id=None):
     """
     Display current status of parking lot
@@ -98,6 +100,67 @@ def parking_lot_status(request, lot_id=None):
     except ParkingLot.DoesNotExist:
         messages.error(request, 'Parking lot not found.')
         return render(request, 'parking_lot_status.html', {'lot_status': None})
+
+
+@login_required
+def parking_lot_status_all_lots(request):
+    """
+    Display status of ALL parking lots on one page
+    Shows occupancy for each lot with quick access to heatmaps
+    """
+    try:
+        all_lots = ParkingLot.objects.all().order_by('lot_name')
+        
+        # Calculate statistics for each lot
+        parking_lots = []
+        total_occupied = 0
+        total_available = 0
+        total_spots = 0
+        
+        for lot in all_lots:
+            status = ParkingManager.get_parking_lot_status(lot)
+            
+            lot_data = {
+                'lot_id': lot.lot_id,
+                'lot_name': lot.lot_name,
+                'lot_location': lot.lot_location,
+                'total_spots': status.get('total_spots', 0),
+                'occupied_spots': status.get('parked_vehicles_count', 0),
+                'available_spots': status.get('available_spaces_count', 0),
+                'occupancy_rate': status.get('occupancy_percentage', 0)
+            }
+            
+            parking_lots.append(lot_data)
+            total_occupied += lot_data['occupied_spots']
+            total_available += lot_data['available_spots']
+            total_spots += lot_data['total_spots']
+        
+        # Calculate overall occupancy rate
+        overall_rate = 0
+        if total_spots > 0:
+            overall_rate = round((total_occupied / total_spots) * 100, 1)
+        
+        total_stats = {
+            'total': total_spots,
+            'occupied': total_occupied,
+            'available': total_available,
+            'occupancy_rate': overall_rate
+        }
+        
+        context = {
+            'parking_lots': parking_lots,
+            'total_stats': total_stats
+        }
+        
+        return render(request, 'parking_status_all_lots.html', context)
+    
+    except Exception as e:
+        logger.error(f"Error in parking_lot_status_all_lots: {e}")
+        messages.error(request, 'Error loading parking lot status')
+        return render(request, 'parking_status_all_lots.html', {
+            'parking_lots': [],
+            'total_stats': {'total': 0, 'occupied': 0, 'available': 0, 'occupancy_rate': 0}
+        })
 
 
 def vehicle_history(request):
