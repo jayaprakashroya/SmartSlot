@@ -36,7 +36,6 @@ logger = logging.getLogger(__name__)
 # FEATURE: GPS/NAVIGATION & INTERACTIVE MAP
 # ═══════════════════════════════════════════════════════════════════
 
-@login_required
 def parking_map(request):
     """Interactive map showing parking lots with directions"""
     try:
@@ -101,7 +100,6 @@ def api_lot_directions(request, lot_id):
 # FEATURE: LOST VEHICLE LOCATOR
 # ═══════════════════════════════════════════════════════════════════
 
-@login_required
 def find_my_vehicle(request):
     """Help user find their parked vehicle"""
     try:

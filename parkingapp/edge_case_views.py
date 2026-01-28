@@ -619,7 +619,6 @@ def admin_action_history(request):
 # BONUS B: SLOT HEATMAP - REAL-TIME OCCUPANCY VISUALIZATION
 # ═══════════════════════════════════════════════════════════════════
 
-@login_required
 @require_http_methods(["GET"])
 def parking_lot_heatmap(request, lot_id=None):
     """Get parking lot heatmap"""
@@ -639,7 +638,6 @@ def parking_lot_heatmap(request, lot_id=None):
     return render(request, 'heatmap.html', {'heatmap': heatmap})
 
 
-@login_required
 @require_http_methods(["GET"])
 def heatmap_analytics(request, lot_id=None):
     """Get heatmap analytics"""
@@ -655,7 +653,6 @@ def heatmap_analytics(request, lot_id=None):
     return JsonResponse(analytics)
 
 
-@login_required
 @require_http_methods(["GET"])
 def heatmap_realtime_api(request, lot_id=None):
     """Real-time heatmap API for auto-refresh"""

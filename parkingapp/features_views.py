@@ -30,7 +30,6 @@ logger = logging.getLogger(__name__)
 # FEATURE 1: PARKING HISTORY & DURATION TRACKING
 # ═══════════════════════════════════════════════════════════════════
 
-@login_required
 def parking_history(request):
     """View user's parking history and sessions"""
     try:
@@ -60,7 +59,6 @@ def parking_history(request):
         return redirect('dashboard')
 
 
-@login_required
 def end_parking_session(request, session_id):
     """End active parking session and calculate fees"""
     try:
@@ -106,7 +104,6 @@ def end_parking_session(request, session_id):
 # FEATURE 2: PAYMENT PROCESSING
 # ═══════════════════════════════════════════════════════════════════
 
-@login_required
 def payments(request):
     """View and manage payments"""
     try:
@@ -131,7 +128,6 @@ def payments(request):
         return redirect('dashboard')
 
 
-@login_required
 def process_payment(request, session_id):
     """Process payment for parking session"""
     try:
@@ -185,7 +181,6 @@ def process_payment(request, session_id):
 # FEATURE 3: RESERVATIONS
 # ═══════════════════════════════════════════════════════════════════
 
-@login_required
 def reserve_parking(request):
     """Make a parking reservation"""
     try:
@@ -252,7 +247,6 @@ def reserve_parking(request):
         return redirect('dashboard')
 
 
-@login_required
 def my_reservations(request):
     """View user's reservations"""
     try:
@@ -271,7 +265,6 @@ def my_reservations(request):
         return redirect('dashboard')
 
 
-@login_required
 def cancel_reservation(request, reservation_id):
     """Cancel a parking reservation"""
     try:
@@ -297,7 +290,6 @@ def cancel_reservation(request, reservation_id):
 # FEATURE 4: NOTIFICATIONS
 # ═══════════════════════════════════════════════════════════════════
 
-@login_required
 def notifications(request):
     """View user notifications"""
     try:
@@ -317,7 +309,6 @@ def notifications(request):
         return redirect('dashboard')
 
 
-@login_required
 def mark_notification_read(request, notification_id):
     """Mark notification as read"""
     try:
