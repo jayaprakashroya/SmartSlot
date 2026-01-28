@@ -33,8 +33,14 @@ logger = logging.getLogger(__name__)
 def parking_history(request):
     """View user's parking history and sessions"""
     try:
-        user = User_details.objects.get(Email=request.session.get('user_email'))
-        sessions = ParkingSession.objects.filter(user=user).order_by('-entry_time')
+        # If user is logged in, show their history
+        user_email = request.session.get('user_email')
+        if user_email:
+            user = User_details.objects.get(Email=user_email)
+            sessions = ParkingSession.objects.filter(user=user).order_by('-entry_time')
+        else:
+            # If not logged in, show recent sessions from all users
+            sessions = ParkingSession.objects.all().order_by('-entry_time')
         
         # Calculate statistics
         total_sessions = sessions.count()
@@ -50,13 +56,22 @@ def parking_history(request):
             'total_spent': total_spent,
             'avg_duration': round(avg_duration, 0),
             'active_session': active_session,
+            'is_public': not user_email,  # Flag to show public view
         }
         
         return render(request, 'parking_history.html', context)
     except Exception as e:
         logger.error(f"Parking history error: {str(e)}")
-        messages.error(request, "Error loading parking history.")
-        return redirect('dashboard')
+        # Return empty data instead of redirecting
+        context = {
+            'sessions': [],
+            'total_sessions': 0,
+            'total_spent': 0,
+            'avg_duration': 0,
+            'active_session': None,
+            'is_public': True,
+        }
+        return render(request, 'parking_history.html', context)
 
 
 def end_parking_session(request, session_id):
@@ -107,8 +122,13 @@ def end_parking_session(request, session_id):
 def payments(request):
     """View and manage payments"""
     try:
-        user = User_details.objects.get(Email=request.session.get('user_email'))
-        payments = Payment.objects.filter(user=user).order_by('-created_at')
+        user_email = request.session.get('user_email')
+        if user_email:
+            user = User_details.objects.get(Email=user_email)
+            payments = Payment.objects.filter(user=user).order_by('-created_at')
+        else:
+            # Public view shows all payments
+            payments = Payment.objects.all().order_by('-created_at')
         
         # Payment summary
         total_paid = payments.filter(payment_status='success').aggregate(Sum('amount'))['amount__sum'] or 0
@@ -250,19 +270,30 @@ def reserve_parking(request):
 def my_reservations(request):
     """View user's reservations"""
     try:
-        user = User_details.objects.get(Email=request.session.get('user_email'))
-        reservations = ParkingReservation.objects.filter(user=user).order_by('-created_at')
+        user_email = request.session.get('user_email')
+        if user_email:
+            user = User_details.objects.get(Email=user_email)
+            reservations = ParkingReservation.objects.filter(user=user).order_by('-created_at')
+        else:
+            # Public view shows all reservations
+            reservations = ParkingReservation.objects.all().order_by('-created_at')
         
         context = {
             'reservations': reservations,
-            'active_count': reservations.filter(status='active').count(),
+            'active_count': reservations.filter(status='active').count() if user_email else 0,
+            'is_public': not user_email,
         }
         
         return render(request, 'my_reservations.html', context)
     except Exception as e:
         logger.error(f"My reservations error: {str(e)}")
-        messages.error(request, "Error loading reservations.")
-        return redirect('dashboard')
+        # Return empty data instead of redirecting
+        context = {
+            'reservations': [],
+            'active_count': 0,
+            'is_public': True,
+        }
+        return render(request, 'my_reservations.html', context)
 
 
 def cancel_reservation(request, reservation_id):
@@ -293,20 +324,32 @@ def cancel_reservation(request, reservation_id):
 def notifications(request):
     """View user notifications"""
     try:
-        user = User_details.objects.get(Email=request.session.get('user_email'))
-        notifications = UserNotification.objects.filter(user=user).order_by('-sent_at')
-        unread_count = notifications.filter(is_read=False).count()
+        user_email = request.session.get('user_email')
+        if user_email:
+            user = User_details.objects.get(Email=user_email)
+            notifications = UserNotification.objects.filter(user=user).order_by('-sent_at')
+            unread_count = notifications.filter(is_read=False).count()
+        else:
+            # Public view shows all notifications
+            notifications = UserNotification.objects.all().order_by('-sent_at')
+            unread_count = 0
         
         context = {
             'notifications': notifications[:50],
             'unread_count': unread_count,
+            'is_public': not user_email,
         }
         
         return render(request, 'notifications.html', context)
     except Exception as e:
         logger.error(f"Notifications error: {str(e)}")
-        messages.error(request, "Error loading notifications.")
-        return redirect('dashboard')
+        # Return empty data instead of redirecting
+        context = {
+            'notifications': [],
+            'unread_count': 0,
+            'is_public': True,
+        }
+        return render(request, 'notifications.html', context)
 
 
 def mark_notification_read(request, notification_id):
