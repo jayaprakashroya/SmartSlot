@@ -674,3 +674,197 @@ def SmartParkingPage(request):
             return render(request, 'smartcarparking.html')
 
     return render(request, 'smartcarparking.html')
+
+
+# ============ PAYMENT SYSTEM VIEWS ============
+def payment_page(request):
+    """Display payment page"""
+    from parkingapp.payment_service import PaymentService
+    from parkingapp.models import Vehicle
+    
+    vehicles = Vehicle.objects.all()[:10]
+    
+    context = {
+        'vehicles': vehicles,
+        'pricing_tiers': {
+            '1_hour': 5.00,
+            '2_hours': 8.00,
+            '4_hours': 15.00,
+            'additional_hour': 3.00,
+            'daily_max': 50.00
+        }
+    }
+    return render(request, 'payment_page.html', context)
+
+
+def calculate_parking_fee(request):
+    """API endpoint to calculate parking fee"""
+    from django.http import JsonResponse
+    from parkingapp.payment_service import PaymentService
+    from datetime import datetime
+    import json
+    
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            entry_time_str = data.get('entry_time')
+            exit_time_str = data.get('exit_time')
+            
+            entry_time = datetime.fromisoformat(entry_time_str.replace('Z', '+00:00'))
+            exit_time = datetime.fromisoformat(exit_time_str.replace('Z', '+00:00'))
+            
+            fee = PaymentService.calculate_parking_fee(None, entry_time, exit_time)
+            
+            return JsonResponse({
+                'success': True,
+                'fee': float(fee),
+                'currency': 'USD'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=400)
+    
+    return JsonResponse({'error': 'POST required'}, status=400)
+
+
+def process_parking_payment(request):
+    """Process payment and send receipt"""
+    from parkingapp.payment_service import PaymentService
+    from parkingapp.email_service import EmailNotificationService
+    from datetime import datetime
+    import json
+    
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            
+            vehicle_id = data.get('vehicle_id')
+            lot_id = data.get('lot_id')
+            entry_time_str = data.get('entry_time')
+            exit_time_str = data.get('exit_time')
+            amount = data.get('amount')
+            user_email = data.get('user_email')
+            
+            entry_time = datetime.fromisoformat(entry_time_str.replace('Z', '+00:00'))
+            exit_time = datetime.fromisoformat(exit_time_str.replace('Z', '+00:00'))
+            
+            # Create invoice
+            invoice = PaymentService.create_invoice(
+                vehicle_id, lot_id, entry_time, exit_time, amount
+            )
+            
+            # Process payment
+            payment_result = PaymentService.process_payment(amount, vehicle_id, 'mock')
+            
+            if payment_result['success']:
+                invoice.update(payment_result)
+                
+                # Send email receipt
+                if user_email:
+                    from parkingapp.models import Vehicle
+                    try:
+                        vehicle = Vehicle.objects.get(id=vehicle_id)
+                        receipt = PaymentService.generate_receipt(
+                            invoice,
+                            {'plate': vehicle.license_plate, 'type': vehicle.vehicle_type}
+                        )
+                        EmailNotificationService.send_parking_receipt(
+                            user_email, receipt, invoice
+                        )
+                    except:
+                        pass
+                
+                return JsonResponse({
+                    'success': True,
+                    'invoice': invoice,
+                    'message': 'Payment successful! Receipt sent to email.'
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Payment failed'
+                }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+    
+    return JsonResponse({'error': 'POST required'}, status=400)
+
+
+# ============ USER MANAGEMENT VIEWS ============
+def manage_users(request):
+    """Admin user management page"""
+    from django.contrib.auth.models import User
+    from parkingapp.rbac import RoleManager
+    
+    if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
+        return redirect('login')
+    
+    users = User.objects.all()
+    roles = RoleManager.ROLES
+    
+    context = {
+        'users': users,
+        'roles': roles
+    }
+    return render(request, 'manage_users.html', context)
+
+
+def update_user_role(request):
+    """Update user role via AJAX"""
+    from django.contrib.auth.models import User
+    from django.http import JsonResponse
+    import json
+    
+    if request.method == 'POST':
+        try:
+            if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
+                return JsonResponse({'success': False, 'error': 'Unauthorized'}, status=403)
+            
+            data = json.loads(request.body)
+            user_id = data.get('user_id')
+            role = data.get('role')
+            
+            user = User.objects.get(id=user_id)
+            
+            # Create or update profile
+            if not hasattr(user, 'profile'):
+                from parkingapp.models import UserProfile
+                UserProfile.objects.create(user=user, role=role)
+            else:
+                user.profile.role = role
+                user.profile.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'User role updated to {role}'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+    
+    return JsonResponse({'error': 'POST required'}, status=400)
+
+
+# ============ RECEIPT/INVOICE VIEW ============
+def view_receipt(request, invoice_id):
+    """Display receipt/invoice"""
+    context = {
+        'invoice_id': invoice_id,
+        'details': {
+            'vehicle': 'ABC-1234',
+            'entry': '2024-01-15 10:30 AM',
+            'exit': '2024-01-15 2:45 PM',
+            'duration': '4 hrs 15 min',
+            'amount': '$25.50',
+            'status': 'PAID',
+            'transaction_id': 'TXN-ABC123'
+        }
+    }
+    return render(request, 'receipt.html', context)

@@ -1,0 +1,370 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt - Smart Parking</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #28a745;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .receipt-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .receipt-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .receipt-header {
+            background: linear-gradient(135deg, var(--success), #20c997);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .receipt-header-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .receipt-header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .receipt-header p {
+            margin: 5px 0 0 0;
+            opacity: 0.95;
+            font-size: 16px;
+        }
+        
+        .receipt-body {
+            padding: 30px;
+        }
+        
+        .status-badge {
+            background: linear-gradient(135deg, var(--success), #20c997);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 30px;
+            display: block;
+        }
+        
+        .invoice-id {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .invoice-id label {
+            color: #999;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .invoice-id value {
+            display: block;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-top: 8px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .amount-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid var(--success);
+        }
+        
+        .amount-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .amount-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--success);
+        }
+        
+        .receipt-footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+        
+        .receipt-footer p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .receipt-footer strong {
+            color: #333;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .btn-print {
+            flex: 1;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn-print:hover {
+            background: #5568d3;
+        }
+        
+        .btn-back {
+            flex: 1;
+            padding: 12px;
+            background: #e0e0e0;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-back:hover {
+            background: #d0d0d0;
+        }
+        
+        .payment-method {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #ddd, transparent);
+            margin: 20px 0;
+        }
+        
+        .details-section {
+            margin-bottom: 25px;
+        }
+        
+        .details-section h3 {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #999;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .action-buttons {
+                display: none;
+            }
+            
+            .receipt-card {
+                box-shadow: none;
+                border-radius: 0;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .receipt-body {
+                padding: 20px;
+            }
+            
+            .detail-row {
+                padding: 12px 0;
+            }
+            
+            .amount-value {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt-container">
+        <div class="receipt-card">
+            <!-- Header -->
+            <div class="receipt-header">
+                <div class="receipt-header-icon">✓</div>
+                <h1>PAYMENT RECEIPT</h1>
+                <p>Smart Parking System</p>
+            </div>
+
+            <!-- Body -->
+            <div class="receipt-body">
+                <!-- Status -->
+                <span class="status-badge">✓ PAYMENT COMPLETED</span>
+
+                <!-- Invoice ID -->
+                <div class="invoice-id">
+                    <label>Invoice Number</label>
+                    <value>{{ invoice_id }}</value>
+                </div>
+
+                <!-- Vehicle Details Section -->
+                <div class="details-section">
+                    <h3>🚗 Vehicle Information</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">License Plate:</span>
+                        <span class="detail-value">{{ details.vehicle }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Vehicle Type:</span>
+                        <span class="detail-value">Sedan</span>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Parking Details Section -->
+                <div class="details-section">
+                    <h3>⏱️ Parking Duration</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Entry Time:</span>
+                        <span class="detail-value">{{ details.entry }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Exit Time:</span>
+                        <span class="detail-value">{{ details.exit }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Total Duration:</span>
+                        <span class="detail-value">{{ details.duration }}</span>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Payment Details Section -->
+                <div class="details-section">
+                    <h3>💳 Payment Details</h3>
+                    
+                    <div class="amount-row">
+                        <span class="amount-label">Total Amount Due:</span>
+                        <span class="amount-value">{{ details.amount }}</span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <span class="detail-label">Payment Method:</span>
+                        <span class="detail-value">Card</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Transaction ID:</span>
+                        <span class="detail-value" style="font-family: 'Courier New', monospace; font-size: 12px;">{{ details.transaction_id }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Status:</span>
+                        <span class="detail-value" style="color: var(--success);">{{ details.status }}</span>
+                    </div>
+                </div>
+
+                <!-- Footer Info -->
+                <div class="receipt-footer">
+                    <p><strong>A receipt has been sent to your registered email address.</strong></p>
+                    <p style="margin-top: 15px; color: #999;">This is an official receipt from Smart Parking System.<br>
+                    Please keep it for your records.</p>
+                    <p style="margin-top: 15px;">
+                        <strong>For Assistance:</strong><br>
+                        📧 support@smartparking.com<br>
+                        📞 +91 90147 92534
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn-print" onclick="window.print()">🖨️ Print Receipt</button>
+            <a href="{% url 'home' %}" class="btn-back">← Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Auto-scroll to receipt on load
+        document.querySelector('.receipt-card').scrollIntoView({behavior: 'smooth'});
+        
+        // Optional: Auto-open print dialog
+        // window.print();
+    </script>
+</body>
+</html>

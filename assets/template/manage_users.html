@@ -1,0 +1,566 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users - Smart Parking Admin</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #28a745;
+            --warning: #ff9800;
+            --danger: #e74c3c;
+            --info: #3498db;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        .card-body {
+            padding: 30px;
+        }
+        
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .user-table thead {
+            background: #f8f9fa;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .user-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .user-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .user-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .role-badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: white;
+        }
+        
+        .role-admin {
+            background: linear-gradient(135deg, var(--danger), #c0392b);
+        }
+        
+        .role-manager {
+            background: linear-gradient(135deg, var(--warning), #d68910);
+        }
+        
+        .role-attendant {
+            background: linear-gradient(135deg, var(--info), #2980b9);
+        }
+        
+        .role-user {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        }
+        
+        .role-select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .role-select:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        .btn-update {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: background 0.3s;
+        }
+        
+        .btn-update:hover {
+            background: #218838;
+        }
+        
+        .btn-update:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .user-email {
+            font-size: 13px;
+            color: #999;
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .error-message {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-label {
+            color: #999;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .search-box input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        .badge-status {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-online {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: white;
+            color: var(--primary);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .user-table {
+                font-size: 13px;
+            }
+            
+            .user-table th, .user-table td {
+                padding: 10px;
+            }
+            
+            .role-select {
+                width: 100%;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Back Button -->
+        <a href="{% url 'home' %}" class="back-btn">← Back to Home</a>
+
+        <!-- Messages -->
+        <div class="success-message" id="successMessage"></div>
+        <div class="error-message" id="errorMessage"></div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Users</div>
+                <div class="stat-value">{{ users|length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Administrators</div>
+                <div class="stat-value" id="adminCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Managers</div>
+                <div class="stat-value" id="managerCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Attendants</div>
+                <div class="stat-value" id="attendantCount">0</div>
+            </div>
+        </div>
+
+        <!-- User Management -->
+        <div class="card">
+            <div class="card-header">
+                👥 User Management - Role Assignment
+            </div>
+            <div class="card-body">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search users by name or email...">
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Current Role</th>
+                                <th>Assign Role</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            {% for user in users %}
+                            <tr class="user-row">
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar">{{ user.username|first|upper }}</div>
+                                        <div class="user-details">
+                                            <div class="user-name">{{ user.username }}</div>
+                                            <div class="user-email">{{ user.get_full_name|default:"N/A" }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    <span class="role-badge role-user" id="role-{{ user.id }}">
+                                        user
+                                    </span>
+                                </td>
+                                <td>
+                                    <select class="role-select" id="select-{{ user.id }}" onchange="prepareUpdate({{ user.id }})">
+                                        <option value="user">Regular User</option>
+                                        <option value="attendant">Parking Attendant</option>
+                                        <option value="manager">Parking Manager</option>
+                                        <option value="admin">Administrator</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <button class="btn-update" id="btn-{{ user.id }}" onclick="updateRole({{ user.id }})" disabled>
+                                        Save
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Role Information -->
+        <div class="card">
+            <div class="card-header">
+                ℹ️ Role Permissions
+            </div>
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <div>
+                        <h5 style="color: var(--danger); margin-bottom: 10px;">👨‍💼 Administrator</h5>
+                        <ul style="padding-left: 20px;">
+                            <li>Full system access</li>
+                            <li>Manage users and roles</li>
+                            <li>Process payments</li>
+                            <li>View all analytics</li>
+                            <li>System configuration</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5 style="color: var(--warning); margin-bottom: 10px;">🔧 Manager</h5>
+                        <ul style="padding-left: 20px;">
+                            <li>View all parking status</li>
+                            <li>Manage parking operations</li>
+                            <li>Process payments</li>
+                            <li>View analytics reports</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5 style="color: var(--info); margin-bottom: 10px;">👁️ Attendant</h5>
+                        <ul style="padding-left: 20px;">
+                            <li>View parking status</li>
+                            <li>Update occupancy</li>
+                            <li>View lot status</li>
+                            <li>Monitor vehicles</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5 style="color: #999; margin-bottom: 10px;">👤 User</h5>
+                        <ul style="padding-left: 20px;">
+                            <li>View available parking</li>
+                            <li>View own payments</li>
+                            <li>Make payments</li>
+                            <li>Check parking status</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const roleColors = {
+            'admin': 'role-admin',
+            'manager': 'role-manager',
+            'attendant': 'role-attendant',
+            'user': 'role-user'
+        };
+
+        // Filter users on search
+        document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('.user-row');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        function prepareUpdate(userId) {
+            document.getElementById('btn-' + userId).disabled = false;
+        }
+
+        function updateRole(userId) {
+            const newRole = document.getElementById('select-' + userId).value;
+            const button = document.getElementById('btn-' + userId);
+            
+            button.disabled = true;
+            button.textContent = 'Saving...';
+
+            fetch('{% url "update_user_role" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    role: newRole
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const roleElement = document.getElementById('role-' + userId);
+                    roleElement.textContent = newRole;
+                    roleElement.className = 'role-badge ' + roleColors[newRole];
+                    
+                    showSuccess('✓ ' + data.message);
+                    button.textContent = 'Save';
+                    button.disabled = false;
+                    
+                    updateStats();
+                } else {
+                    showError(data.error || 'Failed to update role');
+                    button.textContent = 'Save';
+                    button.disabled = false;
+                }
+            })
+            .catch(error => {
+                showError(error.message);
+                button.textContent = 'Save';
+                button.disabled = false;
+            });
+        }
+
+        function showSuccess(msg) {
+            const div = document.getElementById('successMessage');
+            div.textContent = msg;
+            div.classList.add('show');
+            setTimeout(() => div.classList.remove('show'), 3000);
+        }
+
+        function showError(msg) {
+            const div = document.getElementById('errorMessage');
+            div.textContent = msg;
+            div.classList.add('show');
+            setTimeout(() => div.classList.remove('show'), 5000);
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function updateStats() {
+            const roles = document.querySelectorAll('.role-badge');
+            let adminCount = 0, managerCount = 0, attendantCount = 0;
+            
+            roles.forEach(badge => {
+                if (badge.textContent.includes('admin')) adminCount++;
+                if (badge.textContent.includes('manager')) managerCount++;
+                if (badge.textContent.includes('attendant')) attendantCount++;
+            });
+            
+            document.getElementById('adminCount').textContent = adminCount;
+            document.getElementById('managerCount').textContent = managerCount;
+            document.getElementById('attendantCount').textContent = attendantCount;
+        }
+
+        // Initialize stats on page load
+        window.addEventListener('load', updateStats);
+    </script>
+</body>
+</html>

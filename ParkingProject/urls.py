@@ -115,6 +115,16 @@ urlpatterns = [
     path('payments/', features_views.payments, name='payments'),
     path('process-payment/<int:session_id>/', features_views.process_payment, name='process_payment'),
     
+    # Payment System - NEW IMPLEMENTATION
+    path('payment/', parking_views.payment_page, name='payment_page'),
+    path('api/calculate-fee/', parking_views.calculate_parking_fee, name='calculate_fee'),
+    path('api/process-payment/', parking_views.process_parking_payment, name='process_payment_api'),
+    path('receipt/<str:invoice_id>/', parking_views.view_receipt, name='view_receipt'),
+    
+    # User Management - RBAC
+    path('manage-users/', parking_views.manage_users, name='manage_users'),
+    path('api/update-user-role/', parking_views.update_user_role, name='update_user_role'),
+    
     # Feature 3: Parking Reservations
     path('reserve-parking/', features_views.reserve_parking, name='reserve_parking'),
     path('my-reservations/', features_views.my_reservations, name='my_reservations'),
