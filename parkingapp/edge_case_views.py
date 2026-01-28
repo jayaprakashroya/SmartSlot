@@ -655,6 +655,7 @@ def heatmap_analytics(request, lot_id=None):
     return JsonResponse(analytics)
 
 
+@login_required
 @require_http_methods(["GET"])
 def heatmap_realtime_api(request, lot_id=None):
     """Real-time heatmap API for auto-refresh"""
