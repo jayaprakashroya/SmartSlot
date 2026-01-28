@@ -1,0 +1,345 @@
+"""
+MANDATORY FEATURES REQUIREMENTS
+Smart Parking System - Final Year Project
+Production-Ready Enhancements
+"""
+
+# ===== 1. EMAIL NOTIFICATION SYSTEM =====
+"""
+Feature: Automated Email Communications
+
+Requirements:
+- Send parking receipts to users
+- Send payment confirmations
+- Send parking duration reminders
+- Send system alerts
+
+Implementation:
+- Module: parkingapp/email_service.py
+- Configuration: settings.py EMAIL_* variables
+- Dependencies: Django email backend
+
+Benefits:
+✓ Professional user communication
+✓ Receipt documentation
+✓ Alert notifications
+✓ System integration
+✓ Production-standard feature
+
+Testing:
+- Development: Console backend prints emails
+- Production: SMTP backend sends real emails
+- Test email sending without payment
+- Verify HTML formatting
+- Check email templates
+"""
+
+# ===== 2. PAYMENT SYSTEM =====
+"""
+Feature: Parking Fee Processing & Invoicing
+
+Requirements:
+- Calculate fees based on parking duration
+- Generate professional invoices
+- Process payments (mock and real)
+- Track payment status
+- Create payment history
+
+Pricing Tiers:
+- First hour: $5.00
+- Second hour: $8.00
+- Up to 4 hours: $15.00
+- Per additional hour: $3.00
+- Daily maximum: $50.00
+
+Implementation:
+- Module: parkingapp/payment_service.py
+- API Views: parkingapp/payment_views.py
+- Configuration: settings.py PAYMENT_* variables
+- Dependencies: Optional Stripe library
+
+Features:
+✓ Automatic fee calculation
+✓ Invoice generation
+✓ Payment processing
+✓ Receipt generation
+✓ Transaction tracking
+✓ Payment history
+
+Testing:
+- Test all pricing tiers
+- Test invoice generation
+- Test mock payments
+- Test Stripe integration (if enabled)
+- Verify receipts sent via email
+"""
+
+# ===== 3. ROLE-BASED ACCESS CONTROL =====
+"""
+Feature: User Role & Permission Management
+
+Requirements:
+- Define user roles (Admin, Manager, Attendant, User)
+- Assign permissions to roles
+- Protect views based on roles
+- Control resource access
+- Audit user actions
+
+Roles:
+1. Administrator (admin)
+   - Full system access
+   - Manage users
+   - Manage payments
+   - View all analytics
+   - Configure system
+
+2. Parking Manager (manager)
+   - View all parking
+   - Manage parking operations
+   - Process payments
+   - View analytics
+
+3. Parking Attendant (attendant)
+   - View parking status
+   - Update occupancy
+   - View lot status
+
+4. Regular User (user)
+   - View available parking
+   - View own payments
+   - Make payments
+
+Implementation:
+- Module: parkingapp/rbac.py
+- Middleware: RoleBasedAccessMiddleware
+- Decorators: @role_required, @permission_required
+- Configuration: settings.py role definitions
+
+Features:
+✓ Hierarchical role system
+✓ Granular permissions
+✓ View protection
+✓ Template-level access control
+✓ Resource-based access
+✓ Audit capability
+
+Testing:
+- Test each role permission
+- Test view access restrictions
+- Test role assignment
+- Test permission inheritance
+- Test cross-role scenarios
+"""
+
+# ===== 4. MOBILE RESPONSIVE DESIGN =====
+"""
+Feature: Device-Adaptive User Interface
+
+Requirements:
+- Works on mobile (< 576px)
+- Works on tablet (768px - 991px)
+- Works on desktop (1200px+)
+- Touch-friendly controls
+- Readable on all screens
+- Fast loading on mobile
+
+Breakpoints:
+- Extra Small: < 576px (Mobile)
+- Small: 576px - 767px (Mobile landscape)
+- Medium: 768px - 991px (Tablet)
+- Large: 992px - 1199px (Desktop)
+- Extra Large: 1200px+ (Large desktop)
+
+Implementation:
+- CSS File: assets/css/responsive.css
+- Approach: Mobile-first
+- Classes: container-responsive, grid, card-responsive, etc.
+- Features: Responsive grid, flexible buttons, scrollable tables
+
+Features:
+✓ Mobile-first design
+✓ Touch-friendly (44x44px minimum)
+✓ Flexible grid system
+✓ Responsive images
+✓ Optimized typography
+✓ Cross-browser compatible
+
+Testing:
+- iPhone (375px width)
+- Android phone (360px width)
+- iPad (768px width)
+- Desktop (1920px width)
+- Landscape orientation
+- Touch interactions
+"""
+
+# ===== INTEGRATION REQUIREMENTS =====
+"""
+Database Models Needed:
+1. UserProfile
+   - user (ForeignKey to User)
+   - role (CharField: admin, manager, attendant, user)
+   - created_at (DateTimeField)
+
+2. Payment (Optional but Recommended)
+   - invoice_id (CharField, unique)
+   - user (ForeignKey to User)
+   - vehicle (ForeignKey to Vehicle)
+   - parking_lot (ForeignKey to ParkingLot)
+   - amount (DecimalField)
+   - currency (CharField)
+   - entry_time (DateTimeField)
+   - exit_time (DateTimeField)
+   - status (CharField: paid, pending, failed)
+   - payment_date (DateTimeField)
+   - transaction_id (CharField)
+   - created_at (DateTimeField)
+
+Settings.py Additions:
+1. Email configuration
+   - EMAIL_BACKEND
+   - EMAIL_HOST
+   - EMAIL_PORT
+   - EMAIL_USE_TLS
+   - DEFAULT_FROM_EMAIL
+
+2. Payment configuration
+   - PAYMENT_ENABLED
+   - PAYMENT_GATEWAY
+   - STRIPE_PUBLIC_KEY
+   - STRIPE_SECRET_KEY
+
+3. RBAC configuration
+   - USER_ROLES
+   - ROLE_PERMISSIONS
+
+4. Middleware
+   - parkingapp.rbac.RoleBasedAccessMiddleware
+
+5. Context Processors
+   - parkingapp.rbac.role_context
+
+urls.py Additions:
+- Payment API endpoints:
+  - /api/payment/calculate-fee/
+  - /api/payment/create-invoice/
+  - /api/payment/process/
+  - /api/payment/history/
+  - /api/payment/invoice/<id>/
+  - /api/payment/status/<id>/
+
+Template Changes:
+1. Add responsive CSS link
+2. Update navbar with responsive classes
+3. Update forms with form-control classes
+4. Update tables with table-responsive class
+5. Update buttons with btn classes
+6. Add role-based conditionals
+7. Add mobile utilities
+"""
+
+# ===== QUALITY METRICS =====
+"""
+Code Quality:
+- Modular design (separate modules per feature)
+- DRY principle (no code duplication)
+- PEP 8 compliance
+- Type hints where applicable
+- Comprehensive docstrings
+- Error handling
+
+Security:
+- CSRF protection on all forms
+- SQL injection prevention (ORM)
+- XSS prevention (template escaping)
+- Authentication required for sensitive operations
+- Role-based authorization
+- Secure password handling
+
+Performance:
+- Database query optimization
+- Minimal HTTP requests
+- CSS/JS minification
+- Image optimization
+- Caching where applicable
+- Mobile-optimized assets
+
+User Experience:
+- Intuitive navigation
+- Clear feedback messages
+- Error messages with solutions
+- Mobile-friendly touch targets
+- Fast loading times
+- Accessible design
+"""
+
+# ===== TESTING REQUIREMENTS =====
+"""
+Unit Tests:
+- Email service (send emails)
+- Payment calculations (all pricing tiers)
+- RBAC permission checks (all roles)
+- Role assignment
+
+Integration Tests:
+- Payment workflow (calculate -> invoice -> process)
+- Email notifications (on payment)
+- Role-based view access
+- Responsive layout (all breakpoints)
+
+Manual Tests:
+- End-to-end payment flow
+- Email delivery (development & production)
+- Role permissions (each role type)
+- Responsive design (real devices)
+- Cross-browser compatibility
+"""
+
+# ===== DEPLOYMENT REQUIREMENTS =====
+"""
+Before Production:
+- [ ] All tests passing
+- [ ] Email backend configured
+- [ ] Payment gateway keys set
+- [ ] Database migrations applied
+- [ ] User roles assigned
+- [ ] Static files collected
+- [ ] Security headers configured
+- [ ] HTTPS enabled
+- [ ] Backup strategy in place
+- [ ] Monitoring/logging setup
+- [ ] Documentation complete
+- [ ] Support contact info configured
+
+Post-Deployment:
+- [ ] Monitor email delivery
+- [ ] Monitor failed payments
+- [ ] Monitor user access
+- [ ] Check error logs regularly
+- [ ] Update security as needed
+- [ ] Regular backups
+- [ ] Performance monitoring
+"""
+
+# ===== PROJECT EVALUATION CRITERIA =====
+"""
+These mandatory features address key evaluation criteria:
+
+1. ✓ Functionality: All core features working
+2. ✓ User Experience: Mobile-responsive, intuitive
+3. ✓ Security: RBAC, authentication, authorization
+4. ✓ Scalability: Modular design, extensible
+5. ✓ Documentation: Comprehensive guides
+6. ✓ Code Quality: Clean, maintainable code
+7. ✓ Professional: Production-ready features
+8. ✓ Real-World Use: Payment, email, permissions
+
+Final Year Project Strengths:
+- Complete feature set for a parking system
+- Professional-grade implementation
+- Real-world deployment ready
+- Comprehensive documentation
+- Security best practices
+- Mobile-first approach
+- Scalable architecture
+"""
