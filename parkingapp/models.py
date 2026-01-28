@@ -673,3 +673,60 @@ class ParkingLotSettings(models.Model):
     
     def __str__(self):
         return f"Settings for {self.parking_lot.lot_name}"
+
+
+# ============ USER PROFILE & RBAC ============
+from django.contrib.auth.models import User
+
+class UserProfile(models.Model):
+    """User profile for role-based access control"""
+    ROLE_CHOICES = [
+        ('admin', 'Administrator'),
+        ('manager', 'Parking Manager'),
+        ('attendant', 'Parking Attendant'),
+        ('user', 'Regular User'),
+    ]
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='user')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'user_profiles'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.role}"
+
+
+# ============ PAYMENT SYSTEM ============
+class Payment(models.Model):
+    """Payment records for parking sessions"""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('refunded', 'Refunded'),
+    ]
+    
+    invoice_id = models.CharField(max_length=20, unique=True)
+    transaction_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='payments')
+    parking_lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE, related_name='payments')
+    entry_time = models.DateTimeField()
+    exit_time = models.DateTimeField(null=True, blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3, default='USD')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_method = models.CharField(max_length=50, null=True, blank=True)
+    user_email = models.EmailField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'payments'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.invoice_id} - {self.amount} {self.currency} ({self.status})"

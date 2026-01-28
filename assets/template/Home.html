@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/vibrant-theme.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
   </head>
 
   <body>
@@ -69,6 +70,9 @@
 	        	<li class="nav-item"><a href="{% url 'home' %}" class="nav-link active">Home</a></li>
 	        	<li class="nav-item"><a href="{% url 'about' %}" class="nav-link">About</a></li>
 	        	<li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
+	        	<li class="nav-item"><a href="{% url 'payment_page' %}" class="nav-link">💳 Payment</a></li>
+	        	<li class="nav-item"><a href="{% url 'manage_users' %}" class="nav-link">👥 Users</a></li>
+	        	<li class="nav-item"><a href="{% url 'admin_dashboard' %}" class="nav-link">📊 Dashboard</a></li>
 	        	<li class="nav-item"><a href="{% url 'login' %}" class="nav-link btn btn-info text-white ml-3">Login</a></li>
 	        </ul> 
 	      </div>
