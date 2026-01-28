@@ -41,29 +41,55 @@ def parking_map(request):
     try:
         lots = ParkingLot.objects.all()
         
+        if not lots.exists():
+            logger.warning("No parking lots found in database")
+            context = {
+                'lots': [],
+                'lot_data': json.dumps([]),
+                'error': 'No parking lots available'
+            }
+            return render(request, 'parking_map.html', context)
+        
         # Prepare lot data for map
         lot_data = []
         for lot in lots:
             try:
-                settings = lot.settings if hasattr(lot, 'settings') else None
-            except:
-                settings = None
-            
-            lot_data.append({
-                'id': lot.lot_id,
-                'name': lot.lot_name,
-                'latitude': float(settings.latitude) if settings and settings.latitude else 0.0,
-                'longitude': float(settings.longitude) if settings and settings.longitude else 0.0,
-                'address': settings.address if settings and settings.address else 'Address not available',
-                'phone': settings.phone if settings and settings.phone else '',
-                'available_spots': int(lot.available_spots()),
-                'total_spots': int(lot.total_spots),
-                'occupancy_percent': round(
-                    ((lot.total_spots - lot.available_spots()) / lot.total_spots * 100) 
-                    if lot.total_spots > 0 else 0, 1
-                ),
-                'distance': 0  # Will be calculated on frontend
-            })
+                # Try to get settings, but don't fail if they don't exist
+                try:
+                    settings = ParkingLotSettings.objects.get(parking_lot=lot)
+                except:
+                    settings = None
+                
+                lot_data.append({
+                    'id': lot.lot_id,
+                    'name': lot.lot_name,
+                    'latitude': float(settings.latitude) if settings and settings.latitude else 0.0,
+                    'longitude': float(settings.longitude) if settings and settings.longitude else 0.0,
+                    'address': settings.address if settings and settings.address else 'Address not available',
+                    'phone': settings.phone if settings and settings.phone else '',
+                    'available_spots': int(lot.available_spots()),
+                    'total_spots': int(lot.total_spots),
+                    'occupancy_percent': round(
+                        ((lot.total_spots - lot.available_spots()) / lot.total_spots * 100) 
+                        if lot.total_spots > 0 else 0, 1
+                    ),
+                    'distance': 0  # Will be calculated on frontend
+                })
+            except Exception as lot_error:
+                logger.error(f"Error processing lot {lot.lot_id}: {str(lot_error)}")
+                # Still add the lot even if there's an error
+                lot_data.append({
+                    'id': lot.lot_id,
+                    'name': lot.lot_name,
+                    'latitude': 0.0,
+                    'longitude': 0.0,
+                    'address': 'Address not available',
+                    'phone': '',
+                    'available_spots': int(lot.available_spots()),
+                    'total_spots': int(lot.total_spots),
+                    'occupancy_percent': 0,
+                    'distance': 0
+                })
         
         context = {
             'lots': lots,
