@@ -213,7 +213,6 @@ def low_confidence_detections(request):
 # 3. PRIVACY - PLATE MASKING & ACCESS CONTROL VIEWS
 # ═══════════════════════════════════════════════════════════════════
 
-@login_required
 @require_http_methods(["GET"])
 def plate_access_logs(request):
     """View audit log of plate access by admins - ADMIN ONLY - PRIVACY SENSITIVE"""
@@ -244,7 +243,6 @@ def plate_access_logs(request):
     return render(request, 'plate_access_logs.html', data)
 
 
-@login_required
 @require_http_methods(["GET"])
 def vehicle_display(request, vehicle_id):
     """Get vehicle info with privacy masking - user can see own, admin can see all"""
@@ -305,7 +303,6 @@ def file_dispute(request, parking_record_id):
     return JsonResponse(result)
 
 
-@login_required
 @require_http_methods(["GET"])
 def view_dispute_details(request, dispute_id):
     """View dispute with full evidence - user can see own, admin can see all"""

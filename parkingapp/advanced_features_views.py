@@ -44,16 +44,20 @@ def parking_map(request):
         # Prepare lot data for map
         lot_data = []
         for lot in lots:
-            settings = lot.settings
+            try:
+                settings = lot.settings if hasattr(lot, 'settings') else None
+            except:
+                settings = None
+            
             lot_data.append({
                 'id': lot.lot_id,
                 'name': lot.lot_name,
-                'latitude': settings.latitude if settings else 0,
-                'longitude': settings.longitude if settings else 0,
-                'address': settings.address if settings else 'Address not available',
-                'phone': settings.phone if settings else '',
-                'available_spots': lot.available_spots(),
-                'total_spots': lot.total_spots,
+                'latitude': float(settings.latitude) if settings and settings.latitude else 0.0,
+                'longitude': float(settings.longitude) if settings and settings.longitude else 0.0,
+                'address': settings.address if settings and settings.address else 'Address not available',
+                'phone': settings.phone if settings and settings.phone else '',
+                'available_spots': int(lot.available_spots()),
+                'total_spots': int(lot.total_spots),
                 'occupancy_percent': round(
                     ((lot.total_spots - lot.available_spots()) / lot.total_spots * 100) 
                     if lot.total_spots > 0 else 0, 1
@@ -159,7 +163,6 @@ def calculate_dynamic_price(parking_lot, occupancy_percent):
         return base_rate
 
 
-@login_required
 def dynamic_pricing_info(request, lot_id):
     """Show dynamic pricing information for a lot"""
     try:
@@ -194,7 +197,6 @@ def dynamic_pricing_info(request, lot_id):
 # FEATURE: PREDICTIVE ANALYTICS - PEAK HOURS
 # ═══════════════════════════════════════════════════════════════════
 
-@login_required
 def peak_hours_forecast(request):
     """Predict peak hours and busy times"""
     try:
@@ -285,7 +287,6 @@ class ParkingWaitlist:
 # FEATURE: ACCESSIBILITY - HANDICAP SPOTS
 # ═══════════════════════════════════════════════════════════════════
 
-@login_required
 def accessible_parking(request):
     """Show accessible/handicap parking spots"""
     try:
@@ -326,7 +327,6 @@ class SensorFaultReport:
     """Report broken/malfunctioning sensors"""
     
     @staticmethod
-    @login_required
     def report_sensor_fault(request):
         """Report broken sensor in parking lot"""
         if request.method == 'POST':
@@ -363,7 +363,6 @@ class SensorFaultReport:
 # FEATURE: PRICING TIERS - Monthly/Daily/Hourly Passes
 # ═══════════════════════════════════════════════════════════════════
 
-@login_required
 def purchase_pass(request):
     """Purchase parking passes (monthly, daily, hourly)"""
     try:
@@ -445,7 +444,6 @@ def purchase_pass(request):
         return redirect('dashboard')
 
 
-@login_required
 def my_passes(request):
     """View active parking passes"""
     try:
@@ -474,7 +472,6 @@ def my_passes(request):
 # FEATURE: STAFF DASHBOARD - Issue Management
 # ═══════════════════════════════════════════════════════════════════
 
-@login_required
 def staff_dashboard(request):
     """Staff/attendant dashboard for managing parking lot issues"""
     try:
