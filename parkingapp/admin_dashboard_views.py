@@ -279,38 +279,12 @@ def admin_dashboard(request):
                         'level': available_spot.level if hasattr(available_spot, 'level') else 'N/A',
                     })
         
-        # Add sample data if empty
-        if len(guidance_data) == 0:
+        # Always ensure sample data is available if empty
+        if not guidance_data:
             guidance_data = [
-                {
-                    'lot': 'Downtown Parking Garage',
-                    'nearest_available': 'A-45',
-                    'available_count': 23,
-                    'row': 'A',
-                    'level': '2',
-                },
-                {
-                    'lot': 'Shopping Mall Parking',
-                    'nearest_available': 'B-78',
-                    'available_count': 67,
-                    'row': 'B',
-                    'level': '3',
-                },
-                {
-                    'lot': 'Airport Terminal 1 Parking',
-                    'nearest_available': 'C-12',
-                    'available_count': 145,
-                    'row': 'C',
-                    'level': '1',
-                },
-            ]
-        
-        # Add sample data if no real availability
-        if len(guidance_data) == 0:
-            guidance_data = [
-                {'lot': 'Downtown Parking', 'nearest_available': 'A-15', 'available_count': 34, 'row': 'A', 'level': '2'},
-                {'lot': 'Shopping Mall', 'nearest_available': 'B-42', 'available_count': 67, 'row': 'B', 'level': '1'},
-                {'lot': 'Airport Terminal', 'nearest_available': 'C-128', 'available_count': 215, 'row': 'C', 'level': '3'},
+                {'lot': 'Downtown Parking Garage', 'nearest_available': 'A-45', 'available_count': 23, 'row': 'A', 'level': '2'},
+                {'lot': 'Shopping Mall Parking', 'nearest_available': 'B-78', 'available_count': 67, 'row': 'B', 'level': '3'},
+                {'lot': 'Airport Terminal 1 Parking', 'nearest_available': 'C-12', 'available_count': 145, 'row': 'C', 'level': '1'},
             ]
         
         context['features']['feature_7'] = {
