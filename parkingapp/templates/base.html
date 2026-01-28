@@ -221,52 +221,52 @@
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
+                    <!-- All features accessible to everyone -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/heatmap/">🔥 Heatmap</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/parking-lot-status/">📊 Parking Status</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/parking-map/">🗺️ Find Parking</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/parking-history/">📋 My History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/my-reservations/">📅 Reservations</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/payments/">💳 Payments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/purchase-pass/">🎟️ Passes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/notifications/">🔔 Alerts</a>
+                    </li>
+                    
+                    {% if request.session.is_admin %}
+                        <!-- Admin Menu -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown">
+                                👨‍💼 Admin
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="adminDropdown">
+                                <a class="dropdown-item" href="/admin-dashboard/">📊 Dashboard</a>
+                                <a class="dropdown-item" href="/staff-dashboard/">👥 Staff</a>
+                                <a class="dropdown-item" href="/analytics-dashboard/">📈 Analytics</a>
+                                <a class="dropdown-item" href="/revenue-report/">💰 Revenue</a>
+                                <a class="dropdown-item" href="/peak-hours-forecast/">📉 Forecast</a>
+                                <a class="dropdown-item" href="/report-sensor-fault/">⚠️ Faults</a>
+                                <hr class="dropdown-divider">
+                                <a class="dropdown-item" href="/admin/">Django Admin</a>
+                            </div>
+                        </li>
+                    {% endif %}
+                    
                     {% if request.session.user_email %}
-                        <!-- User Menu -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="/heatmap/">🔥 Heatmap</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/parking-lot-status/">📊 Parking Status</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/parking-map/">🗺️ Find Parking</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/parking-history/">📋 My History</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/my-reservations/">📅 Reservations</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/payments/">💳 Payments</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/purchase-pass/">🎟️ Passes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/notifications/">🔔 Alerts</a>
-                        </li>
-                        
-                        {% if request.session.is_admin %}
-                            <!-- Admin Menu -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown">
-                                    👨‍💼 Admin
-                                </a>
-                                <div class="dropdown-menu" aria-labelledby="adminDropdown">
-                                    <a class="dropdown-item" href="/admin-dashboard/">📊 Dashboard</a>
-                                    <a class="dropdown-item" href="/staff-dashboard/">👥 Staff</a>
-                                    <a class="dropdown-item" href="/analytics-dashboard/">📈 Analytics</a>
-                                    <a class="dropdown-item" href="/revenue-report/">💰 Revenue</a>
-                                    <a class="dropdown-item" href="/peak-hours-forecast/">📉 Forecast</a>
-                                    <a class="dropdown-item" href="/report-sensor-fault/">⚠️ Faults</a>
-                                    <hr class="dropdown-divider">
-                                    <a class="dropdown-item" href="/admin/">Django Admin</a>
-                                </div>
-                            </li>
-                        {% endif %}
-                        
                         <li class="nav-item">
                             <a class="nav-link" href="/logout/">🚪 Logout</a>
                         </li>
