@@ -123,7 +123,6 @@ def parking_lot_status_all_lots(request):
             lot_data = {
                 'lot_id': lot.lot_id,
                 'lot_name': lot.lot_name,
-                'lot_location': lot.lot_location,
                 'total_spots': status.get('total_spots', 0),
                 'occupied_spots': status.get('parked_vehicles_count', 0),
                 'available_spots': status.get('available_spaces_count', 0),
@@ -152,12 +151,12 @@ def parking_lot_status_all_lots(request):
             'total_stats': total_stats
         }
         
-        return render(request, 'parking_status_all_lots.html', context)
+        return render(request, 'parkingapp/parking_status_all_lots.html', context)
     
     except Exception as e:
         logger.error(f"Error in parking_lot_status_all_lots: {e}")
         messages.error(request, 'Error loading parking lot status')
-        return render(request, 'parking_status_all_lots.html', {
+        return render(request, 'parkingapp/parking_status_all_lots.html', {
             'parking_lots': [],
             'total_stats': {'total': 0, 'occupied': 0, 'available': 0, 'occupancy_rate': 0}
         })
