@@ -126,13 +126,15 @@ def payments(request):
         
         # Get payments based on user email
         if user_email:
-            # Try to get payments by user_email field (from second Payment model)
-            try:
+            # Query based on whichever field exists in the Payment model (schema differences)
+            payment_fields = [f.name for f in Payment._meta.get_fields()]
+            if 'user_email' in payment_fields:
                 payments = Payment.objects.filter(user_email=user_email).order_by('-created_at')
-            except:
-                # Fallback to user relationship
+            elif 'user' in payment_fields:
                 user = User_details.objects.get(Email=user_email)
                 payments = Payment.objects.filter(user=user).order_by('-created_at')
+            else:
+                payments = Payment.objects.all().order_by('-created_at')
         else:
             # Public view shows all payments
             payments = Payment.objects.all().order_by('-created_at')
@@ -176,14 +178,21 @@ def process_payment(request, session_id):
             payment_method = request.POST.get('payment_method', 'credit_card')
             
             # Create payment record
-            payment = Payment.objects.create(
-                parking_session=session,
-                user=user,
-                amount=session.parking_fee,
-                payment_method=payment_method,
-                payment_status='success',  # In real system: integrate payment gateway
-                transaction_id=f"TXN-{timezone.now().timestamp()}"
-            )
+            # Create payment record using whichever fields exist in the model
+            payment_fields = [f.name for f in Payment._meta.get_fields()]
+            create_kwargs = {
+                'parking_session': session,
+                'amount': session.parking_fee,
+                'payment_method': payment_method,
+                'payment_status': 'success',
+                'transaction_id': f"TXN-{timezone.now().timestamp()}"
+            }
+            if 'user' in payment_fields:
+                create_kwargs['user'] = user
+            elif 'user_email' in payment_fields:
+                create_kwargs['user_email'] = user.Email
+
+            payment = Payment.objects.create(**create_kwargs)
             
             # Update session
             session.payment_status = 'paid'
