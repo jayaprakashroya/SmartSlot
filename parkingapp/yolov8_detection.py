@@ -2,6 +2,11 @@
 YOLOv8-Based Advanced Parking Space Detection System
 This module provides state-of-the-art vehicle detection and parking space analysis
 using the YOLOv8 model from Ultralytics.
+
+Feature: Multi-Video Support with Automatic Resolution Scaling
+- Detects video resolution and scales parking spot dimensions accordingly
+- Works with different resolutions (640×480 to 4K)
+- No manual calibration required
 """
 
 import cv2
@@ -9,6 +14,7 @@ import numpy as np
 from ultralytics import YOLO
 import cvzone
 from collections import defaultdict
+from parkingapp.video_calibration import VideoCalibrator
 
 
 class ParkingSpaceDetector:
@@ -31,7 +37,15 @@ class ParkingSpaceDetector:
         self.model = YOLO(model_name)
         self.vehicle_classes = {2: 'car', 3: 'motorcycle', 5: 'bus', 7: 'truck'}
         self.track_history = defaultdict(list)
+        
+        # Multi-video support: Initialize calibrator for dynamic scaling
+        self.calibrator = VideoCalibrator()
+        self.scaled_dimensions = None  # Cache scaled dimensions
+        
         print("[INFO] YOLOv8 model loaded successfully")
+        print(f"[INFO] Multi-video support enabled with VideoCalibrator")
+        print(f"[INFO] Base parking spot dimensions: {self.calibrator.get_base_dimensions()}")
+        print(f"[INFO] Base video resolution: {self.calibrator.get_base_resolution()}")
     
     def detect_vehicles(self, frame, conf_threshold=0.25):
         """
@@ -80,7 +94,12 @@ class ParkingSpaceDetector:
         Returns:
             Dictionary with space status and statistics
         """
-        space_width, space_height = 107, 48
+        # Get parking spot dimensions scaled to video resolution
+        if self.scaled_dimensions is None:
+            space_width, space_height = self.calibrator.get_scaled_dimensions(frame)
+            self.scaled_dimensions = (space_width, space_height)
+        else:
+            space_width, space_height = self.scaled_dimensions
         occupancy_results = {
             'available': [],
             'occupied': [],
@@ -181,10 +200,17 @@ class ParkingSpaceDetector:
         Returns:
             Frame with drawn results
         """
+        # Get scaled dimensions for drawing
+        if self.scaled_dimensions is None:
+            space_width, space_height = self.calibrator.get_scaled_dimensions(frame)
+            self.scaled_dimensions = (space_width, space_height)
+        else:
+            space_width, space_height = self.scaled_dimensions
+        
         # Draw available spaces (green)
         for space in occupancy_results['available']:
             x, y = space['position']
-            cv2.rectangle(frame, (x, y), (x + 107, y + 48), (0, 255, 0), 2)
+            cv2.rectangle(frame, (x, y), (x + space_width, y + space_height), (0, 255, 0), 2)
             cvzone.putTextRect(frame, 'AVAILABLE', (x, y - 5), 
                              scale=0.5, thickness=1, offset=2, colorR=(0, 255, 0))
         
@@ -192,7 +218,7 @@ class ParkingSpaceDetector:
         for space in occupancy_results['occupied']:
             x, y = space['position']
             conf = space['confidence']
-            cv2.rectangle(frame, (x, y), (x + 107, y + 48), (0, 0, 255), 3)
+            cv2.rectangle(frame, (x, y), (x + space_width, y + space_height), (0, 0, 255), 3)
             cvzone.putTextRect(frame, f'OCCUPIED {conf:.0%}', (x, y - 5),
                              scale=0.5, thickness=1, offset=2, colorR=(0, 0, 255))
         

@@ -341,7 +341,7 @@ urlpatterns = [
 ## Testing Checklist
 
 - [ ] **Email**: Send test email from shell - check console output
-- [ ] **Payment**: Calculate fee for 2-hour parking - should be $8.00
+- [ ] **Payment**: Calculate fee for 2-hour parking - should be ₹680.00
 - [ ] **Payment**: Create invoice and get receipt - verify format
 - [ ] **Payment**: Process mock payment - verify success response
 - [ ] **RBAC**: Check role for test user - should return assigned role
@@ -376,7 +376,7 @@ start = datetime(2024, 1, 15, 10, 30)
 end = datetime(2024, 1, 15, 14, 45)
 
 fee = PaymentService.calculate_parking_fee(None, start, end)
-print(f"Fee: ${fee}")  # Should be $8.00
+print(f"Fee: ₹{fee}")  # Should be ₹680.00
 ```
 
 **Role not assigned:**

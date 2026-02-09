@@ -40,7 +40,7 @@
             <div class="card bg-danger text-white">
                 <div class="card-body">
                     <h6 class="card-title text-uppercase">Revenue Today</h6>
-                    <h3>${{ daily_revenue|default:"0" }}</h3>
+                    <h3>₹{{ daily_revenue|default:"0" }}</h3>
                     <small>Current day earnings</small>
                 </div>
             </div>
@@ -89,7 +89,7 @@
                                     <td>2 hours ago</td>
                                     <td>2h 15m</td>
                                     <td>A-12</td>
-                                    <td>$4.50</td>
+                                    <td>₹382.50</td>
                                     <td>
                                         <button class="btn btn-sm btn-success">Check Out</button>
                                         <button class="btn btn-sm btn-info">View Details</button>
@@ -100,7 +100,7 @@
                                     <td>1 hour ago</td>
                                     <td>1h 30m</td>
                                     <td>B-05</td>
-                                    <td>$3.00</td>
+                                    <td>₹255</td>
                                     <td>
                                         <button class="btn btn-sm btn-success">Check Out</button>
                                         <button class="btn btn-sm btn-info">View Details</button>
@@ -111,7 +111,7 @@
                                     <td>45 minutes ago</td>
                                     <td>1h 00m</td>
                                     <td>C-20</td>
-                                    <td>$2.50</td>
+                                    <td>₹212.50</td>
                                     <td>
                                         <button class="btn btn-sm btn-success">Check Out</button>
                                         <button class="btn btn-sm btn-info">View Details</button>
@@ -122,7 +122,7 @@
                                     <td>6 hours ago</td>
                                     <td>6h 30m</td>
                                     <td>D-08</td>
-                                    <td>$16.25</td>
+                                    <td>₹1,381.25</td>
                                     <td>
                                         <button class="btn btn-sm btn-danger">Flag for Payment</button>
                                         <button class="btn btn-sm btn-info">View Details</button>
@@ -199,7 +199,7 @@
                 </div>
                 <div class="card-body">
                     <div class="alert alert-danger">
-                        <strong>⚡ Critical Alert:</strong> Vehicle ABC-1234 has exceeded 8-hour limit. Automatic fine ($50) applied.
+                        <strong>⚡ Critical Alert:</strong> Vehicle ABC-1234 has exceeded 8-hour limit. Automatic fine (₹4,250) applied.
                     </div>
                     <div class="alert alert-warning">
                         <strong>⚠️ Warning:</strong> Zone A is at 95% capacity. Incoming vehicles may have difficulty finding spots.
@@ -220,13 +220,13 @@
                                 <tr>
                                     <td>ABC-1234</td>
                                     <td>Exceeded 8-hour limit</td>
-                                    <td>$50.00</td>
+                                    <td>₹4,250.00</td>
                                     <td><span class="badge badge-danger">Unpaid</span></td>
                                 </tr>
                                 <tr>
                                     <td>JKL-7890</td>
                                     <td>No valid pass</td>
-                                    <td>$25.00</td>
+                                    <td>₹2,125.00</td>
                                     <td><span class="badge badge-success">Paid</span></td>
                                 </tr>
                             </tbody>

@@ -109,18 +109,34 @@ def api_lot_directions(request, lot_id):
         lot = ParkingLot.objects.get(lot_id=lot_id)
         settings = lot.settings
         
-        data = {
-            'lot_id': lot.lot_id,
-            'name': lot.lot_name,
-            'address': settings.address if settings else 'Address not available',
-            'latitude': settings.latitude if settings else 0,
-            'longitude': settings.longitude if settings else 0,
-            'phone': settings.phone if settings else '',
-            'available_spots': lot.available_spots(),
-            'total_spots': lot.total_spots,
-            'directions_url': f'https://maps.google.com/maps?q={settings.latitude},{settings.longitude}' if settings and settings.latitude else ''
-        }
-        return JsonResponse(data)
+        # Check if requesting JSON or HTML
+        if request.headers.get('Accept') == 'application/json':
+            data = {
+                'lot_id': lot.lot_id,
+                'name': lot.lot_name,
+                'address': settings.address if settings else 'Address not available',
+                'latitude': settings.latitude if settings else 0,
+                'longitude': settings.longitude if settings else 0,
+                'phone': settings.phone if settings else '',
+                'available_spots': lot.available_spots(),
+                'total_spots': lot.total_spots,
+                'directions_url': f'https://maps.google.com/maps?q={settings.latitude},{settings.longitude}' if settings and settings.latitude else ''
+            }
+            return JsonResponse(data)
+        else:
+            # Return HTML page with lot details
+            context = {
+                'lot': lot,
+                'settings': settings,
+                'available_spots': lot.available_spots(),
+                'total_spots': lot.total_spots,
+                'occupancy_percent': round(
+                    ((lot.total_spots - lot.available_spots()) / lot.total_spots * 100) 
+                    if lot.total_spots > 0 else 0, 1
+                ),
+                'directions_url': f'https://maps.google.com/maps?q={settings.latitude},{settings.longitude}' if settings and settings.latitude else ''
+            }
+            return render(request, 'lot_directions.html', context)
     except Exception as e:
         logger.error(f"API directions error: {str(e)}")
         return JsonResponse({'error': 'Lot not found'}, status=404)

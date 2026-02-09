@@ -13,7 +13,7 @@
             <div class="card h-100 text-center border-primary">
                 <div class="card-body">
                     <h5 class="card-title">⏱️ Hourly Pass</h5>
-                    <p class="display-4 text-primary">$2.50</p>
+                    <p class="display-4 text-primary">₹212.50</p>
                     <p class="text-muted">Per hour</p>
                     <hr>
                     <ul class="list-unstyled text-left">
@@ -34,7 +34,7 @@
             <div class="card h-100 text-center border-success">
                 <div class="card-body">
                     <h5 class="card-title">📅 Daily Pass</h5>
-                    <p class="display-4 text-success">$15.00</p>
+                    <p class="display-4 text-success">₹1,275.00</p>
                     <p class="text-muted">Per day</p>
                     <div class="badge badge-success mb-2">Save 40%</div>
                     <hr>
@@ -56,7 +56,7 @@
             <div class="card h-100 text-center border-info">
                 <div class="card-body">
                     <h5 class="card-title">📆 Weekly Pass</h5>
-                    <p class="display-4 text-info">$80.00</p>
+                    <p class="display-4 text-info">₹6,800.00</p>
                     <p class="text-muted">Per week</p>
                     <div class="badge badge-info mb-2">Save 50%</div>
                     <hr>
@@ -78,7 +78,7 @@
             <div class="card h-100 text-center border-warning">
                 <div class="card-body">
                     <h5 class="card-title">🎁 Monthly Pass</h5>
-                    <p class="display-4 text-warning">$250.00</p>
+                    <p class="display-4 text-warning">₹21,250.00</p>
                     <p class="text-muted">Per month</p>
                     <div class="badge badge-warning mb-2">Save 60%</div>
                     <hr>
@@ -120,7 +120,7 @@
                             <td>{{ pass.purchased_at }}</td>
                             <td>{{ pass.valid_until }}</td>
                             <td><span class="badge badge-success">Active</span></td>
-                            <td>${{ pass.price }}</td>
+                            <td>₹{{ pass.price }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -150,10 +150,10 @@
                     <tbody>
                         <tr>
                             <td><strong>Price</strong></td>
-                            <td>$2.50</td>
-                            <td>$15.00</td>
-                            <td>$80.00</td>
-                            <td>$250.00</td>
+                            <td>₹212.50</td>
+                            <td>₹1,275.00</td>
+                            <td>₹6,800.00</td>
+                            <td>₹21,250.00</td>
                         </tr>
                         <tr>
                             <td><strong>Duration</strong></td>

@@ -161,7 +161,7 @@ Smart Parking System
                     <tr style="border-bottom: 1px solid #ddd;">
                         <td style="padding: 10px; font-weight: bold;">Amount:</td>
                         <td style="padding: 10px; font-weight: bold; color: #4caf50;">
-                            USD ${transaction_data['amount']}
+                            INR ₹{transaction_data['amount']}
                         </td>
                     </tr>
                     <tr>
@@ -186,7 +186,7 @@ Smart Parking System
 Payment Confirmed
 
 Transaction ID: {transaction_data['transaction_id']}
-Amount: USD ${transaction_data['amount']}
+Amount: INR ₹{transaction_data['amount']}
 Date: {transaction_data['timestamp']}
 Status: COMPLETED
 

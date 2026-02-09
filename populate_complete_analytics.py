@@ -75,9 +75,9 @@ def create_sample_payments():
             # Calculate fee based on duration
             if session.duration_minutes:
                 hours = session.duration_minutes / 60
-                amount = Decimal(str(round(hours * 2.5, 2)))  # $2.50/hour
+                amount = Decimal(str(round(hours * 212.5, 2)))  # ₹212.50/hour
             else:
-                amount = Decimal('5.00')
+                amount = Decimal('425.00')
             
             payment, created = Payment.objects.get_or_create(
                 parking_session=session,
@@ -131,7 +131,7 @@ def create_sample_reservations():
                         'vehicle_type': random.choice(['car', 'bike', 'truck', 'van']),
                         'license_plate': f"{random.randint(1000, 9999)}-{random.choice(['A', 'B', 'C', 'D'])}",
                         'status': random.choice(['active', 'cancelled']),
-                        'reservation_fee': Decimal(str(random.uniform(1.0, 5.0)))
+                        'reservation_fee': Decimal(str(random.uniform(85.0, 425.0)))
                     }
                 )
                 if created:
@@ -165,7 +165,7 @@ def create_sample_analytics():
                         'total_sessions': random.randint(50, 200),
                         'peak_occupancy_percent': random.randint(60, 95),
                         'average_duration_minutes': random.randint(90, 240),
-                        'total_revenue': Decimal(str(random.uniform(500, 2000))),
+                        'total_revenue': Decimal(str(random.uniform(42500, 170000))),
                         'peak_hour': random.randint(9, 17)
                     }
                 )
