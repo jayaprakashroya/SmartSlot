@@ -312,8 +312,8 @@ class SmartParkingManager:
             'plate': license_plate,
             'event': 'EXIT',
             'parking_duration': duration,
-            'parking_fee': f"${fee:.2f}",
-            'message': f"👋 Thank you! Parking fee: ${fee:.2f}"
+            'parking_fee': f"₹{fee:.2f}",
+            'message': f"👋 Thank you! Parking fee: ₹{fee:.2f}"
         }
     
     # ==================== SCENARIO 10: Nearest Free Slot Algorithm ====================
@@ -375,9 +375,9 @@ class SmartParkingManager:
                 'new_customers': 170
             },
             'revenue_analytics': {
-                'today_revenue': "$2,450.00",
-                'weekly_revenue': "$14,200.00",
-                'monthly_revenue': "$58,900.00"
+                'today_revenue': "₹2,08,250",
+                'weekly_revenue': "₹12,07,000",
+                'monthly_revenue': "₹50,06,500"
             },
             'peak_hours': peak_hour,
             'average_stay_duration': "2.5 hours",
@@ -418,7 +418,7 @@ class SmartParkingManager:
                 'plate': spot['vehicle']['plate'],
                 'parked_at': spot['vehicle']['parked_at'],
                 'duration': self._calculate_duration(spot['vehicle']['parked_at']),
-                'fee': f"${self._calculate_parking_fee(self._calculate_duration(spot['vehicle']['parked_at'])):.2f}"
+                'fee': f"₹{self._calculate_parking_fee(self._calculate_duration(spot['vehicle']['parked_at'])):.2f}"
             }
             for spot in status['spots']
             if spot['vehicle']

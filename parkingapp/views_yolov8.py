@@ -1,6 +1,11 @@
 """
 Enhanced Views with YOLOv8 Integration for Smart Parking
 This module includes both legacy and advanced YOLOv8-based detection
+
+Multi-Video Support:
+- Automatic resolution scaling using VideoCalibrator
+- Works with any video resolution (640×480 to 4K)
+- Compatible with different parking lot layouts
 """
 
 from django.shortcuts import redirect, render
@@ -16,7 +21,11 @@ from PIL import Image
 import cvzone
 from django.http import StreamingHttpResponse, HttpResponse
 import os
+import logging
 from parkingapp.yolov8_detection import ParkingSpaceDetector
+from parkingapp.video_calibration import VideoCalibrator
+
+logger = logging.getLogger(__name__)
 
 # YOLOv8 Detector instance (initialized once)
 yolo_detector = None
@@ -197,7 +206,6 @@ def detect_numberplate(request):
 def generate_frames_yolov8(cap, posList, detection_type='multi_lane'):
     """
     Generate video frames using YOLOv8-based parking detection with fallback
-    Tries YOLOv8 first, falls back to simple image processing if needed
     
     Args:
         cap: Video capture object
@@ -205,9 +213,10 @@ def generate_frames_yolov8(cap, posList, detection_type='multi_lane'):
         detection_type: Type of detection (for compatibility)
     
     Yields:
-        JPEG-encoded video frames
+        JPEG-encoded video frames with detection results
     """
     detector = get_yolo_detector()
+    
     use_simple_fallback = False
     simple_detector = None
     
@@ -225,6 +234,7 @@ def generate_frames_yolov8(cap, posList, detection_type='multi_lane'):
             break
         
         try:
+            
             # Check if we should use simple fallback
             if not use_simple_fallback:
                 # YOLOv8: Detect all vehicles in frame

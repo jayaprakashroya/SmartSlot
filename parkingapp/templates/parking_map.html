@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load math_filters %}
 
 {% block title %}Parking Map{% endblock %}
 
@@ -80,8 +81,8 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-// Initialize map
-const map = L.map('map').setView([37.7749, -122.4194], 13); // Default: San Francisco
+// Initialize map - Puttaparthi, India
+const map = L.map('map').setView([13.8247, 80.0644], 13); // Puttaparthi coordinates
 
 // Add map tiles
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

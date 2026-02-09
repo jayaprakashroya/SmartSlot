@@ -23,16 +23,16 @@ class PaymentService:
         
         # Pricing tiers
         if duration <= 1:
-            fee = Decimal('5.00')  # First hour: $5
+            fee = Decimal('425.00')  # First hour: ₹425
         elif duration <= 2:
-            fee = Decimal('8.00')  # Second hour: $8
+            fee = Decimal('680.00')  # Second hour: ₹680
         elif duration <= 4:
-            fee = Decimal('15.00')  # Up to 4 hours: $15
+            fee = Decimal('1275.00')  # Up to 4 hours: ₹1,275
         else:
-            # $15 base + $3 per additional hour, max $50/day
+            # ₹1,275 base + ₹255 per additional hour, max ₹4,250/day
             additional_hours = duration - 4
-            fee = Decimal('15.00') + (Decimal(additional_hours) * Decimal('3.00'))
-            fee = min(fee, Decimal('50.00'))
+            fee = Decimal('1275.00') + (Decimal(additional_hours) * Decimal('255.00'))
+            fee = min(fee, Decimal('4250.00'))
         
         return round(fee, 2)
     

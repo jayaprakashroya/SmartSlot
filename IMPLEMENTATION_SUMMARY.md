@@ -40,11 +40,11 @@ EmailNotificationService.send_alert_notification()
   - ✅ REST API endpoints for payments
 
 **Pricing Tiers:**
-- 1st hour: $5.00
-- 2nd hour: $8.00
-- Up to 4 hours: $15.00
-- Additional: $3.00/hour
-- Daily max: $50.00
+- 1st hour: ₹425.00
+- 2nd hour: ₹680.00
+- Up to 4 hours: ₹1,275.00
+- Additional: ₹255.00/hour
+- Daily max: ₹4,250.00
 
 **API Endpoints:**
 ```

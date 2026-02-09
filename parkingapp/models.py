@@ -475,7 +475,7 @@ class PricingRule(models.Model):
     rule_id = models.AutoField(primary_key=True)
     parking_lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE, related_name='pricing_rules')
     vehicle_type = models.CharField(max_length=20)
-    base_rate = models.DecimalField(max_digits=10, decimal_places=2)  # $/hour
+    base_rate = models.DecimalField(max_digits=10, decimal_places=2)  # ₹/hour
     first_hour_free = models.BooleanField(default=False)
     max_daily_charge = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     
@@ -483,7 +483,7 @@ class PricingRule(models.Model):
         db_table = 'pricing_rules'
     
     def __str__(self):
-        return f"{self.parking_lot.lot_name} - {self.vehicle_type}: ${self.base_rate}/hour"
+        return f"{self.parking_lot.lot_name} - {self.vehicle_type}: ₹{self.base_rate}/hour"
 
 
 class Payment(models.Model):
@@ -525,7 +525,7 @@ class Payment(models.Model):
         ordering = ['-created_at']
     
     def __str__(self):
-        return f"Payment {self.payment_id} - ${self.amount}"
+        return f"Payment {self.payment_id} - ₹{self.amount}"
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -698,35 +698,3 @@ class UserProfile(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.role}"
-
-
-# ============ PAYMENT SYSTEM ============
-class Payment(models.Model):
-    """Payment records for parking sessions"""
-    STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('completed', 'Completed'),
-        ('failed', 'Failed'),
-        ('refunded', 'Refunded'),
-    ]
-    
-    invoice_id = models.CharField(max_length=20, unique=True)
-    transaction_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='payments')
-    parking_lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE, related_name='payments')
-    entry_time = models.DateTimeField()
-    exit_time = models.DateTimeField(null=True, blank=True)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    currency = models.CharField(max_length=3, default='USD')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    payment_method = models.CharField(max_length=50, null=True, blank=True)
-    user_email = models.EmailField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        db_table = 'payments'
-        ordering = ['-created_at']
-    
-    def __str__(self):
-        return f"{self.invoice_id} - {self.amount} {self.currency} ({self.status})"

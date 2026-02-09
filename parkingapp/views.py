@@ -400,37 +400,50 @@ def detect_numberplate(request):
 
 def generate_frames_yolov8(cap, posList, detection_type='multi_lane'):
     """
-    Image Processing-based parking detection using OpenCV
-    Algorithm:
-    - Convert to Grayscale: cv2.cvtColor() - converts color image to grayscale
-    - Blur: cv2.GaussianBlur() - reduces noise
-    - Threshold: cv2.adaptiveThreshold() - creates binary image
-    - Median Blur: cv2.medianBlur() - further noise reduction
-    - Dilate: cv2.dilate() - fills gaps in objects
-    - Count Pixels: cv2.countNonZero() - counts non-zero pixels in parking space
-    
-    If count < 900 → Space is FREE (green)
-    If count ≥ 900 → Space is OCCUPIED (red)
+    Image Processing-based parking detection with corrected thresholds
     """
     width, height = 107, 48
     frame_count = 0
+
+    # Hardcoded thresholds optimized for your parking lot
+    detection_config = {
+        'multi_lane': {'threshold': 600, 'name': 'Multi-Lane Detection'},
+        'reserved_spot': {'threshold': 550, 'name': 'Reserved Spot Recognition'},
+        'night_vision': {'threshold': 500, 'name': 'Night Vision Detection'},
+        'angled_spot': {'threshold': 580, 'name': 'Angled Spot Tracking'},
+    }
     
-    print("[INFO] Starting OpenCV Image Processing Parking Detection...")
+    config = detection_config.get(detection_type, detection_config['multi_lane'])
+    threshold = config['threshold']
+    mode_name = config['name']
     
+    logger.info(f"[DETECTION] {mode_name} - Threshold: {threshold}")
+
+    # OCR cache: {spot_idx: {'last': frame_count, 'text': str, 'prob': float}}
+    ocr_cache = {}
+    ocr_interval = 30  # frames between OCR attempts per spot
+
+    # import OCR helpers lazily (avoid heavy import at module load)
+    from parkingapp.number_plate_detection import (
+        detect_numberplate_in_image,
+        get_best_plate_text,
+        draw_plate_text,
+    )
+
     def check_parking_space(img_pro, img):
         space_counter = 0
 
-        for pos in posList:
+        for idx, pos in enumerate(posList):
             x, y = pos
 
-            # Crop parking space region
+            # Crop parking space region from processed image for pixel counting
             img_crop = img_pro[y:y + height, x:x + width]
-            
+
             # Count non-zero pixels (vehicles)
             count = cv2.countNonZero(img_crop)
 
-            # Threshold: 900 pixels = occupied, less = free
-            if count < 900:
+            # Classify based on threshold
+            if count < threshold:
                 color = (0, 255, 0)  # Green for FREE
                 thickness = 5
                 space_counter += 1
@@ -439,13 +452,35 @@ def generate_frames_yolov8(cap, posList, detection_type='multi_lane'):
                 thickness = 2
 
             # Draw rectangle around parking space
-            cv2.rectangle(img, pos, (pos[0] + width, pos[1] + height), color, thickness)
-            
+            cv2.rectangle(img, (x, y), (x + width, y + height), color, thickness)
+
             # Display pixel count for each space
             cvzone.putTextRect(img, str(count), (x, y + height - 3), scale=1, thickness=2, offset=0, colorR=color)
 
-        # Display total free spaces
+            # If occupied, attempt OCR every ocr_interval frames
+            if count >= threshold:
+                last = ocr_cache.get(idx, {}).get('last', -9999)
+                if frame_count - last >= ocr_interval:
+                    # Crop color ROI from original frame for OCR
+                    try:
+                        roi_color = img[y:y + height, x:x + width].copy()
+                        plates = detect_numberplate_in_image(roi_color)
+                        best = get_best_plate_text(plates)
+                        if best and best.get('prob', 0.0) >= 0.25 and best.get('text', '').strip():
+                            ocr_cache[idx] = {'last': frame_count, 'text': best['text'], 'prob': best['prob']}
+                        else:
+                            ocr_cache[idx] = {'last': frame_count, 'text': '', 'prob': 0.0}
+                    except Exception:
+                        ocr_cache[idx] = {'last': frame_count, 'text': '', 'prob': 0.0}
+
+                # If we have cached plate text, draw it
+                cached = ocr_cache.get(idx)
+                if cached and cached.get('text'):
+                    draw_plate_text(img, (x, y), cached.get('text'))
+
+        # Display total free spaces and mode
         cvzone.putTextRect(img, f'Free: {space_counter}/{len(posList)}', (100, 50), scale=3, thickness=5, offset=20, colorR=(0, 200, 0))
+        cvzone.putTextRect(img, f'Mode: {mode_name}', (100, 120), scale=1.5, thickness=2, offset=10, colorR=(102, 126, 234))
 
     try:
         while cap.isOpened():
@@ -453,20 +488,11 @@ def generate_frames_yolov8(cap, posList, detection_type='multi_lane'):
             if not success:
                 break
 
-            # Image Processing Pipeline
-            # 1. Convert to Grayscale
+            # Image Processing Pipeline (standard, no adaptive)
             img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            
-            # 2. Apply Gaussian Blur (reduce noise)
             img_blur = cv2.GaussianBlur(img_gray, (3, 3), 1)
-            
-            # 3. Adaptive Threshold (create binary image)
             img_threshold = cv2.adaptiveThreshold(img_blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 25, 16)
-            
-            # 4. Median Blur (further noise reduction)
             img_median = cv2.medianBlur(img_threshold, 5)
-            
-            # 5. Dilate (fill gaps in objects)
             kernel = np.ones((3, 3), np.uint8)
             img_dilate = cv2.dilate(img_median, kernel, iterations=1)
 
@@ -476,126 +502,105 @@ def generate_frames_yolov8(cap, posList, detection_type='multi_lane'):
             # Encode frame to JPEG
             ret, buffer = cv2.imencode('.jpg', img)
             if not ret:
-                print(f"[ERROR] Failed to encode frame {frame_count}")
+                logger.error(f"Failed to encode frame {frame_count}")
                 continue
-                
+
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-            
+
             frame_count += 1
             if frame_count % 30 == 0:
-                print(f"[INFO] OpenCV processed {frame_count} frames - Real-time Detection Active")
-    
+                logger.info(f"[INFO] Processed {frame_count} frames")
+
     except cv2.error as e:
-        logger.error(f'OpenCV error in detection stream: {e}')
+        logger.error(f'OpenCV error: {e}')
     except IOError as e:
-        logger.error(f'IO error in detection stream: {e}')
+        logger.error(f'IO error: {e}')
     except Exception as e:
-        logger.error(f'Unexpected error in detection stream: {type(e).__name__}: {e}', exc_info=True)
+        logger.error(f'Error: {type(e).__name__}: {e}', exc_info=True)
     finally:
         if cap:
             cap.release()
-        logger.info(f'Video processing complete. Total frames processed: {frame_count}')
+        logger.info(f'Video processing complete. Total frames: {frame_count}')
 
 
-def generate_frames(cap, posList, detection_type='multi_lane'):
-    """
-    Legacy pixel-counting based parking detection (70-80% accuracy)
-    Fallback method if YOLOv8 is not available
-    """
-    width, height = 107, 48
+def generate_frames(cap, posList):
+    """Main video detection function for parking space monitoring"""
+    width, height = 107, 48  # Parking space dimensions
 
     def check_parking_space(img_pro, img):
+        """Check which parking spaces are free or occupied"""
         space_counter = 0
 
         for pos in posList:
             x, y = pos
 
+            # Crop the region for each parking space
             img_crop = img_pro[y:y + height, x:x + width]
-            count = cv2.countNonZero(img_crop)
+            count = cv2.countNonZero(img_crop)  # Count non-zero pixels
 
-            # Adjust threshold based on detection type
-            threshold = get_pixel_threshold(detection_type)
-            
-            # Apply any dynamic adjustments here
-            # threshold = adjust_thresholds_for_daytime()['pixel_count_multi_lane']  # Uncomment to override
-
-            if count < threshold:
-                color = (0, 255, 0)  # Green for available
+            # Determine if space is free or occupied
+            if count < 900:
+                color = (0, 255, 0)  # Green = Free
                 thickness = 5
                 space_counter += 1
             else:
-                color = (0, 0, 255)  # Red for occupied
+                color = (0, 0, 255)  # Red = Occupied
                 thickness = 2
 
+            # Draw rectangle around parking space
             cv2.rectangle(img, pos, (pos[0] + width, pos[1] + height), color, thickness)
             cvzone.putTextRect(img, str(count), (x, y + height - 3), scale=1, thickness=2, offset=0, colorR=color)
 
-        # Display detection type info
-        detection_info = {
-            'multi_lane': 'Multi-Lane Detection',
-            'reserved_spot': 'Reserved Spot Recognition',
-            'night_vision': 'Night Vision Detection',
-            'angled_spot': 'Angled Spot Tracking'
-        }
-        
+        # Display total free parking spaces
         cvzone.putTextRect(img, f'Free: {space_counter}/{len(posList)}', (100, 50), scale=3, thickness=5, offset=20, colorR=(0, 200, 0))
-        cvzone.putTextRect(img, f'Mode: {detection_info.get(detection_type, "Multi-Lane")}', (100, 120), scale=1.5, thickness=2, offset=10, colorR=(102, 126, 234))
 
+    # Process video frames
     while cap.isOpened():
         success, img = cap.read()
         if not success:
             break
 
-        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        img_blur = cv2.GaussianBlur(img_gray, (3, 3), 1)
-        img_threshold = cv2.adaptiveThreshold(img_blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 25, 16)
-        img_median = cv2.medianBlur(img_threshold, 5)
+        # Image preprocessing pipeline
+        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
+        img_blur = cv2.GaussianBlur(img_gray, (3, 3), 1)  # Blur for noise reduction
+        img_threshold = cv2.adaptiveThreshold(img_blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 25, 16)  # Threshold
+        img_median = cv2.medianBlur(img_threshold, 5)  # Median blur
         kernel = np.ones((3, 3), np.uint8)
-        img_dilate = cv2.dilate(img_median, kernel, iterations=1)
+        img_dilate = cv2.dilate(img_median, kernel, iterations=1)  # Dilate to enhance features
 
+        # Check parking spaces
         check_parking_space(img_dilate, img)
 
+        # Encode frame to JPEG and yield for streaming
         ret, buffer = cv2.imencode('.jpg', img)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 def VideoPage(request):
+    """View handler for video streaming"""
     try:
         a = Upload_File.objects.last()
         if not a:
             return HttpResponse("No video uploaded. Please upload a video first.", status=400)
         
-        print(f'Video path: {a.Video}')
-        video_path = f'media/{str(a.Video)}'
-        
-        # Check if file exists
-        if not os.path.exists(video_path):
-            return HttpResponse(f"Video file not found at {video_path}. Please try uploading again.", status=404)
-        
-        cap = cv2.VideoCapture(video_path)
+        print(a.Video, 'video path')
+        b = str(a.Video)
+        cap = cv2.VideoCapture('media/' + b)  # Load video file
         
         # Check if video capture was successful
         if not cap.isOpened():
             return HttpResponse("Failed to open video file. The file may be corrupted or in an unsupported format.", status=400)
         
-        # Check if parking positions file exists
-        pos_file = 'parkingapp/CarParkPos'
-        if not os.path.exists(pos_file):
-            return HttpResponse("Parking position file not found. Please ensure CarParkPos file exists.", status=400)
-        
-        with open(pos_file, 'rb') as f:
+        # Load parking space positions from pickle file
+        with open('parkingapp/CarParkPos', 'rb') as f:
             posList = pickle.load(f)
-        
-        # Get detection type from session
-        detection_type = request.session.get('detection_type', 'multi_lane')
-        
-        # Use OpenCV Image Processing Detection
-        print("[INFO] Using OpenCV Image Processing Detection - Real-time Parking Analysis")
-        return StreamingHttpResponse(generate_frames_yolov8(cap, posList, detection_type),
-                                   content_type='multipart/x-mixed-replace; boundary=frame')
+
+        # Return streaming response
+        return StreamingHttpResponse(generate_frames(cap, posList),
+                                     content_type='multipart/x-mixed-replace; boundary=frame')
     
     except FileNotFoundError as e:
         print(f"[ERROR] File not found: {e}")
@@ -862,7 +867,7 @@ def view_receipt(request, invoice_id):
             'entry': '2024-01-15 10:30 AM',
             'exit': '2024-01-15 2:45 PM',
             'duration': '4 hrs 15 min',
-            'amount': '$25.50',
+            'amount': '₹2,167.50',
             'status': 'PAID',
             'transaction_id': 'TXN-ABC123'
         }

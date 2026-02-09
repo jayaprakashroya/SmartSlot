@@ -287,7 +287,7 @@
             <div class="stat-label">Occupancy Rate</div>
             <div class="stat-value">{{ heatmap.occupancy_rate }}%</div>
             <div class="occupancy-bar">
-                <div class="occupancy-fill" style="width: {{ heatmap.occupancy_rate }}%;">
+                <div class="occupancy-fill" data-rate="{{ heatmap.occupancy_rate|default:0 }}">
                     {{ heatmap.occupancy_rate }}%
                 </div>
             </div>
@@ -345,7 +345,7 @@
     <div class="lot-title">{{ heatmap.lot_name }} - Parking Spaces</div>
     <div class="spot-grid" id="spotGrid">
         {% for spot in heatmap.spots %}
-        <div class="spot spot-{{ spot.color }}" data-spot-id="{{ spot.spot_id }}" onclick="showSpotDetails({{ spot.spot_id }})">
+        <div class="spot spot-{{ spot.color }}" data-spot-id="{{ spot.spot_id }}" onclick="showSpotDetails('{{ spot.spot_id }}')">
             <span>{{ spot.spot_number }}</span>
             <div class="spot-info">
                 {% if spot.is_occupied %}
@@ -366,8 +366,8 @@
 </div>
 
 <!-- Spot Details Modal -->
-<div id="spotModal" class="modal">
-    <div class="modal-content">
+<div id="spotModal" class="modal" onclick="closeSpotModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
         <span class="modal-close" onclick="closeSpotModal()">&times;</span>
         <h2 id="spotModalTitle">Spot Details</h2>
         <div id="spotModalContent">
@@ -377,8 +377,8 @@
 </div>
 
 <!-- Analytics Modal -->
-<div id="analyticsModal" class="modal">
-    <div class="modal-content">
+<div id="analyticsModal" class="modal" onclick="closeAnalyticsModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
         <span class="modal-close" onclick="closeAnalyticsModal()">&times;</span>
         <h2>📊 Parking Analytics</h2>
         <div id="analyticsContent">
@@ -389,7 +389,16 @@
 
 <script>
 let autoRefreshInterval = null;
-const lot_id = {{ heatmap.lot_id | default:"1" }};
+const lot_id = "{{ heatmap.lot_id|default:'1'|escapejs }}";
+
+// Set initial occupancy bar width
+document.addEventListener('DOMContentLoaded', function() {
+    const occupancyFill = document.querySelector('.occupancy-fill');
+    if (occupancyFill) {
+        const rate = occupancyFill.dataset.rate || 0;
+        occupancyFill.style.width = rate + '%';
+    }
+});
 
 async function refreshHeatmap() {
     try {
@@ -401,12 +410,12 @@ async function refreshHeatmap() {
             return;
         }
         
-        // Update stats with proper selectors
+        // Update stats with proper selectors - Fixed stat indices
         const statValues = document.querySelectorAll('.stat-value');
-        if (statValues.length >= 3) {
-            statValues[0].textContent = data.occupied || 0;  // Occupied count
-            statValues[1].textContent = data.available || 0; // Available count
-            statValues[2].textContent = data.occupancy_rate || 0; // Occupancy rate
+        if (statValues.length >= 4) {
+            statValues[1].textContent = data.occupied || 0;  // Occupied count
+            statValues[2].textContent = data.available || 0; // Available count
+            statValues[3].textContent = (data.occupancy_rate || 0) + '%'; // Occupancy rate
         }
         
         // Update occupancy bar
@@ -418,8 +427,13 @@ async function refreshHeatmap() {
         }
         
         // Update ALL spots (including empty ones with green color)
-        if (data.spots && data.spots.length > 0) {
+        if (data.spots && Array.isArray(data.spots) && data.spots.length > 0) {
             data.spots.forEach(spot => {
+                if (!spot || !spot.spot_id || !spot.color) {
+                    console.warn('Invalid spot data:', spot);
+                    return;
+                }
+                
                 const spotEl = document.querySelector(`[data-spot-id="${spot.spot_id}"]`);
                 if (spotEl) {
                     // Remove old color classes
@@ -436,6 +450,8 @@ async function refreshHeatmap() {
                             info.innerHTML = `<div>🟢 Empty</div>`;
                         }
                     }
+                } else {
+                    console.warn(`Spot element not found for spot_id: ${spot.spot_id}`);
                 }
             });
         }
@@ -466,21 +482,21 @@ async function showAnalytics() {
         const content = `
             <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
                 <h3>Occupancy Status: <strong style="color: ${analytics.status === 'Full' ? 'red' : 'green'}">${analytics.status}</strong></h3>
-                <p>Total Spots: ${analytics.total_spots}</p>
-                <p>Occupied: ${analytics.occupied}</p>
-                <p>Available: ${analytics.available}</p>
-                <p>Occupancy Rate: ${analytics.occupancy_rate}%</p>
+                <p>Total Spots: ${analytics.total_spots || 0}</p>
+                <p>Occupied: ${analytics.occupied || 0}</p>
+                <p>Available: ${analytics.available || 0}</p>
+                <p>Occupancy Rate: ${analytics.occupancy_rate || 0}%</p>
                 
                 <h3>Zone Status</h3>
-                <p>🟢 Free Zones: ${analytics.free_zones}</p>
-                <p>🟡 Medium Zones: ${analytics.medium_zones}</p>
-                <p>🔴 Busy Zones: ${analytics.busy_zones}</p>
+                <p>🟢 Free Zones: ${analytics.free_zones || 0}</p>
+                <p>🟡 Medium Zones: ${analytics.medium_zones || 0}</p>
+                <p>🔴 Busy Zones: ${analytics.busy_zones || 0}</p>
                 
                 <h3>Recommended Free Spots</h3>
                 <ul>
-                    ${analytics.recommended_spots.map(spot => 
+                    ${(analytics.recommended_spots || []).map(spot => 
                         `<li>${spot.spot_number} - Free</li>`
-                    ).join('')}
+                    ).join('') || '<li>No recommended spots available</li>'}
                 </ul>
             </div>
         `;
@@ -489,6 +505,7 @@ async function showAnalytics() {
         document.getElementById('analyticsModal').classList.add('show');
     } catch (error) {
         console.error('Error loading analytics:', error);
+        alert('Error loading analytics. Please try again.');
     }
 }
 
@@ -503,11 +520,13 @@ function showSpotDetails(spotId) {
     spotModal.classList.add('show');
 }
 
-function closeSpotModal() {
+function closeSpotModal(event) {
+    if (event && event.target.id !== 'spotModal') return;
     document.getElementById('spotModal').classList.remove('show');
 }
 
-function closeAnalyticsModal() {
+function closeAnalyticsModal(event) {
+    if (event && event.target.id !== 'analyticsModal') return;
     document.getElementById('analyticsModal').classList.remove('show');
 }
 

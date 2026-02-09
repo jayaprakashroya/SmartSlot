@@ -109,3 +109,28 @@ def adjust_thresholds_for_rain_weather():
         'pixel_count_multi_lane': 1400,  # More strict
         'yolo_assignment': 0.91
     }
+
+
+# ═══════════════════════════════════════════════════════════════════
+# DYNAMIC/ADAPTIVE THRESHOLD CONFIGURATION
+# ═══════════════════════════════════════════════════════════════════
+"""
+Instead of hardcoded thresholds, use adaptive detection that automatically
+calibrates for each video based on:
+- Video resolution
+- Lighting conditions
+- Frame contrast
+- Historical patterns
+
+See adaptive_detection.py for implementation.
+"""
+
+ENABLE_ADAPTIVE_THRESHOLDS = True  # Enable auto-calibration
+ADAPTIVE_CALIBRATION_FRAMES = 30   # Sample N frames for calibration
+ADAPTIVE_SMOOTHING_WINDOW = 10     # Smooth threshold changes over N frames
+
+# Brightness change threshold for auto-recalibration (0-255 scale)
+BRIGHTNESS_CHANGE_THRESHOLD = 30   # Recalibrate if brightness changes by this much
+
+# Use adaptive detection or fall back to config-based thresholds
+USE_ADAPTIVE_MODE = True  # False = use static PIXEL_COUNT_THRESHOLDS above

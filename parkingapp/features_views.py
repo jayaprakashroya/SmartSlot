@@ -107,7 +107,7 @@ def end_parking_session(request, session_id):
         session.payment_status = 'pending'
         session.save()
         
-        messages.success(request, f"Parking session ended. Total fee: ${session.parking_fee}")
+        messages.success(request, f"Parking session ended. Total fee: ₹{session.parking_fee}")
         return redirect('parking_history')
     except Exception as e:
         logger.error(f"End session error: {str(e)}")
@@ -123,29 +123,43 @@ def payments(request):
     """View and manage payments"""
     try:
         user_email = request.session.get('user_email')
+        
+        # Get payments based on user email
         if user_email:
-            user = User_details.objects.get(Email=user_email)
-            payments = Payment.objects.filter(user=user).order_by('-created_at')
+            # Try to get payments by user_email field (from second Payment model)
+            try:
+                payments = Payment.objects.filter(user_email=user_email).order_by('-created_at')
+            except:
+                # Fallback to user relationship
+                user = User_details.objects.get(Email=user_email)
+                payments = Payment.objects.filter(user=user).order_by('-created_at')
         else:
             # Public view shows all payments
             payments = Payment.objects.all().order_by('-created_at')
         
         # Payment summary
-        total_paid = payments.filter(payment_status='success').aggregate(Sum('amount'))['amount__sum'] or 0
-        pending_payments = payments.filter(payment_status='pending')
+        total_paid = payments.filter(status='completed').aggregate(Sum('amount'))['amount__sum'] or 0
+        pending_payments = payments.filter(status='pending')
         
         context = {
             'payments': payments[:20],
             'total_paid': total_paid,
             'pending_count': pending_payments.count(),
             'pending_amount': pending_payments.aggregate(Sum('amount'))['amount__sum'] or 0,
+            'user_email': user_email,
         }
         
         return render(request, 'payments.html', context)
     except Exception as e:
         logger.error(f"Payments view error: {str(e)}")
         messages.error(request, "Error loading payments.")
-        return redirect('dashboard')
+        return render(request, 'payments.html', {
+            'payments': [],
+            'total_paid': 0,
+            'pending_count': 0,
+            'pending_amount': 0,
+            'error': str(e)
+        })
 
 
 def process_payment(request, session_id):
@@ -180,10 +194,10 @@ def process_payment(request, session_id):
                 user=user,
                 notification_type='parking_complete',
                 title='Payment Successful',
-                message=f'Payment of ${session.parking_fee} confirmed for parking session'
+                message=f'Payment of ₹{session.parking_fee} confirmed for parking session'
             )
             
-            messages.success(request, f"Payment of ${session.parking_fee} processed successfully!")
+            messages.success(request, f"Payment of ₹{session.parking_fee} processed successfully!")
             return redirect('parking_history')
         
         context = {
@@ -253,7 +267,7 @@ def reserve_parking(request):
                     status='active'
                 )
                 
-                messages.success(request, f"Reservation successful! Reservation fee: ${reservation_fee}")
+                messages.success(request, f"Reservation successful! Reservation fee: ₹{reservation_fee}")
                 return redirect('my_reservations')
             except Exception as e:
                 logger.error(f"Reservation creation error: {str(e)}")

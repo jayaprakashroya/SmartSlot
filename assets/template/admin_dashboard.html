@@ -277,13 +277,13 @@
         </div>
         {% endif %}
         
-        <!-- Feature 1-6: Core Features -->
+        <!-- Key Parking Features -->
         <div class="feature-grid">
             
             <!-- FEATURE 1: Search Car by Vehicle Number -->
             <div class="feature-card">
-                <div class="feature-title">{{ features.feature_1.title }}</div>
-                <div class="feature-description">{{ features.feature_1.description }}</div>
+                <div class="feature-title">🔍 Search Car by Vehicle Number</div>
+                <div class="feature-description">Find any vehicle and its exact parking slot</div>
                 <div class="stat-box">
                     <span class="stat-label">Total Parked</span>
                     <span class="stat-value">{{ features.feature_1.total_parked }}</span>
@@ -321,23 +321,12 @@
                     <span class="stat-label">Available</span>
                     <span class="stat-value" style="color: #28a745;">{{ features.feature_2.available_spots }}</span>
                 </div>
-                <div style="margin-top: 10px;">
-                    {% if features.feature_2.occupancy_rate|floatformat:0 > 85 %}
-                    <div class="progress-bar-custom" style="width: 100%; background: linear-gradient(to right, #dc3545, #dc3545);">
-                    {% elif features.feature_2.occupancy_rate|floatformat:0 > 70 %}
-                    <div class="progress-bar-custom" style="width: 100%; background: linear-gradient(to right, #ffc107, #dc3545);">
-                    {% else %}
-                    <div class="progress-bar-custom" style="width: 100%; background: linear-gradient(to right, #28a745, #dc3545);">
-                    {% endif %}
-                        {{ features.feature_2.occupancy_rate }} Full
-                    </div>
-                </div>
             </div>
             
             <!-- FEATURE 3: Slot Mismatch Detection -->
             <div class="feature-card {% if features.feature_3.alert_level == 'high' %}danger{% elif features.feature_3.alert_level == 'medium' %}warning{% else %}success{% endif %}">
-                <div class="feature-title">{{ features.feature_3.title }}</div>
-                <div class="feature-description">{{ features.feature_3.description }}</div>
+                <div class="feature-title">⚠️ Slot Mismatch Detection</div>
+                <div class="feature-description">Detect wrong slot assignments</div>
                 <div class="stat-box">
                     <span class="stat-label">Mismatches Found</span>
                     {% if features.feature_3.mismatched_count > 0 %}
@@ -346,27 +335,12 @@
                     <span class="stat-value" style="color: #28a745;">{{ features.feature_3.mismatched_count }}</span>
                     {% endif %}
                 </div>
-                {% if features.feature_3.mismatches %}
-                <div class="vehicle-list">
-                    {% for mismatch in features.feature_3.mismatches %}
-                    <div class="vehicle-item">
-                        <strong>{{ mismatch.vehicle }}</strong><br/>
-                        Spot {{ mismatch.assigned_spot }}: {{ mismatch.assigned_type }}<br/>
-                        Vehicle: {{ mismatch.vehicle_type }}
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div style="padding: 10px; text-align: center; color: #28a745; font-size: 0.9em;">
-                    ✅ All vehicles in correct slots
-                </div>
-                {% endif %}
             </div>
             
-            <!-- FEATURE 4: Parking FULL State -->
+            <!-- FEATURE 4: Parking Full Detection -->
             <div class="feature-card {% if features.feature_4.is_full %}danger{% else %}success{% endif %}">
-                <div class="feature-title">{{ features.feature_4.title }}</div>
-                <div class="feature-description">{{ features.feature_4.description }}</div>
+                <div class="feature-title">🚫 Parking Full Detection</div>
+                <div class="feature-description">Alert when parking is completely full</div>
                 <div style="text-align: center; padding: 20px;">
                     <div style="font-size: 2em; font-weight: bold; margin-bottom: 10px;">
                         {% if features.feature_4.is_full %}🚫{% else %}✅{% endif %}
@@ -376,227 +350,12 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- FEATURE 5: Parking Duration Tracker -->
-            <div class="feature-card">
-                <div class="feature-title">{{ features.feature_5.title }}</div>
-                <div class="feature-description">{{ features.feature_5.description }}</div>
-                {% if features.feature_5.longest_parked %}
-                <div class="stat-box">
-                    <span class="stat-label">Longest Parked</span>
-                    <span class="stat-value">{{ features.feature_5.longest_parked.duration_display }}</span>
-                </div>
-                <div style="font-size: 0.9em; padding: 10px; background: #f8f9fa; border-radius: 6px;">
-                    <strong>{{ features.feature_5.longest_parked.vehicle }}</strong><br/>
-                    Entry: {{ features.feature_5.longest_parked.entry_time|date:"H:i" }}
-                </div>
-                {% endif %}
-            </div>
-            
-            <!-- FEATURE 6: Double Parking Prevention -->
-            <div class="feature-card {% if features.feature_6.double_parked_count > 0 %}danger{% else %}success{% endif %}">
-                <div class="feature-title">{{ features.feature_6.title }}</div>
-                <div class="feature-description">{{ features.feature_6.description }}</div>
-                <div class="stat-box">
-                    <span class="stat-label">Double Parked</span>
-                    {% if features.feature_6.double_parked_count > 0 %}
-                    <span class="stat-value" style="color: #dc3545;">{{ features.feature_6.double_parked_count }}</span>
-                    {% else %}
-                    <span class="stat-value" style="color: #28a745;">{{ features.feature_6.double_parked_count }}</span>
-                    {% endif %}
-                </div>
-                <div style="padding: 10px; background: #f8f9fa; border-radius: 6px; font-size: 0.9em; margin-top: 10px;">
-                    {{ features.feature_6.status }}
-                </div>
-            </div>
-            
         </div>
         
-        <!-- Feature 7-12: Advanced Features -->
-        <div class="feature-grid">
-            
-            <!-- FEATURE 7: Slot Guidance System -->
-            <div class="feature-card">
-                <div class="feature-title">{{ features.feature_7.title }}</div>
-                <div class="feature-description">{{ features.feature_7.description }}</div>
-                {% if features.feature_7.lots_with_availability %}
-                <div class="vehicle-list">
-                    {% for lot in features.feature_7.lots_with_availability %}
-                    <div class="vehicle-item">
-                        <strong>{{ lot.lot }}</strong><br/>
-                        Nearest: <strong>{{ lot.nearest_available }}</strong><br/>
-                        Available: {{ lot.available_count }} | Row: {{ lot.row }}
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div style="padding: 15px; text-align: center; color: #dc3545;">
-                    No available slots
-                </div>
-                {% endif %}
-            </div>
-            
-            <!-- FEATURE 8: Unauthorized Vehicle Detection -->
-            <div class="feature-card {% if features.feature_8.unauthorized_count > 0 %}danger{% else %}success{% endif %}">
-                <div class="feature-title">{{ features.feature_8.title }}</div>
-                <div class="feature-description">{{ features.feature_8.description }}</div>
-                <div class="stat-box">
-                    <span class="stat-label">Unauthorized Count</span>
-                    {% if features.feature_8.unauthorized_count > 0 %}
-                    <span class="stat-value" style="color: #dc3545;">{{ features.feature_8.unauthorized_count }}</span>
-                    {% else %}
-                    <span class="stat-value" style="color: #28a745;">{{ features.feature_8.unauthorized_count }}</span>
-                    {% endif %}
-                </div>
-                {% if features.feature_8.vehicles %}
-                <div style="font-size: 0.85em; margin-top: 10px; padding: 8px; background: #fff3cd; border-radius: 4px;">
-                    <strong>Detected Plates:</strong><br/>
-                    {% for vehicle in features.feature_8.vehicles %}
-                    • {{ vehicle }}<br/>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            </div>
-            
-            <!-- FEATURE 9: Camera Downtime Handling -->
-            <div class="feature-card {% if features.feature_9.status == 'active' %}success{% else %}danger{% endif %}">
-                <div class="feature-title">{{ features.feature_9.title }}</div>
-                <div class="feature-description">{{ features.feature_9.description }}</div>
-                <div style="padding: 15px; text-align: center; font-size: 1.1em; font-weight: bold;">
-                    {{ features.feature_9.status_display }}
-                </div>
-                <div class="stat-box" style="margin-top: 10px;">
-                    <span class="stat-label">Recent Updates (5min)</span>
-                    <span class="stat-value">{{ features.feature_9.recent_updates }}</span>
-                </div>
-            </div>
-            
-            <!-- FEATURE 10: Entry/Exit Management -->
-            <div class="feature-card">
-                <div class="feature-title">{{ features.feature_10.title }}</div>
-                <div class="feature-description">{{ features.feature_10.description }}</div>
-                <div class="stat-box">
-                    <span class="stat-label">Entries Today</span>
-                    <span class="stat-value">{{ features.feature_10.entries_today }}</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-label">Exits Today</span>
-                    <span class="stat-value">{{ features.feature_10.exits_today }}</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-label">Currently Parked</span>
-                    <span class="stat-value" style="color: #667eea;">{{ features.feature_10.currently_parked }}</span>
-                </div>
-            </div>
-            
-            <!-- FEATURE 11: Nearest Free Slot Algorithm -->
-            <div class="feature-card success">
-                <div class="feature-title">{{ features.feature_11.title }}</div>
-                <div class="feature-description">{{ features.feature_11.description }}</div>
-                <div class="stat-box">
-                    <span class="stat-label">Free Slots</span>
-                    <span class="stat-value" style="color: #28a745;">{{ features.feature_11.free_slots }}</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-label">Avg Wait Reduction</span>
-                    <span class="stat-value">{{ features.feature_11.avg_wait_reduction }}</span>
-                </div>
-                <div style="margin-top: 10px;">
-                    <span class="status-badge {% if features.feature_11.efficiency == 'high' %}badge-success{% elif features.feature_11.efficiency == 'medium' %}badge-warning{% else %}badge-danger{% endif %}">
-                        {{ features.feature_11.efficiency|upper }} EFFICIENCY
-                    </span>
-                </div>
-            </div>
-            
-            <!-- FEATURE 12: Analytics Dashboard -->
-            <div class="feature-card">
-                <div class="feature-title">{{ features.feature_12.title }}</div>
-                <div class="feature-description">{{ features.feature_12.description }}</div>
-                <div class="stat-box">
-                    <span class="stat-label">This Week Entries</span>
-                    <span class="stat-value">{{ features.feature_12.week_entries }}</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-label">Daily Average</span>
-                    <span class="stat-value">{{ features.feature_12.avg_daily }}</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-label">Peak Hour</span>
-                    <span class="stat-value">{{ features.feature_12.peak_hour }}</span>
-                </div>
-            </div>
-            
-        </div>
-        
-        <!-- Feature 13-15: System Features -->
-        <div class="feature-grid">
-            
-            <!-- FEATURE 13: User Notifications -->
-            <div class="feature-card">
-                <div class="feature-title">{{ features.feature_13.title }}</div>
-                <div class="feature-description">{{ features.feature_13.description }}</div>
-                <div class="stat-box">
-                    <span class="stat-label">Active Notifications</span>
-                    <span class="stat-value">{{ features.feature_13.active_notifications }}</span>
-                </div>
-                {% if features.feature_13.notifications %}
-                <div style="margin-top: 10px;">
-                    {% for notif in features.feature_13.notifications %}
-                    <div class="notification-item notification-{{ notif.type }}">
-                        {{ notif.message }}
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            </div>
-            
-            <!-- FEATURE 14: Admin Vehicle Tracking -->
-            <div class="feature-card">
-                <div class="feature-title">{{ features.feature_14.title }}</div>
-                <div class="feature-description">{{ features.feature_14.description }}</div>
-                <div class="stat-box">
-                    <span class="stat-label">Vehicles Today</span>
-                    <span class="stat-value">{{ features.feature_14.total_vehicles_today }}</span>
-                </div>
-                <div style="margin-top: 10px; font-size: 0.9em;">
-                    <strong>Available Filters:</strong><br/>
-                    {% for filter in features.feature_14.filters_available %}
-                    • {{ filter }}<br/>
-                    {% endfor %}
-                </div>
-                <div class="search-box" style="margin-top: 15px;">
-                    <input type="text" placeholder="Search by vehicle number..." id="search-input">
-                    <button onclick="searchVehicle()">🔍 Search</button>
-                </div>
-            </div>
-            
-            <!-- FEATURE 15: Data Accuracy & Validation -->
-            <div class="feature-card {% if features.feature_15.status == 'healthy' %}success{% elif features.feature_15.status == 'warning' %}warning{% else %}danger{% endif %}">
-                <div class="feature-title">{{ features.feature_15.title }}</div>
-                <div class="feature-description">{{ features.feature_15.description }}</div>
-                <div class="stat-box">
-                    <span class="stat-label">DB Occupied</span>
-                    <span class="stat-value">{{ features.feature_15.db_occupied }}</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-label">Actual Occupied</span>
-                    <span class="stat-value">{{ features.feature_15.actual_occupied }}</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-label">Discrepancy</span>
-                    {% if features.feature_15.discrepancy == 0 %}
-                    <span class="stat-value" style="color: #28a745;">{{ features.feature_15.discrepancy }}</span>
-                    {% elif features.feature_15.discrepancy <= 2 %}
-                    <span class="stat-value" style="color: #ffc107;">{{ features.feature_15.discrepancy }}</span>
-                    {% else %}
-                    <span class="stat-value" style="color: #dc3545;">{{ features.feature_15.discrepancy }}</span>
-                    {% endif %}
-                </div>
-                <div style="padding: 10px; background: #f8f9fa; border-radius: 6px; font-size: 0.9em; margin-top: 10px;">
-                    {{ features.feature_15.status_display }}
-                </div>
-            </div>
-            
+        <!-- SUMMARY METRICS SECTION -->
+        <h3 style="color: white; margin-top: 40px; margin-bottom: 20px;">📊 Real-Time Dashboard Metrics</h3>
+        <div class="feature-grid" id="metricsGrid">
+            <!-- This section will be populated by JavaScript from the API -->
         </div>
         
         <!-- Summary Card -->
@@ -671,18 +430,201 @@
         }
         
         // Auto-refresh stats every 10 seconds
-        setInterval(() => {
+        function refreshDashboardMetrics() {
             fetch('/api/admin/dashboard-stats/')
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
-                        console.log('Dashboard updated:', data.stats);
+                        displayMetrics(data.stats);
                     }
                 })
                 .catch(error => {
                     console.error('Dashboard refresh error:', error);
                 });
-        }, 10000);
+        }
+        
+        function displayMetrics(stats) {
+            const metricsGrid = document.getElementById('metricsGrid');
+            
+            const metricsHTML = `
+                <!-- No Available Slots -->
+                <div class="feature-card">
+                    <div class="feature-title">🅿️ No Available Slots</div>
+                    <div class="stat-box">
+                        <span class="stat-label">Available</span>
+                        <span class="stat-value">${stats.available_spots}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Total Spots</span>
+                        <span class="stat-value">${stats.total_spots}</span>
+                    </div>
+                </div>
+                
+                <!-- Unauthorized Count -->
+                <div class="feature-card ${stats.unauthorized_count > 0 ? 'danger' : 'success'}">
+                    <div class="feature-title">🚨 Unauthorized Count</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2em; color: ${stats.unauthorized_count > 0 ? '#dc3545' : '#28a745'};">
+                            ${stats.unauthorized_count}
+                        </div>
+                        <div style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            ${stats.unauthorized_count > 0 ? '⚠️ Unauthorized vehicles detected' : '✅ No unauthorized vehicles'}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Updates -->
+                <div class="feature-card">
+                    <div class="feature-title">🔄 Recent Updates (5min)</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2em;">
+                            <span class="realtime-indicator"></span>
+                        </div>
+                        <div style="font-size: 0.9em; color: #28a745;">Active & Syncing</div>
+                    </div>
+                </div>
+                
+                <!-- Entries Today -->
+                <div class="feature-card">
+                    <div class="feature-title">📥 Entries Today</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em; color: #667eea;">
+                            ${stats.entries_today}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Exits Today -->
+                <div class="feature-card">
+                    <div class="feature-title">📤 Exits Today</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em; color: #764ba2;">
+                            ${stats.exits_today}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Currently Parked -->
+                <div class="feature-card">
+                    <div class="feature-title">🚗 Currently Parked</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em;">
+                            ${stats.currently_parked}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Free Slots -->
+                <div class="feature-card success">
+                    <div class="feature-title">✅ Free Slots</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em; color: #28a745;">
+                            ${stats.free_slots}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Avg Wait Reduction -->
+                <div class="feature-card">
+                    <div class="feature-title">⏱️ Avg Wait Reduction</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em; color: #17a2b8;">
+                            ${stats.avg_wait_reduction}%
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Efficiency Score -->
+                <div class="feature-card ${stats.efficiency_score >= 90 ? 'success' : 'warning'}">
+                    <div class="feature-title">⚡ Efficiency Score</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em; color: ${stats.efficiency_score >= 90 ? '#28a745' : '#ffc107'};">
+                            ${stats.efficiency_score.toFixed(1)}%
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- This Week Entries -->
+                <div class="feature-card">
+                    <div class="feature-title">📊 This Week Entries</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em;">
+                            ${stats.this_week_entries}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Daily Average -->
+                <div class="feature-card">
+                    <div class="feature-title">📈 Daily Average</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em;">
+                            ${stats.daily_average.toFixed(1)}
+                        </div>
+                        <div style="font-size: 0.85em; color: #666; margin-top: 5px;">vehicles/day</div>
+                    </div>
+                </div>
+                
+                <!-- Peak Hour -->
+                <div class="feature-card warning">
+                    <div class="feature-title">🔴 Peak Hour</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2em;">
+                            ${stats.peak_hour}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Active Notifications -->
+                <div class="feature-card ${stats.active_notifications > 0 ? 'danger' : 'success'}">
+                    <div class="feature-title">🔔 Active Notifications</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em; color: ${stats.active_notifications > 0 ? '#dc3545' : '#28a745'};">
+                            ${stats.active_notifications}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- DB Occupied -->
+                <div class="feature-card">
+                    <div class="feature-title">🗄️ DB Occupied</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em;">
+                            ${stats.db_occupied}
+                        </div>
+                        <div style="font-size: 0.85em; color: #666; margin-top: 5px;">spots</div>
+                    </div>
+                </div>
+                
+                <!-- Actual Occupied -->
+                <div class="feature-card">
+                    <div class="feature-title">🎯 Actual Occupied</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em;">
+                            ${stats.actual_occupied}
+                        </div>
+                        <div style="font-size: 0.85em; color: #666; margin-top: 5px;">detected</div>
+                    </div>
+                </div>
+                
+                <!-- Discrepancy -->
+                <div class="feature-card ${stats.discrepancy > 0 ? 'warning' : 'success'}">
+                    <div class="feature-title">⚠️ Discrepancy</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em; color: ${stats.discrepancy > 0 ? '#ffc107' : '#28a745'};">
+                            ${stats.discrepancy}
+                        </div>
+                        <div style="font-size: 0.85em; color: #666; margin-top: 5px;">difference</div>
+                    </div>
+                </div>
+            `;
+            
+            metricsGrid.innerHTML = metricsHTML;
+        }
+        
+        // Initial load and auto-refresh
+        refreshDashboardMetrics();
+        setInterval(refreshDashboardMetrics, 10000);
     </script>
 
     <!-- EDGE CASE FEATURES SECTION -->

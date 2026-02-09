@@ -273,23 +273,23 @@
                         <div class="pricing-table">
                             <div class="pricing-row">
                                 <span class="pricing-label">First Hour:</span>
-                                <span class="pricing-value">${{ pricing_tiers.1_hour }}</span>
+                                <span class="pricing-value">₹{{ pricing_tiers.1_hour }}</span>
                             </div>
                             <div class="pricing-row">
                                 <span class="pricing-label">Second Hour:</span>
-                                <span class="pricing-value">${{ pricing_tiers.2_hours }}</span>
+                                <span class="pricing-value">₹{{ pricing_tiers.2_hours }}</span>
                             </div>
                             <div class="pricing-row">
                                 <span class="pricing-label">Up to 4 Hours:</span>
-                                <span class="pricing-value">${{ pricing_tiers.4_hours }}</span>
+                                <span class="pricing-value">₹{{ pricing_tiers.4_hours }}</span>
                             </div>
                             <div class="pricing-row">
                                 <span class="pricing-label">Additional Hour:</span>
-                                <span class="pricing-value">${{ pricing_tiers.additional_hour }}</span>
+                                <span class="pricing-value">₹{{ pricing_tiers.additional_hour }}</span>
                             </div>
                             <div class="pricing-row">
                                 <span class="pricing-label" style="border-top: 2px solid #ddd; padding-top: 10px; font-size: 16px;">Daily Maximum:</span>
-                                <span class="pricing-value" style="border-top: 2px solid #ddd; padding-top: 10px; font-size: 16px;">${{ pricing_tiers.daily_max }}</span>
+                                <span class="pricing-value" style="border-top: 2px solid #ddd; padding-top: 10px; font-size: 16px;">₹{{ pricing_tiers.daily_max }}</span>
                             </div>
                         </div>
                     </div>
@@ -374,7 +374,7 @@
                     const exit = new Date(exitTime);
                     const duration = (exit - entry) / (1000 * 60 * 60);
                     
-                    document.getElementById('feeAmount').textContent = `$${data.fee.toFixed(2)}`;
+                    document.getElementById('feeAmount').textContent = `₹${data.fee.toFixed(2)}`;
                     document.getElementById('feeDuration').textContent = `Duration: ${duration.toFixed(2)} hours`;
                     document.getElementById('feeDisplay').classList.add('show');
                     document.getElementById('payButton').disabled = false;
@@ -391,7 +391,7 @@
             const exitTime = document.getElementById('exitTime').value;
             const vehicleId = document.getElementById('vehicleSelect').value;
             const userEmail = document.getElementById('userEmail').value;
-            const feeAmount = document.getElementById('feeAmount').textContent.replace('$', '');
+            const feeAmount = document.getElementById('feeAmount').textContent.replace('₹', '');
 
             if (!vehicleId || !userEmail) {
                 showError('Please fill all required fields');

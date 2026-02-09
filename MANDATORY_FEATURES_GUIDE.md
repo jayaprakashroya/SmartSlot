@@ -113,11 +113,11 @@ PaymentService.calculate_parking_fee(vehicle, entry_time, exit_time)
 ```
 
 **Pricing Tiers:**
-- First hour: $5.00
-- Second hour: $8.00
-- Up to 4 hours: $15.00
-- Additional hours: $3.00/hour
-- Daily max: $50.00
+- First hour: ₹425.00
+- Second hour: ₹680.00
+- Up to 4 hours: ₹1,275.00
+- Additional hours: ₹255.00/hour
+- Daily max: ₹4,250.00
 
 **Example:**
 ```python

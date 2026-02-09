@@ -540,6 +540,7 @@ class HeatmapHandler:
         occupancy_rate = round(occupied_count / lot.total_spots * 100, 1) if lot.total_spots > 0 else 0
         
         return {
+            'lot_id': lot.lot_id,
             'lot_name': lot.lot_name,
             'total_spots': lot.total_spots,
             'occupied': occupied_count,
