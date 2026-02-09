@@ -13,12 +13,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .models import ParkingLot, Vehicle, ParkedVehicle, ParkingSpot
 from .parking_manager import ParkingManager
-from .yolov8_detector import (
-    VehicleDetector,
-    LicensePlateOCR,
-    ParkingSpotTracker,
-    ParkingVideoProcessor,
-)
+# NOTE: YOLOv8 detector imports moved to lazy loading to avoid torch timeout on startup
+# They will be imported only when needed in specific functions
 import json
 import logging
 import os
@@ -27,15 +23,53 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-# Initialize YOLOv8 components
-try:
-    VEHICLE_DETECTOR = VehicleDetector(model_name="yolov8n.pt")
-    LICENSE_PLATE_OCR = LicensePlateOCR()
-    YOLOV8_ENABLED = True
-    logger.info("YOLOv8 components initialized successfully")
-except Exception as e:
-    logger.warning(f"YOLOv8 initialization failed: {e}")
-    YOLOV8_ENABLED = False
+# Lazy loader for YOLOv8 components (imports only when needed)
+_yolov8_components = None
+
+def _load_yolov8_components():
+    """Lazy load YOLOv8 components to avoid torch initialization issues on startup"""
+    global _yolov8_components
+    if _yolov8_components is None:
+        try:
+            from .yolov8_detector import (
+                VehicleDetector,
+                LicensePlateOCR,
+                ParkingSpotTracker,
+                ParkingVideoProcessor,
+            )
+            _yolov8_components = {
+                'VehicleDetector': VehicleDetector,
+                'LicensePlateOCR': LicensePlateOCR,
+                'ParkingSpotTracker': ParkingSpotTracker,
+                'ParkingVideoProcessor': ParkingVideoProcessor,
+            }
+        except Exception as e:
+            logger.warning(f"Could not load YOLOv8 components: {e}")
+            _yolov8_components = {}
+    return _yolov8_components
+
+# Global instances of YOLOv8 components (lazy-loaded)
+VEHICLE_DETECTOR = None
+LICENSE_PLATE_OCR = None
+YOLOV8_ENABLED = False
+
+def _init_yolov8_instances():
+    """Initialize YOLOv8 detector and OCR instances on first use"""
+    global VEHICLE_DETECTOR, LICENSE_PLATE_OCR, YOLOV8_ENABLED
+    if VEHICLE_DETECTOR is None:
+        try:
+            components = _load_yolov8_components()
+            if 'VehicleDetector' in components and 'LicensePlateOCR' in components:
+                VEHICLE_DETECTOR = components['VehicleDetector'](model_name="yolov8n.pt")
+                LICENSE_PLATE_OCR = components['LicensePlateOCR']()
+                YOLOV8_ENABLED = True
+                logger.info("YOLOv8 components initialized successfully")
+            else:
+                logger.warning("YOLOv8 components not available")
+                YOLOV8_ENABLED = False
+        except Exception as e:
+            logger.warning(f"YOLOv8 initialization failed: {e}")
+            YOLOV8_ENABLED = False
 
 
 def find_my_car(request):
@@ -355,6 +389,9 @@ def yolov8_webhook(request):
     Receives detected vehicles and automatic license plates
     Process detection data and auto-update parking system
     """
+    # Initialize YOLOv8 on first use
+    _init_yolov8_instances()
+    
     if not YOLOV8_ENABLED:
         return JsonResponse(
             {'success': False, 'message': 'YOLOv8 not enabled'},
@@ -459,6 +496,9 @@ def process_image_detection(request):
     Process a single image for vehicle detection
     Detects vehicles and extracts license plates
     """
+    # Initialize YOLOv8 on first use
+    _init_yolov8_instances()
+    
     if not YOLOV8_ENABLED:
         return JsonResponse(
             {'success': False, 'message': 'YOLOv8 not enabled'},
@@ -514,6 +554,9 @@ def detect_license_plate(request):
     """
     Detect and extract license plate from an image
     """
+    # Initialize YOLOv8 on first use
+    _init_yolov8_instances()
+    
     if not YOLOV8_ENABLED:
         return JsonResponse(
             {'success': False, 'message': 'YOLOv8 not enabled'},
@@ -575,6 +618,9 @@ def yolov8_status(request):
     """
     Get current YOLOv8 system status - ADMIN ONLY - BACKEND INFO
     """
+    # Initialize YOLOv8 on first use
+    _init_yolov8_instances()
+    
     return JsonResponse({
         'yolov8_enabled': YOLOV8_ENABLED,
         'detector_model': 'yolov8n.pt' if YOLOV8_ENABLED else None,
