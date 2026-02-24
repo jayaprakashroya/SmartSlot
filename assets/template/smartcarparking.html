@@ -26,6 +26,37 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet">
 <style>
+/* Dark navy navbar for excellent brand visibility */
+.ftco_navbar, .ftco-navbar-light, nav.navbar { background: linear-gradient(90deg, #16487B 0%, #1E5F9F 100%) !important; }
+.ftco_navbar .navbar-brand, .navbar-brand { background: transparent !important; color: #FFFFFF !important; padding: 12px 18px; border-radius: 0; font-weight: 900 !important; font-size: 1.8em !important; letter-spacing: 1px !important; }
+.ftco_navbar .nav-link, nav.navbar .nav-link { color: #FFFFFF !important; }
+.ftco_navbar .nav-link.btn-info { background: #FF8C00 !important; color: #FFFFFF !important; }
+.ftco_navbar .nav-link:hover { color: #FFD700 !important; background: #2A6FA0 !important; }
+.ftco_navbar .nav-link::after { background: rgba(255,255,255,0.2) !important; }
+
+.brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(90deg, #16487B 0%, #1E5F9F 100%);
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.brand-wrapper i {
+  font-size: 1.5em;
+  color: #FFD700;
+}
+
+.brand-text {
+  font-weight: 900;
+  font-size: 1.5em;
+  color: #FFFFFF;
+  letter-spacing: 1.5px;
+  margin: 0;
+}
+
 /* Modern styling for the form container */
 .ftco-appointment {
   background: transparent !important;
@@ -204,7 +235,11 @@
             <!-- Left side with image -->
             <div class="col-lg-6 d-flex align-items-center justify-content-center" style="padding: 40px 20px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(118, 75, 162, 0.95));">
               <div style="width: 100%; max-width: 700px; border-radius: 15px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
-                <img src="{% static 'images/smartcar.png' %}" alt="Smart Parking" style="width: 100%; height: auto; display: block;">
+                <div class="owl-carousel owl-theme" id="homepage-slider">
+                  <div class="item">
+                    <img src="{% static 'images/login.png' %}" alt="Best Parking" style="width: 100%; height: 1000px; display: block; border-radius: 15px;" />
+                  </div>
+                </div>
               </div>
             </div>
             <!-- Right side with form -->
@@ -236,40 +271,21 @@
                     {% csrf_token %}
                     
                     <!-- Detection Type Selection -->
-                    <div style="margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #f0f5ff 0%, #e8f1ff 100%); border-radius: 12px; border-left: 4px solid #667eea;">
-                      <label style="display: block; margin-bottom: 15px; font-weight: 700; color: #1a1a2e; font-size: 1.1rem;">
-                        <i class="fa fa-cogs" style="margin-right: 8px; color: #667eea;"></i>Select Detection Type
-                      </label>
-                      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
-                        <label style="display: flex; align-items: center; padding: 12px 15px; background: white; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#667eea'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.2)'" onmouseout="this.style.borderColor='transparent'; this.style.boxShadow='none'">
-                          <input type="radio" name="detection_type" value="multi_lane" checked style="margin-right: 10px; cursor: pointer; width: 18px; height: 18px;">
-                          <span style="color: #333; font-weight: 500;">
-                            <i class="fa fa-arrows-h" style="margin-right: 6px; color: #667eea;"></i>Multi-Lane Detection
-                          </span>
-                        </label>
-                        
-                        <label style="display: flex; align-items: center; padding: 12px 15px; background: white; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#667eea'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.2)'" onmouseout="this.style.borderColor='transparent'; this.style.boxShadow='none'">
-                          <input type="radio" name="detection_type" value="reserved_spot" style="margin-right: 10px; cursor: pointer; width: 18px; height: 18px;">
-                          <span style="color: #333; font-weight: 500;">
-                            <i class="fa fa-star" style="margin-right: 6px; color: #ffa502;"></i>Reserved Spot
-                          </span>
-                        </label>
-                        
-                        <label style="display: flex; align-items: center; padding: 12px 15px; background: white; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#667eea'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.2)'" onmouseout="this.style.borderColor='transparent'; this.style.boxShadow='none'">
-                          <input type="radio" name="detection_type" value="night_vision" style="margin-right: 10px; cursor: pointer; width: 18px; height: 18px;">
-                          <span style="color: #333; font-weight: 500;">
-                            <i class="fa fa-moon-o" style="margin-right: 6px; color: #764ba2;"></i>Night Vision
-                          </span>
-                        </label>
-                        
-                        <label style="display: flex; align-items: center; padding: 12px 15px; background: white; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#667eea'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.2)'" onmouseout="this.style.borderColor='transparent'; this.style.boxShadow='none'">
-                          <input type="radio" name="detection_type" value="angled_spot" style="margin-right: 10px; cursor: pointer; width: 18px; height: 18px;">
-                          <span style="color: #333; font-weight: 500;">
-                            <i class="fa fa-sliders" style="margin-right: 6px; color: #00d084;"></i>Angled Spot Tracking
-                          </span>
-                        </label>
-                      </div>
-                    </div>
+                    <!-- Simplified Detection Header -->
+<div style="margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #f0f5ff 0%, #e8f1ff 100%); border-radius: 12px; border-left: 4px solid #667eea; display: flex; align-items: center; justify-content: space-between;">
+  <div>
+    <label style="margin-bottom: 5px; font-weight: 700; color: #1a1a2e; font-size: 1.1rem; display: block;">
+      <i class="fa fa-shield" style="margin-right: 8px; color: #667eea;"></i>Smart Detection Mode
+    </label>
+    <span style="font-size: 0.85rem; color: #555;">AI automatically optimizes for lanes, night vision, and spot types.</span>
+  </div>
+  
+  <!-- A simple "Active" badge instead of 4 radio buttons -->
+  <span style="background: #00d084; color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">
+    <i class="fa fa-check-circle"></i> AUTO-OPTIMIZED
+  </span>
+</div>
+
                     
                     <!-- Progress Indicator -->
                     <div style="margin-bottom: 30px; padding: 20px; background: rgba(102, 126, 234, 0.08); border-radius: 10px; display: none;" id="progressSection">
@@ -409,6 +425,20 @@
 <script src="{% static 'js/bootstrap-datepicker.js' %}"></script>
 <script src="{% static 'js/jquery.timepicker.min.js' %}"></script>
 <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+<script>
+  $(document).ready(function(){
+    $('#homepage-slider').owlCarousel({
+      items:1,
+      loop:true,
+      margin:10,
+      nav:true,
+      dots:true,
+      autoplay:true,
+      autoplayTimeout:3500,
+      autoplayHoverPause:true
+    });
+  });
+</script>
 <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
 <script src="{% static 'js/scrollax.min.js' %}"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
@@ -503,5 +533,6 @@
     });
   }
 </script>
+  <script src="{% static 'js/dark-mode-toggle.js' %}"></script>
   </body>
   </html>      

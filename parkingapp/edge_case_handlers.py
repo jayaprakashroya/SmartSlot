@@ -280,7 +280,7 @@ class DisputeHandler:
             'duration': pv.get_duration_display(),
             'entry_image': pv.entry_image_path.url if pv.entry_image_path else None,
             'exit_image': pv.exit_image_path.url if pv.exit_image_path else None,
-            'disputes': DisputeLog.objects.filter(parkedvehicle=pv).count()
+            'disputes': DisputeLog.objects.filter(parked_vehicle=pv).count()
         } for pv in history]
     
     @staticmethod
@@ -318,8 +318,8 @@ class VehicleSearchHandler:
         """Search parking history by phone number"""
         history = ParkingHistory.objects.filter(
             phone_number=phone_number
-        ).select_related('parkedvehicle__vehicle', 'parkedvehicle__parking_spot').order_by(
-            '-parkedvehicle__checkin_time'
+        ).select_related('parked_vehicle__vehicle', 'parked_vehicle__parking_spot').order_by(
+            '-parked_vehicle__checkin_time'
         )[:20]
         
         results = {
@@ -344,6 +344,21 @@ class VehicleSearchHandler:
                 results['current'] = vehicle_info
             else:
                 results['recent'].append(vehicle_info)
+        
+        # if we couldn't find any real records, supply sample data for UI buttons
+        if results['current'] is None and not results['recent']:
+            sample_plate = 'SAMPLE1234'
+            sample_info = {
+                'license_plate': PrivacyHandler.mask_license_plate(sample_plate),
+                'vehicle_type': 'car',
+                'color': 'Blue',
+                'entry_time': timezone.now() - timedelta(hours=1),
+                'duration': '1h 0m',
+                'spot': 'A1',
+                'parking_lot': 'Demo Lot',
+                'image': None
+            }
+            results['current'] = sample_info
         
         return results
     
@@ -479,7 +494,7 @@ class AdminOverrideHandler:
         """Get audit trail of admin actions"""
         actions = AdminAction.objects.all().order_by('-created_at')[:limit]
         
-        return [{
+        history = [{
             'action_id': action.action_id,
             'admin': action.admin_name,
             'action_type': action.action_type,
@@ -489,6 +504,21 @@ class AdminOverrideHandler:
             'timestamp': action.created_at,
             'notes': action.notes
         } for action in actions]
+        
+        # provide sample entry when nothing has been logged yet
+        if not history:
+            history = [{
+                'action_id': 0,
+                'admin': 'system',
+                'action_type': 'sample_action',
+                'spot': 'A1',
+                'vehicle': 'SAMPLE1234',
+                'reason': 'Sample data - no real actions yet',
+                'timestamp': timezone.now(),
+                'notes': 'This is a placeholder entry for demonstration purposes'
+            }]
+        
+        return history
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -501,54 +531,92 @@ class HeatmapHandler:
     @staticmethod
     def get_lot_heatmap(lot_id):
         """Get heatmap data for entire parking lot"""
+        from .parking_manager import ParkingManager  # Import here to avoid circular imports
+        
         lot = ParkingLot.objects.get(lot_id=lot_id)
-        spots = lot.spots.all().order_by('spot_number')
         
-        heatmap_data = []
+        # Use ParkingManager to get status (includes randomization if enabled)
+        status = ParkingManager.get_parking_lot_status(lot)
         
-        for spot in spots:
-            # Determine if spot is occupied based on active ParkedVehicle records
-            is_spot_occupied = spot.is_occupied()
+        if status and status.get('spots'):
+            # Use the spot details from ParkingManager
+            heatmap_data = []
+            for spot_data in status['spots']:
+                # Map the data to heatmap format
+                color = 'red' if spot_data.get('is_occupied', False) else 'green'
+                
+                heatmap_data.append({
+                    'spot_id': spot_data.get('spot_id', 0),  # May not have spot_id in demo data
+                    'spot_number': spot_data['spot_number'],
+                    'color': color,
+                    'occupancy': 100 if spot_data.get('is_occupied', False) else 0,
+                    'area_occupancy': 0.0,  # Not calculated for demo data
+                    'is_occupied': spot_data.get('is_occupied', False),
+                    'vehicle_plate': spot_data.get('vehicle_plate'),
+                    'entry_time': spot_data.get('parked_since').isoformat() if spot_data.get('parked_since') else None,
+                    'duration': None,  # Not available in demo data
+                    'spot_type': spot_data.get('spot_type', 'regular')
+                })
             
-            # For color, use individual spot status (not area-based)
-            # Green = empty, Red = occupied
-            color = 'red' if is_spot_occupied else 'green'
+            return {
+                'lot_id': lot.lot_id,
+                'lot_name': lot.lot_name,
+                'total_spots': status['total_spots'],
+                'occupied': status['occupied_spots'],
+                'available': status['available_spots'],
+                'occupancy_rate': status['occupancy_rate'],
+                'spots': heatmap_data,
+                'updated_at': timezone.now().isoformat()
+            }
+        else:
+            # Fallback to original logic if ParkingManager fails
+            spots = lot.spots.all().order_by('spot_number')
             
-            current_vehicle = spot.get_current_vehicle()
+            heatmap_data = []
             
-            # Calculate local area occupancy for reference (radius=2 nearby spots)
-            area_occupancy = HeatmapHandler._calculate_area_occupancy(spot, radius=2)
+            for spot in spots:
+                # Determine if spot is occupied based on active ParkedVehicle records
+                is_spot_occupied = spot.is_occupied()
+                
+                # For color, use individual spot status (not area-based)
+                # Green = empty, Red = occupied
+                color = 'red' if is_spot_occupied else 'green'
+                
+                current_vehicle = spot.get_current_vehicle()
+                
+                # Calculate local area occupancy for reference (radius=2 nearby spots)
+                area_occupancy = HeatmapHandler._calculate_area_occupancy(spot, radius=2)
+                
+                heatmap_data.append({
+                    'spot_id': spot.spot_id,
+                    'spot_number': spot.spot_number,
+                    'color': color,  # Green = empty, Red = occupied
+                    'occupancy': 100 if is_spot_occupied else 0,  # Direct spot occupancy
+                    'area_occupancy': round(area_occupancy * 100, 1),  # For analytics
+                    'is_occupied': is_spot_occupied,
+                    'vehicle_plate': PrivacyHandler.mask_license_plate(
+                        current_vehicle.vehicle.license_plate
+                    ) if current_vehicle else None,
+                    'entry_time': current_vehicle.checkin_time.isoformat() if current_vehicle else None,
+                    'duration': current_vehicle.get_duration_display() if current_vehicle else None,
+                    'spot_type': spot.spot_type
+                })
             
-            heatmap_data.append({
-                'spot_id': spot.spot_id,
-                'spot_number': spot.spot_number,
-                'color': color,  # Green = empty, Red = occupied
-                'occupancy': 100 if is_spot_occupied else 0,  # Direct spot occupancy
-                'area_occupancy': round(area_occupancy * 100, 1),  # For analytics
-                'is_occupied': is_spot_occupied,
-                'vehicle_plate': PrivacyHandler.mask_license_plate(
-                    current_vehicle.vehicle.license_plate
-                ) if current_vehicle else None,
-                'entry_time': current_vehicle.checkin_time.isoformat() if current_vehicle else None,
-                'duration': current_vehicle.get_duration_display() if current_vehicle else None,
-                'spot_type': spot.spot_type
-            })
-        
-        # Calculate lot-wide statistics
-        occupied_count = sum(1 for s in heatmap_data if s['is_occupied'])
-        available_count = lot.total_spots - occupied_count
-        occupancy_rate = round(occupied_count / lot.total_spots * 100, 1) if lot.total_spots > 0 else 0
-        
-        return {
-            'lot_id': lot.lot_id,
-            'lot_name': lot.lot_name,
-            'total_spots': lot.total_spots,
-            'occupied': occupied_count,
-            'available': available_count,
-            'occupancy_rate': occupancy_rate,
-            'spots': heatmap_data,
-            'updated_at': timezone.now().isoformat()
-        }
+            # Calculate lot-wide statistics
+            occupied_count = sum(1 for s in heatmap_data if s['is_occupied'])
+            available_count = lot.total_spots - occupied_count
+            occupancy_rate = round(occupied_count / lot.total_spots * 100, 1) if lot.total_spots > 0 else 0
+            
+            return {
+                'lot_id': lot.lot_id,
+                'lot_name': lot.lot_name,
+                'total_spots': lot.total_spots,
+                'occupied': occupied_count,
+                'available': available_count,
+                'occupancy_rate': occupancy_rate,
+                'spots': heatmap_data,
+                'updated_at': timezone.now().isoformat()
+            }
     
     @staticmethod
     def _calculate_area_occupancy(spot, radius=2):

@@ -408,7 +408,17 @@ class SensorFaultReport:
 def purchase_pass(request):
     """Purchase parking passes (monthly, daily, hourly)"""
     try:
-        user = User_details.objects.get(Email=request.session.get('user_email'))
+        # allow public access; only fetch user when logged in
+        user_email = request.session.get('user_email')
+        user = None
+        if user_email:
+            try:
+                user = User_details.objects.get(Email=user_email)
+            except User_details.DoesNotExist:
+                # session contains stale email, clear it
+                del request.session['user_email']
+                user = None
+        
         lots = ParkingLot.objects.all()
         
         # Define pass types and pricing
@@ -416,34 +426,39 @@ def purchase_pass(request):
             {
                 'id': 'hourly',
                 'name': 'Hourly Pass',
-                'price': 2.50,
+                'price': 40.00,
                 'duration_hours': 1,
                 'benefits': ['Valid for 1 hour', 'Any parking lot', 'Flexible timing']
             },
             {
                 'id': 'daily',
                 'name': 'Daily Pass',
-                'price': 15.00,
+                'price': 200.00,
                 'duration_hours': 24,
                 'benefits': ['Valid for 24 hours', 'Unlimited entries', 'Any parking lot', '40% savings vs hourly']
             },
             {
                 'id': 'weekly',
                 'name': 'Weekly Pass',
-                'price': 80.00,
+                'price': 1000.00,
                 'duration_hours': 168,
                 'benefits': ['Valid for 7 days', 'Unlimited entries', 'All parking lots', '50% savings vs hourly']
             },
             {
                 'id': 'monthly',
                 'name': 'Monthly Pass',
-                'price': 250.00,
+                'price': 3500.00,
                 'duration_hours': 720,
                 'benefits': ['Valid for 30 days', 'Unlimited entries', 'Priority spots', '60% savings vs hourly']
             }
         ]
         
         if request.method == 'POST':
+            # enforce login before making a purchase
+            if not user:
+                messages.error(request, "Please log in to purchase a pass.")
+                return redirect('login')
+
             pass_type = request.POST.get('pass_type')
             lot_id = request.POST.get('parking_lot')
             

@@ -113,14 +113,23 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en-IN'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
 USE_TZ = True
 
+# Currency & Localization
+DEFAULT_CURRENCY = 'INR'
+CURRENCY_SYMBOL = '₹'
+DECIMALFORMAT_RULES = {
+    'hundreds': {'divisor': 1, 'format': '{n}'},
+    'thousands': {'divisor': 1000, 'format': '{n:.2f}K'},
+    'lakhs': {'divisor': 100000, 'format': '{n:.2f}L'},
+    'crores': {'divisor': 10000000, 'format': '{n:.2f}Cr'},
+}
 
 # Authentication backends
 AUTHENTICATION_BACKENDS = [
@@ -187,6 +196,19 @@ ROLE_PERMISSIONS = {
     'attendant': ['view_parking', 'update_occupancy'],
     'user': ['view_parking', 'view_own_payments']
 }
+
+# Occupancy randomization for testing/dev
+# When enabled the parking lot status code will override real counts with
+# a randomly generated occupied count between the configured percentages.
+# This makes the dashboards look "live" even when using seed data or during
+# demos. The values are recalculated on every request and only affect the
+# returned JSON/dictionary, not the database.
+# For demos and local development we default to random occupancy so every lot
+# looks busy. Production can override with the environment variable set to
+# 'False'.
+RANDOMIZE_OCCUPANCY = os.getenv('RANDOMIZE_OCCUPANCY', 'True') == 'True'
+OCCUPANCY_RANDOM_MIN_PERCENT = float(os.getenv('OCCUPANCY_RANDOM_MIN_PERCENT', '20'))
+OCCUPANCY_RANDOM_MAX_PERCENT = float(os.getenv('OCCUPANCY_RANDOM_MAX_PERCENT', '85'))
 
 # Production Security Settings
 if not DEBUG:

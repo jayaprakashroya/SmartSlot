@@ -24,6 +24,38 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/vibrant-theme.css' %}">
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <style>
+      /* Dark navy navbar for excellent brand visibility */
+      .ftco_navbar, .ftco-navbar-light, nav.navbar { background: linear-gradient(90deg, #16487B 0%, #1E5F9F 100%) !important; }
+      .ftco_navbar .navbar-brand, .navbar-brand { background: transparent !important; color: #FFFFFF !important; padding: 12px 18px; border-radius: 0; font-weight: 900 !important; font-size: 1.8em !important; letter-spacing: 1px !important; }
+      .ftco_navbar .nav-link, nav.navbar .nav-link { color: #FFFFFF !important; }
+      .ftco_navbar .nav-link.btn-info { background: #FF8C00 !important; color: #FFFFFF !important; }
+      .ftco_navbar .nav-link:hover { color: #FFD700 !important; background: #2A6FA0 !important; }
+      .ftco_navbar .nav-link::after { background: rgba(255,255,255,0.2) !important; }
+      
+      .brand-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(90deg, #16487B 0%, #1E5F9F 100%);
+        padding: 10px 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+      
+      .brand-wrapper i {
+        font-size: 1.5em;
+        color: #FFD700;
+      }
+      
+      .brand-text {
+        font-weight: 900;
+        font-size: 1.5em;
+        color: #FFFFFF;
+        letter-spacing: 1.5px;
+        margin: 0;
+      }
+    </style>
   </head>
 
   <body>
@@ -201,6 +233,7 @@
           {% endif %}
       {% endfor %}
   {% endif %}
+    <script src="{% static 'js/dark-mode-toggle.js' %}"></script>
       </body>
 
     </html>

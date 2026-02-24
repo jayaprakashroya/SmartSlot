@@ -29,6 +29,36 @@
   .ftco-appointment{
     height: 100vh;
   }
+  /* Dark navy navbar for excellent brand visibility */
+  .ftco_navbar, .ftco-navbar-light, nav.navbar { background: linear-gradient(90deg, #16487B 0%, #1E5F9F 100%) !important; }
+  .ftco_navbar .navbar-brand, .navbar-brand { background: transparent !important; color: #FFFFFF !important; padding: 12px 18px; border-radius: 0; font-weight: 900 !important; font-size: 1.8em !important; letter-spacing: 1px !important; }
+  .ftco_navbar .nav-link, nav.navbar .nav-link { color: #FFFFFF !important; }
+  .ftco_navbar .nav-link.btn-info { background: #FF8C00 !important; color: #FFFFFF !important; }
+  .ftco_navbar .nav-link:hover { color: #FFD700 !important; background: #2A6FA0 !important; }
+  .ftco_navbar .nav-link::after { background: rgba(255,255,255,0.2) !important; }
+  
+  .brand-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(90deg, #16487B 0%, #1E5F9F 100%);
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+  
+  .brand-wrapper i {
+    font-size: 1.5em;
+    color: #FFD700;
+  }
+  
+  .brand-text {
+    font-weight: 900;
+    font-size: 1.5em;
+    color: #FFFFFF;
+    letter-spacing: 1.5px;
+    margin: 0;
+  }
 </style>
 
   </head>
@@ -101,7 +131,7 @@
         <!-- Left side with image -->
         <div class="col-lg-6 d-flex align-items-center justify-content-center" style="padding: 60px 40px; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); min-height: 100vh;">
           <div style="width: 100%; max-width: 700px; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);">
-            <img src="{% static 'images/license.png' %}" alt="License Plate Detection" style="width: 100%; height: auto; display: block;">
+            <img src="{% static 'images/licenseplatedetect.png' %}" alt="License Plate Detection" style="width: 100%; height: auto; display: block;">
           </div>
         </div>
         <!-- Right side with form -->
@@ -179,6 +209,29 @@
                       </div>
                     </div>
                   </form>
+
+                  <!-- Detection result: shows only when server provides `plate_number` -->
+                  {% if plate_number %}
+                  <div style="margin-top:20px;">
+                    <h3 style="color:#1e3c72; text-align:center; font-weight:700; margin-bottom:10px;">Detected License Plate:</h3>
+                    <div style="display:flex; justify-content:center;">
+                      <div style="background:#0f2340; color:white; padding:12px 28px; border-radius:8px; font-size:2rem; font-weight:800; letter-spacing:2px; box-shadow:0 8px 20px rgba(15,35,64,0.4);">
+                         {{ plate_number }}
+                      </div>
+                    </div>
+
+                    {% if detected_image_url %}
+                    <div style="display:flex; justify-content:center; margin-top:18px;">
+                      <img src="{{ detected_image_url }}" alt="Detected Plate" style="max-width:360px; width:100%; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.25);" />
+                    </div>
+                    {% else %}
+                    <div style="display:flex; justify-content:center; margin-top:18px;">
+                      <img src="{% static 'images/licenseplate.png' %}" alt="Plate example" style="max-width:360px; width:100%; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.25);" />
+                    </div>
+                    {% endif %}
+                  </div>
+                  {% endif %}
+
                 </div>
               </div>
             </div>
@@ -400,5 +453,6 @@
     });
   }
 </script>
+  <script src="{% static 'js/dark-mode-toggle.js' %}"></script>
   </body>
   </html>      

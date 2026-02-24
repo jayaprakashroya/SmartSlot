@@ -180,6 +180,8 @@
         font-weight: bold;
         cursor: pointer;
         transition: all 0.3s ease;
+        color: white;              /* make sure text is visible on colored backgrounds */
+        min-width: 140px;          /* avoid buttons collapsing and hiding text */
     }
 
     .btn-refresh {
@@ -261,6 +263,9 @@
     .modal-close:hover {
         color: #333;
     }
+
+    /* NOTE: there is no sign‑up prompt in this template any more; if some
+       external script injects one it will be removed by client JS below. */
 </style>
 
 <div class="heatmap-container">
@@ -345,7 +350,12 @@
     <div class="lot-title">{{ heatmap.lot_name }} - Parking Spaces</div>
     <div class="spot-grid" id="spotGrid">
         {% for spot in heatmap.spots %}
-        <div class="spot spot-{{ spot.color }}" data-spot-id="{{ spot.spot_id }}" onclick="showSpotDetails('{{ spot.spot_id }}')">
+        <div class="spot spot-{{ spot.color }}" 
+             data-spot-id="{{ spot.spot_id }}"
+             data-occupied="{{ spot.is_occupied|yesno:'true,false' }}"
+             data-vehicle-plate="{{ spot.vehicle_plate|default:'' }}"
+             data-spot-number="{{ spot.spot_number }}"
+             onclick="showSpotDetails('{{ spot.spot_id }}')">
             <span>{{ spot.spot_number }}</span>
             <div class="spot-info">
                 {% if spot.is_occupied %}
@@ -441,6 +451,11 @@ async function refreshHeatmap() {
                     // Add new color class
                     spotEl.classList.add(`spot-${spot.color}`);
                     
+                    // update data attributes for detailed view
+                    spotEl.dataset.occupied = spot.is_occupied ? 'true' : 'false';
+                    spotEl.dataset.vehiclePlate = spot.vehicle_plate || '';
+                    spotEl.dataset.spotNumber = spot.spot_number || '';
+                    
                     // Update info
                     const info = spotEl.querySelector('.spot-info');
                     if (info) {
@@ -510,13 +525,31 @@ async function showAnalytics() {
 }
 
 function showSpotDetails(spotId) {
+    const spotEl = document.querySelector(`[data-spot-id="${spotId}"]`);
     const spotModal = document.getElementById('spotModal');
-    document.getElementById('spotModalTitle').textContent = `Spot Details - ${spotId}`;
-    document.getElementById('spotModalContent').innerHTML = `
-        <p><strong>Spot ID:</strong> ${spotId}</p>
-        <p><strong>Status:</strong> <span class="pulse">●</span> Live</p>
-        <p><a href="/admin-dashboard/" class="btn btn-primary">Manage in Admin Dashboard</a></p>
+    let statusText = 'Unknown';
+    let plateText = '';
+    let numberText = spotId;
+    if (spotEl) {
+        const occ = spotEl.dataset.occupied;
+        statusText = occ === 'true' ? 'Occupied' : 'Empty';
+        plateText = spotEl.dataset.vehiclePlate || '';
+        numberText = spotEl.dataset.spotNumber || spotId;
+    }
+    document.getElementById('spotModalTitle').textContent = `Spot Details - ${numberText}`;
+    let contentHtml = `
+        <p><strong>Spot ID:</strong> ${numberText}</p>
+        <p><strong>Status:</strong> ${statusText}</p>
     `;
+    if (statusText === 'Occupied') {
+        contentHtml += `<p><strong>Plate:</strong> ${plateText || 'Unknown'}</p>`;
+    } else {
+        // show sample placeholder for empty spots
+        contentHtml += `<p class="text-muted"><em>e.g. Plate: ABC-1234 (when occupied)</em></p>`;
+    }
+    contentHtml += `<p><a href="/admin-dashboard/" class="btn btn-primary">Manage in Admin Dashboard</a></p>`;
+
+    document.getElementById('spotModalContent').innerHTML = contentHtml;
     spotModal.classList.add('show');
 }
 
@@ -549,6 +582,41 @@ function goToRealTimeStatus() {
 
 // Auto-refresh every 30 seconds by default
 setInterval(refreshHeatmap, 30000);
+
+// safety: remove any leftover signup element that might be injected later
+// (the user asked for the green "Sign Up" badge gone).
+function pruneSignUpElements(root=document.body) {
+    // remove by known classes
+    root.querySelectorAll('.signup-banner, .signup-prompt, .btn-signup').forEach(el => el.remove());
+
+    // remove any element with exact text or containing the phrase
+    root.querySelectorAll('*').forEach(el => {
+        if (el.children.length === 0) {
+            const txt = el.textContent.trim();
+            if (txt === 'Sign Up' || txt.toLowerCase().includes('sign up')) {
+                el.remove();
+            }
+        }
+    });
+}
+
+// initial cleanup on load
+document.addEventListener('DOMContentLoaded', () => {
+    pruneSignUpElements();
+
+    // observe DOM mutations and prune newly added nodes
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(m => {
+            m.addedNodes.forEach(node => {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    pruneSignUpElements(node);
+                }
+            });
+        });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+});
 </script>
 
 {% endblock %}

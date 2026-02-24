@@ -132,6 +132,10 @@ Each parking lot displays:
 ✅ **Professional Look**: Gradient styling and smooth animations
 ✅ **Performance**: Efficient database queries with single view
 ✅ **Error Handling**: Graceful fallback if data unavailable
+✅ **Demo/Testing Mode**: When the `RANDOMIZE_OCCUPANCY` flag is set (see
+  `settings.py`), the API will return randomly generated occupied/available
+  counts (20‑85% occupancy) so dashboards always look active during demos or
+  when using seed data.
 
 ---
 

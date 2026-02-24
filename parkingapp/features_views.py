@@ -36,8 +36,12 @@ def parking_history(request):
         # If user is logged in, show their history
         user_email = request.session.get('user_email')
         if user_email:
-            user = User_details.objects.get(Email=user_email)
-            sessions = ParkingSession.objects.filter(user=user).order_by('-entry_time')
+            try:
+                user = User_details.objects.get(Email=user_email)
+                sessions = ParkingSession.objects.filter(user=user).order_by('-entry_time')
+            except User_details.DoesNotExist:
+                messages.warning(request, "User profile not found.")
+                sessions = ParkingSession.objects.none()
         else:
             # If not logged in, show recent sessions from all users
             sessions = ParkingSession.objects.all().order_by('-entry_time')
@@ -77,8 +81,23 @@ def parking_history(request):
 def end_parking_session(request, session_id):
     """End active parking session and calculate fees"""
     try:
-        user = User_details.objects.get(Email=request.session.get('user_email'))
-        session = ParkingSession.objects.get(session_id=session_id, user=user)
+        # Check if user is logged in
+        user_email = request.session.get('user_email')
+        if not user_email:
+            messages.error(request, "Please log in to end parking session.")
+            return redirect('login')
+        
+        try:
+            user = User_details.objects.get(Email=user_email)
+        except User_details.DoesNotExist:
+            messages.error(request, "User profile not found.")
+            return redirect('login')
+        
+        try:
+            session = ParkingSession.objects.get(session_id=session_id, user=user)
+        except ParkingSession.DoesNotExist:
+            messages.error(request, "Parking session not found.")
+            return redirect('parking_history')
         
         if session.exit_time:
             messages.error(request, "This session has already ended.")
@@ -107,11 +126,19 @@ def end_parking_session(request, session_id):
         session.payment_status = 'pending'
         session.save()
         
+        # Create notification
+        UserNotification.objects.create(
+            user=user,
+            notification_type='parking_session_ended',
+            title='Parking Session Ended',
+            message=f'Your parking session has ended. Total fee: ₹{session.parking_fee}'
+        )
+        
         messages.success(request, f"Parking session ended. Total fee: ₹{session.parking_fee}")
         return redirect('parking_history')
     except Exception as e:
         logger.error(f"End session error: {str(e)}")
-        messages.error(request, "Error ending parking session.")
+        messages.error(request, f"Error ending parking session: {str(e)}")
         return redirect('parking_history')
 
 
@@ -140,8 +167,8 @@ def payments(request):
             payments = Payment.objects.all().order_by('-created_at')
         
         # Payment summary
-        total_paid = payments.filter(status='completed').aggregate(Sum('amount'))['amount__sum'] or 0
-        pending_payments = payments.filter(status='pending')
+        total_paid = payments.filter(payment_status='success').aggregate(Sum('amount'))['amount__sum'] or 0
+        pending_payments = payments.filter(payment_status='pending')
         
         context = {
             'payments': payments[:20],
@@ -167,8 +194,23 @@ def payments(request):
 def process_payment(request, session_id):
     """Process payment for parking session"""
     try:
-        user = User_details.objects.get(Email=request.session.get('user_email'))
-        session = ParkingSession.objects.get(session_id=session_id, user=user)
+        # Check if user is logged in
+        user_email = request.session.get('user_email')
+        if not user_email:
+            messages.error(request, "Please log in to process a payment.")
+            return redirect('login')
+        
+        try:
+            user = User_details.objects.get(Email=user_email)
+        except User_details.DoesNotExist:
+            messages.error(request, "User profile not found. Please log in again.")
+            return redirect('login')
+        
+        try:
+            session = ParkingSession.objects.get(session_id=session_id, user=user)
+        except ParkingSession.DoesNotExist:
+            messages.error(request, "Parking session not found.")
+            return redirect('parking_history')
         
         if session.payment_status == 'paid':
             messages.info(request, "This session is already paid.")
@@ -177,37 +219,40 @@ def process_payment(request, session_id):
         if request.method == 'POST':
             payment_method = request.POST.get('payment_method', 'credit_card')
             
-            # Create payment record
-            # Create payment record using whichever fields exist in the model
-            payment_fields = [f.name for f in Payment._meta.get_fields()]
-            create_kwargs = {
-                'parking_session': session,
-                'amount': session.parking_fee,
-                'payment_method': payment_method,
-                'payment_status': 'success',
-                'transaction_id': f"TXN-{timezone.now().timestamp()}"
-            }
-            if 'user' in payment_fields:
-                create_kwargs['user'] = user
-            elif 'user_email' in payment_fields:
-                create_kwargs['user_email'] = user.Email
+            try:
+                # Create payment record
+                payment_fields = [f.name for f in Payment._meta.get_fields()]
+                create_kwargs = {
+                    'parking_session': session,
+                    'amount': session.parking_fee,
+                    'payment_method': payment_method,
+                    'payment_status': 'success',
+                    'transaction_id': f"TXN-{timezone.now().timestamp()}"
+                }
+                if 'user' in payment_fields:
+                    create_kwargs['user'] = user
+                elif 'user_email' in payment_fields:
+                    create_kwargs['user_email'] = user.Email
 
-            payment = Payment.objects.create(**create_kwargs)
-            
-            # Update session
-            session.payment_status = 'paid'
-            session.save()
-            
-            # Create notification
-            UserNotification.objects.create(
-                user=user,
-                notification_type='parking_complete',
-                title='Payment Successful',
-                message=f'Payment of ₹{session.parking_fee} confirmed for parking session'
-            )
-            
-            messages.success(request, f"Payment of ₹{session.parking_fee} processed successfully!")
-            return redirect('parking_history')
+                payment = Payment.objects.create(**create_kwargs)
+                
+                # Update session
+                session.payment_status = 'paid'
+                session.save()
+                
+                # Create notification
+                UserNotification.objects.create(
+                    user=user,
+                    notification_type='parking_complete',
+                    title='Payment Successful',
+                    message=f'Payment of ₹{session.parking_fee} confirmed for parking session'
+                )
+                
+                messages.success(request, f"Payment of ₹{session.parking_fee} processed successfully!")
+                return redirect('parking_history')
+            except Exception as e:
+                logger.error(f"Payment processing error: {str(e)}")
+                messages.error(request, f"Error processing payment: {str(e)}")
         
         context = {
             'session': session,
@@ -215,7 +260,7 @@ def process_payment(request, session_id):
         }
         return render(request, 'process_payment.html', context)
     except Exception as e:
-        logger.error(f"Payment processing error: {str(e)}")
+        logger.error(f"Payment view error: {str(e)}")
         messages.error(request, "Error processing payment.")
         return redirect('parking_history')
 
@@ -227,7 +272,18 @@ def process_payment(request, session_id):
 def reserve_parking(request):
     """Make a parking reservation"""
     try:
-        user = User_details.objects.get(Email=request.session.get('user_email'))
+        # Check if user is logged in
+        user_email = request.session.get('user_email')
+        if not user_email:
+            messages.error(request, "Please log in to make a reservation.")
+            return redirect('login')
+        
+        try:
+            user = User_details.objects.get(Email=user_email)
+        except User_details.DoesNotExist:
+            messages.error(request, "User profile not found. Please log in again.")
+            return redirect('login')
+        
         lots = ParkingLot.objects.all()
         
         if request.method == 'POST':
@@ -235,34 +291,57 @@ def reserve_parking(request):
             reserved_from = request.POST.get('reserved_from')
             reserved_until = request.POST.get('reserved_until')
             vehicle_type = request.POST.get('vehicle_type', 'car')
-            license_plate = request.POST.get('license_plate', '')
+            license_plate = request.POST.get('license_plate', '').strip().upper()
             
             # Validate
             if not all([lot_id, reserved_from, reserved_until]):
-                messages.error(request, "Please fill in all fields.")
+                messages.error(request, "Please fill in all required fields.")
                 return render(request, 'reserve_parking.html', {'lots': lots})
             
             try:
-                lot = ParkingLot.objects.get(lot_id=lot_id)
-                from_dt = datetime.fromisoformat(reserved_from)
-                to_dt = datetime.fromisoformat(reserved_until)
+                # Validate lot exists
+                try:
+                    lot = ParkingLot.objects.get(lot_id=lot_id)
+                except ParkingLot.DoesNotExist:
+                    messages.error(request, "Selected parking lot not found.")
+                    return render(request, 'reserve_parking.html', {'lots': lots})
                 
+                # Parse dates
+                try:
+                    from_dt = datetime.fromisoformat(reserved_from)
+                    to_dt = datetime.fromisoformat(reserved_until)
+                except ValueError as e:
+                    messages.error(request, "Invalid date format. Please use the date picker.")
+                    return render(request, 'reserve_parking.html', {'lots': lots})
+                
+                # Validate date logic
+                # end must strictly follow start
                 if from_dt >= to_dt:
                     messages.error(request, "End time must be after start time.")
                     return render(request, 'reserve_parking.html', {'lots': lots})
-                
-                if from_dt < timezone.now():
+
+                now = timezone.now()
+                # from_dt cannot be in the past
+                if from_dt < now:
                     messages.error(request, "Cannot reserve for past dates.")
                     return render(request, 'reserve_parking.html', {'lots': lots})
+
+                # if reservation starts today, require at least 15 minutes lead time
+                if from_dt.date() == now.date():
+                    min_allowed = now + timedelta(minutes=15)
+                    if from_dt < min_allowed:
+                        messages.error(request, "Start time must be at least 15 minutes from now when booking for today.")
+                        return render(request, 'reserve_parking.html', {'lots': lots})
                 
-                # Calculate reservation fee (15% of estimated parking fee)
-                duration_hours = (to_dt - from_dt).total_seconds() / 3600
+                # Calculate reservation fee (15% of estimated parking fee) using Decimal
+                from decimal import Decimal
+                duration_hours = Decimal(str((to_dt - from_dt).total_seconds() / 3600))
                 pricing = PricingRule.objects.filter(parking_lot=lot, vehicle_type=vehicle_type).first()
                 
-                reservation_fee = 0
+                reservation_fee = Decimal('0.00')
                 if pricing:
-                    estimated_fee = duration_hours * pricing.base_rate
-                    reservation_fee = round(estimated_fee * 0.15, 2)  # 15% reservation fee
+                    estimated_fee = duration_hours * Decimal(str(pricing.base_rate))
+                    reservation_fee = (estimated_fee * Decimal('0.15')).quantize(Decimal('0.01'))
                 
                 # Create reservation
                 reservation = ParkingReservation.objects.create(
@@ -280,13 +359,14 @@ def reserve_parking(request):
                 return redirect('my_reservations')
             except Exception as e:
                 logger.error(f"Reservation creation error: {str(e)}")
-                messages.error(request, "Error creating reservation.")
+                messages.error(request, f"Error creating reservation: {str(e)}")
+                return render(request, 'reserve_parking.html', {'lots': lots})
         
         context = {'lots': lots}
         return render(request, 'reserve_parking.html', context)
     except Exception as e:
         logger.error(f"Reserve parking error: {str(e)}")
-        messages.error(request, "Error accessing reservations.")
+        messages.error(request, "Error accessing reservations page.")
         return redirect('dashboard')
 
 
@@ -295,8 +375,12 @@ def my_reservations(request):
     try:
         user_email = request.session.get('user_email')
         if user_email:
-            user = User_details.objects.get(Email=user_email)
-            reservations = ParkingReservation.objects.filter(user=user).order_by('-created_at')
+            try:
+                user = User_details.objects.get(Email=user_email)
+                reservations = ParkingReservation.objects.filter(user=user).order_by('-created_at')
+            except User_details.DoesNotExist:
+                messages.warning(request, "User profile not found.")
+                reservations = ParkingReservation.objects.none()
         else:
             # Public view shows all reservations
             reservations = ParkingReservation.objects.all().order_by('-created_at')
@@ -308,6 +392,10 @@ def my_reservations(request):
         }
         
         return render(request, 'my_reservations.html', context)
+    except Exception as e:
+        logger.error(f"Reservations view error: {str(e)}")
+        messages.error(request, "Error loading reservations.")
+        return render(request, 'my_reservations.html', {'reservations': [], 'active_count': 0, 'is_public': True})
     except Exception as e:
         logger.error(f"My reservations error: {str(e)}")
         # Return empty data instead of redirecting
@@ -322,8 +410,23 @@ def my_reservations(request):
 def cancel_reservation(request, reservation_id):
     """Cancel a parking reservation"""
     try:
-        user = User_details.objects.get(Email=request.session.get('user_email'))
-        reservation = ParkingReservation.objects.get(reservation_id=reservation_id, user=user)
+        # Check if user is logged in
+        user_email = request.session.get('user_email')
+        if not user_email:
+            messages.error(request, "Please log in to cancel a reservation.")
+            return redirect('login')
+        
+        try:
+            user = User_details.objects.get(Email=user_email)
+        except User_details.DoesNotExist:
+            messages.error(request, "User profile not found.")
+            return redirect('login')
+        
+        try:
+            reservation = ParkingReservation.objects.get(reservation_id=reservation_id, user=user)
+        except ParkingReservation.DoesNotExist:
+            messages.error(request, "Reservation not found or you don't have permission to cancel it.")
+            return redirect('my_reservations')
         
         if reservation.status == 'used':
             messages.error(request, "Cannot cancel a used reservation.")
@@ -332,11 +435,19 @@ def cancel_reservation(request, reservation_id):
         reservation.status = 'cancelled'
         reservation.save()
         
-        messages.success(request, "Reservation cancelled.")
+        # Create notification
+        UserNotification.objects.create(
+            user=user,
+            notification_type='reservation_cancelled',
+            title='Reservation Cancelled',
+            message='Your parking reservation has been cancelled.'
+        )
+        
+        messages.success(request, "Reservation cancelled successfully!")
         return redirect('my_reservations')
     except Exception as e:
         logger.error(f"Cancel reservation error: {str(e)}")
-        messages.error(request, "Error cancelling reservation.")
+        messages.error(request, f"Error cancelling reservation: {str(e)}")
         return redirect('my_reservations')
 
 
@@ -378,8 +489,20 @@ def notifications(request):
 def mark_notification_read(request, notification_id):
     """Mark notification as read"""
     try:
-        user = User_details.objects.get(Email=request.session.get('user_email'))
-        notification = UserNotification.objects.get(notification_id=notification_id, user=user)
+        # Check if user is logged in
+        user_email = request.session.get('user_email')
+        if not user_email:
+            return JsonResponse({'success': False, 'error': 'User not logged in'}, status=401)
+        
+        try:
+            user = User_details.objects.get(Email=user_email)
+        except User_details.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'User not found'}, status=404)
+        
+        try:
+            notification = UserNotification.objects.get(notification_id=notification_id, user=user)
+        except UserNotification.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Notification not found'}, status=404)
         
         notification.is_read = True
         notification.read_at = timezone.now()
@@ -391,7 +514,7 @@ def mark_notification_read(request, notification_id):
         return redirect('notifications')
     except Exception as e:
         logger.error(f"Mark notification error: {str(e)}")
-        return JsonResponse({'success': False}, status=400)
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
 # ═══════════════════════════════════════════════════════════════════

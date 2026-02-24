@@ -47,14 +47,16 @@ for lot in [lot1, lot2, lot3]:
     for idx, spot in enumerate(spots):
         if idx < len(Vehicle.objects.all()):
             vehicle = Vehicle.objects.all()[idx]
+            entry_time = datetime.now() - timedelta(hours=random.randint(1, 8))
+            hours = (datetime.now() - entry_time).total_seconds() / 3600.0
             ParkedVehicle.objects.get_or_create(
                 parking_spot=spot,
                 vehicle=vehicle,
                 defaults={
                     "parking_lot": lot,
-                    "checkin_time": datetime.now() - timedelta(hours=random.randint(1, 8)),
+                    "checkin_time": entry_time,
                     "checkout_time": None,
-                    "parking_fee": random.uniform(5.0, 25.0)
+                    "parking_fee": round(hours * 50.0, 2)
                 }
             )
 print(f"Parked Vehicles: {ParkedVehicle.objects.count()}")

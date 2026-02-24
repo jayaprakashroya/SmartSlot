@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load currency_filters %}
 
 {% block title %}Reserve Parking{% endblock %}
 
@@ -79,7 +80,7 @@
 
                         <!-- Estimated Cost -->
                         <div class="alert alert-info" role="alert">
-                            <h6>💰 Estimated Cost</h6>
+                            <h6>💰 Estimated Cost (in Indian Rupees)</h6>
                             <p id="estimated-cost">
                                 Enter dates to calculate estimated cost
                             </p>
@@ -135,9 +136,77 @@
 </div>
 
 <script>
-// Calculate estimated cost
+// Date validation & min attribute handling
+(function() {
+    const fromInput = document.getElementById('reserved_from');
+    const untilInput = document.getElementById('reserved_until');
+
+    function pad(num) { return num.toString().padStart(2, '0'); }
+    function formatLocal(dt) {
+        const year = dt.getFullYear();
+        const month = pad(dt.getMonth()+1);
+        const day = pad(dt.getDate());
+        const hours = pad(dt.getHours());
+        const mins = pad(dt.getMinutes());
+        return `${year}-${month}-${day}T${hours}:${mins}`;
+    }
+
+    function updateMinFrom() {
+        const now = new Date();
+        // always disallow past; also require at least 15 min lead time
+        const lead = new Date(now.getTime() + 15*60000);
+        fromInput.min = formatLocal(lead);
+    }
+    function updateMinUntil() {
+        if (fromInput.value) {
+            const start = new Date(fromInput.value);
+            // ensure end is after start
+            untilInput.min = formatLocal(new Date(start.getTime() + 1));
+        }
+    }
+
+    // apply on load
+    updateMinFrom();
+    updateMinUntil();
+
+    fromInput.addEventListener('change', function() {
+        updateMinUntil();
+        // if selected today, enforce 15-min rule
+        const now = new Date();
+        const selected = new Date(fromInput.value);
+        if (selected.toDateString() === now.toDateString()) {
+            const minAllowed = new Date(now.getTime() + 15*60000);
+            if (selected < minAllowed) {
+                alert('Start time must be at least 15 minutes from now when booking for today.');
+                fromInput.value = formatLocal(minAllowed);
+            }
+        }
+    });
+
+    untilInput.addEventListener('change', function() {
+        if (fromInput.value && untilInput.value) {
+            const start = new Date(fromInput.value);
+            const end = new Date(untilInput.value);
+            if (end <= start) {
+                alert('End time must be after start time.');
+                untilInput.value = '';
+            }
+        }
+    });
+
+})();
+
+// Calculate estimated cost with INR
 document.getElementById('reserved_from').addEventListener('change', calculateCost);
 document.getElementById('reserved_until').addEventListener('change', calculateCost);
+
+function formatINR(amount) {
+    // Format with ₹ symbol and proper Indian decimal formatting
+    return '₹' + amount.toLocaleString('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
 
 function calculateCost() {
     const from = document.getElementById('reserved_from').value;
@@ -149,17 +218,17 @@ function calculateCost() {
         const hours = (untilDate - fromDate) / (1000 * 60 * 60);
         
         if (hours > 0) {
-            const hourlyRate = 2.50; // Default rate
+            const hourlyRate = 50; // ₹50/hour in INR
             const estimatedFee = hours * hourlyRate;
             const reservationFee = estimatedFee * 0.15;
             
             document.getElementById('estimated-cost').innerHTML = `
-                <strong>Hourly Rate:</strong> $${hourlyRate}<br>
+                <strong>Hourly Rate:</strong> ${formatINR(hourlyRate)}/hour<br>
                 <strong>Duration:</strong> ${hours.toFixed(2)} hours<br>
-                <strong>Estimated Parking:</strong> $${estimatedFee.toFixed(2)}<br>
-                <strong>Reservation Fee (15%):</strong> $${reservationFee.toFixed(2)}<br>
+                <strong>Estimated Parking:</strong> ${formatINR(estimatedFee)}<br>
+                <strong>Reservation Fee (15%):</strong> ${formatINR(reservationFee)}<br>
                 <hr>
-                <strong>Total Reservation Fee: $${reservationFee.toFixed(2)}</strong>
+                <strong>Total Reservation Fee: ${formatINR(reservationFee)}</strong>
             `;
         }
     }

@@ -45,6 +45,10 @@ urlpatterns = [
     path('api/recent-activity/<int:lot_id>/', customer_views.api_recent_activity, name='api_recent_activity_detail'),
     path('api/recent-activity/<int:lot_id>/<int:hours>/', customer_views.api_recent_activity, name='api_recent_activity_hours'),
     
+    # Vehicle Entry/Exit API endpoints - Real-time timestamp capture
+    path('api/vehicle-checkin/', customer_views.api_vehicle_checkin, name='api_vehicle_checkin'),
+    path('api/vehicle-checkout/', customer_views.api_vehicle_checkout, name='api_vehicle_checkout'),
+    
     # YOLOv8 Integration API endpoints
     path('api/yolov8/webhook/', customer_views.yolov8_webhook, name='yolov8_webhook'),
     path('api/yolov8/process-image/', customer_views.process_image_detection, name='process_image_detection'),
