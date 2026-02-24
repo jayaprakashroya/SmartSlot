@@ -11,6 +11,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils import timezone
+from django.conf import settings
+
 from .parking_spot_tracker import ParkingSpotTracker
 from .parking_manager import ParkingManager
 from .models import ParkedVehicle, ParkingSpot, Vehicle, AdminAction
@@ -35,21 +37,39 @@ def get_client_ip(request):
 _parking_tracker = None
 
 def get_parking_tracker():
-    """Get or initialize the parking tracker."""
+    """Return a singleton ParkingSpotTracker.
+
+    If the serialized positions file is missing or an error occurs we still
+    create an empty tracker so callers don't have to keep checking for
+    ``None``.  The absolute path is built using ``settings.BASE_DIR`` so the
+    code works regardless of the current working directory.
+    """
     global _parking_tracker
-    
+
     if _parking_tracker is None:
         try:
-            # Load parking positions
-            pos_file = 'parkingapp/CarParkPos'
+            pos_file = os.path.join(settings.BASE_DIR, 'parkingapp', 'CarParkPos')
+            parking_positions = []
+
             if os.path.exists(pos_file):
                 with open(pos_file, 'rb') as f:
                     parking_positions = pickle.load(f)
-                    _parking_tracker = ParkingSpotTracker(parking_positions, 1280, 720)
-                    logger.info(f"Parking tracker initialized with {len(parking_positions)} spots")
+                logger.info(
+                    "Parking tracker initialized with %d spots",
+                    len(parking_positions),
+                )
+            else:
+                logger.warning(
+                    "Parking positions file %r not found, starting with an empty list",
+                    pos_file,
+                )
+
+            _parking_tracker = ParkingSpotTracker(parking_positions, 1280, 720)
         except Exception as e:
-            logger.error(f"Failed to initialize parking tracker: {e}")
-    
+            logger.error("Failed to initialize parking tracker: %s", e)
+            # fall back to an empty tracker instead of returning None
+            _parking_tracker = ParkingSpotTracker([], 1280, 720)
+
     return _parking_tracker
 
 
@@ -187,30 +207,30 @@ def api_find_vehicle_realtime(request):
     try:
         data = json.loads(request.body)
         license_plate = data.get('license_plate', '').strip().upper()
-        
+
         if not license_plate:
-            return JsonResponse({
-                'success': False,
-                'error': 'License plate is required'
-            }, status=400)
-        
-        # Authorization check - users can only search their own vehicles
+            return JsonResponse(
+                {'success': False, 'error': 'License plate is required'},
+                status=400,
+            )
+
+        # Authorization check - users may only look up their own cars unless
+        # they have staff privileges.  Perform the lookup first so that we
+        # don't leak the existence of a plate they shouldn't see.
+        vehicle = None
         try:
             vehicle = Vehicle.objects.get(license_plate=license_plate)
-            if not (request.user.is_staff or request.user.is_superuser):
-                # Regular users can only search for their own vehicles
-                try:
-                    ParkedVehicle.objects.get(vehicle=vehicle, user=request.user)
-                except ParkedVehicle.DoesNotExist:
-                    return JsonResponse({
-                        'success': False,
-                        'error': "You can only search your own vehicles"
-                    }, status=403)
         except Vehicle.DoesNotExist:
-            pass  # Continue with search anyway
-        
+            vehicle = None
+
+        if vehicle and not (request.user.is_staff or request.user.is_superuser):
+            if not ParkedVehicle.objects.filter(vehicle=vehicle, user=request.user).exists():
+                return JsonResponse(
+                    {'success': False, 'error': "You can only search your own vehicles"},
+                    status=403,
+                )
+
         result = tracker.find_vehicle_spot(license_plate)
-        
         if result:
             return JsonResponse({
                 'success': True,
@@ -275,16 +295,22 @@ def api_update_parking_spot(request):
         # Assign vehicle to parking spot
         result = tracker.assign_vehicle_to_spot(license_plate, tuple(bbox), confidence)
         
+        # result keys are documented in ParkingSpotTracker.assign_vehicle_to_spot
+        spot_id = result.get('spot_id')
+        spot_number = None
+        if isinstance(spot_id, int) and spot_id >= 0:
+            spot_number = spot_id + 1
+
         return JsonResponse({
             'success': result.get('success', False),
             'message': result.get('message', ''),
             'data': {
                 'plate': result.get('plate'),
-                'spot_id': result.get('spot_id'),
-                'spot_number': result.get('spot_id', -1) + 1 if result.get('spot_id', -1) >= 0 else None,
+                'spot_id': spot_id,
+                'spot_number': spot_number,
                 'position': result.get('position'),
-                'overlap': result.get('overlap')
-            }
+                'overlap': result.get('overlap'),
+            },
         })
     
     except json.JSONDecodeError:

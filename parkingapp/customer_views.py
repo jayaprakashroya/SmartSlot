@@ -13,6 +13,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .models import ParkingLot, Vehicle, ParkedVehicle, ParkingSpot
 from .parking_manager import ParkingManager
+from django.conf import settings
+import random
 # NOTE: YOLOv8 detector imports moved to lazy loading to avoid torch timeout on startup
 # They will be imported only when needed in specific functions
 import json
@@ -117,7 +119,7 @@ def parking_lot_status(request, lot_id=None):
             parking_lot = ParkingLot.objects.first()
             if not parking_lot:
                 messages.error(request, 'No parking lot configured.')
-                return render(request, 'parking_lot_status.html', {'lot_status': None})
+                return render(request, 'parking_lot_status.html', {'lot_status': None, 'hide_auth_buttons': True})
         
         status = ParkingManager.get_parking_lot_status(parking_lot)
         all_lots = ParkingLot.objects.all()
@@ -126,13 +128,14 @@ def parking_lot_status(request, lot_id=None):
             'status': status,
             'lot': parking_lot,
             'all_lots': all_lots,
-            'current_lot_id': parking_lot.lot_id
+            'current_lot_id': parking_lot.lot_id,
+            'hide_auth_buttons': True  # remove login/signup from navbar
         }
         return render(request, 'parking_lot_status.html', context)
     
     except ParkingLot.DoesNotExist:
         messages.error(request, 'Parking lot not found.')
-        return render(request, 'parking_lot_status.html', {'lot_status': None})
+        return render(request, 'parking_lot_status.html', {'lot_status': None, 'hide_auth_buttons': True})
 
 
 def parking_lot_status_all_lots(request):
@@ -141,9 +144,17 @@ def parking_lot_status_all_lots(request):
     Shows occupancy for each lot with quick access to heatmaps
     """
     try:
-        all_lots = ParkingLot.objects.all().order_by('lot_name')
+        # ignore any test/demo lots that may have been created during automated tests
+        all_lots_full = ParkingLot.objects.all()
+        all_lots = all_lots_full.exclude(lot_name__icontains='test').order_by('lot_name')
         
         # Calculate statistics for each lot
+        # NOTE: ParkingManager.get_parking_lot_status may return randomized
+        # occupancy values if the RANDOMIZE_OCCUPANCY setting is enabled.  This
+        # flag is mainly used for demo/test environments so that the dashboard
+        # looks active; when enabled the "occupied_spots" field will be a
+        # random percentage (default 20-85%) of total_spots and the available
+        # and occupancy_rate fields are recomputed accordingly.
         parking_lots = []
         total_occupied = 0
         total_available = 0
@@ -151,38 +162,72 @@ def parking_lot_status_all_lots(request):
         
         for lot in all_lots:
             status = ParkingManager.get_parking_lot_status(lot)
-            
             lot_data = {
                 'lot_id': lot.lot_id,
                 'lot_name': lot.lot_name,
                 'total_spots': status.get('total_spots', 0),
-                'occupied_spots': status.get('parked_vehicles_count', 0),
-                'available_spots': status.get('available_spaces_count', 0),
-                'occupancy_rate': status.get('occupancy_percentage', 0)
+                'occupied_spots': status.get('occupied_spots', 0),
+                'available_spots': status.get('available_spots', 0),
+                'occupancy_rate': status.get('occupancy_rate', 0)
             }
-            
             parking_lots.append(lot_data)
             total_occupied += lot_data['occupied_spots']
             total_available += lot_data['available_spots']
             total_spots += lot_data['total_spots']
-        
+
+        # If all values are zero, inject sample data (demo mode)
+        if total_spots == 0 or (total_occupied == 0 and total_available == 0):
+            # we will randomize the demo occupancy if randomization is enabled
+            demo_def = [
+                ('Demo Lot A', 20, 5),
+                ('Demo Lot B', 15, 3),
+                ('Demo Lot C', 10, 0),
+            ]
+            parking_lots = []
+            total_spots = total_occupied = total_available = 0
+            for idx, (name, cap, static_occ) in enumerate(demo_def, start=1):
+                if settings.RANDOMIZE_OCCUPANCY and cap > 0:
+                    perc = random.uniform(settings.OCCUPANCY_RANDOM_MIN_PERCENT,
+                                          settings.OCCUPANCY_RANDOM_MAX_PERCENT)
+                    occ = int(round(cap * perc / 100))
+                else:
+                    occ = static_occ
+                avail = cap - occ
+                rate = round((occ / cap) * 100, 1) if cap else 0
+                parking_lots.append({
+                    'lot_id': idx,
+                    'lot_name': name,
+                    'total_spots': cap,
+                    'occupied_spots': occ,
+                    'available_spots': avail,
+                    'occupancy_rate': rate,
+                })
+                total_spots += cap
+                total_occupied += occ
+                total_available += avail
+
         # Calculate overall occupancy rate
         overall_rate = 0
         if total_spots > 0:
             overall_rate = round((total_occupied / total_spots) * 100, 1)
-        
+
         total_stats = {
             'total': total_spots,
             'occupied': total_occupied,
             'available': total_available,
             'occupancy_rate': overall_rate
         }
-        
-        context = {
+
+        # show a one‑time informational note if any lots were excluded
+        ctx = {
             'parking_lots': parking_lots,
-            'total_stats': total_stats
+            'total_stats': total_stats,
+            'hide_auth_buttons': True,
         }
-        
+        if all_lots_full.count() != all_lots.count():
+            ctx['note'] = 'Some demo/test lots were hidden from this view.'
+        context = ctx
+
         return render(request, 'parkingapp/parking_status_all_lots.html', context)
     
     except Exception as e:
@@ -190,7 +235,8 @@ def parking_lot_status_all_lots(request):
         messages.error(request, 'Error loading parking lot status')
         return render(request, 'parkingapp/parking_status_all_lots.html', {
             'parking_lots': [],
-            'total_stats': {'total': 0, 'occupied': 0, 'available': 0, 'occupancy_rate': 0}
+            'total_stats': {'total': 0, 'occupied': 0, 'available': 0, 'occupancy_rate': 0},
+            'hide_auth_buttons': True
         })
 
 
@@ -610,6 +656,73 @@ def detect_license_plate(request):
     except Exception as e:
         logger.error(f"License plate detection error: {e}")
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+@require_http_methods(["POST"])
+def api_vehicle_checkin(request):
+    """API: Vehicle entry with real timestamp"""
+    try:
+        data = json.loads(request.body)
+        license_plate = data.get('license_plate', '').strip().upper()
+        lot_id = data.get('lot_id')
+        
+        if not license_plate or not lot_id:
+            return JsonResponse({'success': False, 'error': 'Missing fields'}, status=400)
+        
+        vehicle, _ = Vehicle.objects.get_or_create(
+            license_plate=license_plate,
+            defaults={'vehicle_type': 'car'}
+        )
+        lot = ParkingLot.objects.get(lot_id=lot_id)
+        
+        parked = ParkedVehicle.objects.create(
+            vehicle=vehicle,
+            parking_lot=lot,
+            checkin_time=timezone.now()
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'record_id': parked.parking_record_id,
+            'checkin_time': parked.checkin_time.isoformat()
+        })
+    except Exception as e:
+        logger.error(f'Checkin error: {e}')
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@require_http_methods(["POST"])
+def api_vehicle_checkout(request):
+    """API: Vehicle exit with real timestamp"""
+    try:
+        data = json.loads(request.body)
+        record_id = data.get('record_id')
+        
+        if not record_id:
+            return JsonResponse({'success': False, 'error': 'Missing record_id'}, status=400)
+        
+        parked = ParkedVehicle.objects.get(parking_record_id=record_id)
+        
+        if parked.checkout_time:
+            return JsonResponse({'success': False, 'error': 'Already checked out'}, status=400)
+        
+        parked.checkout_time = timezone.now()
+        duration = parked.checkout_time - parked.checkin_time
+        parked.duration_minutes = int(duration.total_seconds() / 60)
+        parked.parking_fee = parked.calculate_fee()
+        parked.save()
+        
+        return JsonResponse({
+            'success': True,
+            'checkout_time': parked.checkout_time.isoformat(),
+            'duration_minutes': parked.duration_minutes,
+            'parking_fee': float(parked.parking_fee)
+        })
+    except ParkedVehicle.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Record not found'}, status=404)
+    except Exception as e:
+        logger.error(f'Checkout error: {e}')
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
 @require_http_methods(["GET"])

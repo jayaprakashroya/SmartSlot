@@ -1,5 +1,8 @@
 
 {% load static %}
+{% static 'images/besthome.png' as slide1 %}
+{% static 'images/image.png' as slide2 %}
+{% static 'images/smartidea.png' as slide3 %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -25,6 +28,51 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/vibrant-theme.css' %}">
     <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <style>
+      /* Dark navy blended navbar for better brand visibility */
+      .ftco_navbar, .ftco-navbar-light, nav.navbar { background: linear-gradient(90deg, #16487B 0%, #1E5F9F 100%) !important; }
+      .ftco_navbar .navbar-brand, .navbar-brand { background: transparent !important; color: #FFFFFF !important; padding: 12px 18px; border-radius: 0; font-weight: 900 !important; font-size: 1.8em !important; letter-spacing: 1px !important; }
+      .ftco_navbar .nav-link, nav.navbar .nav-link { color: #FFFFFF !important; }
+      .ftco_navbar .nav-link.btn-info { background: #FF8C00 !important; color: #FFFFFF !important; }
+      .ftco_navbar .nav-link:hover { color: #FFD700 !important; background: #2A6FA0 !important; }
+      .ftco_navbar .nav-link::after { background: rgba(255,255,255,0.2) !important; }
+      
+      .brand-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(90deg, #16487B 0%, #1E5F9F 100%);
+        padding: 10px 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+      
+      .brand-wrapper i {
+        font-size: 1.5em;
+        color: #FFD700;
+      }
+      
+      .brand-text {
+        font-weight: 900;
+        font-size: 1.5em;
+        color: #FFFFFF;
+        letter-spacing: 1.5px;
+        margin: 0;
+      }
+      
+      /* Slider item styles */
+      .slider-item {
+        background-size: cover;
+        background-position: center;
+      }
+      
+      /* helper gradient class used by section backgrounds */
+      .bg-gradient {
+        background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+      }
+    </style>
+    
+
   </head>
 
   <body>
@@ -67,12 +115,12 @@
 	      </button>
 	      <div class="collapse navbar-collapse" id="ftco-nav">
 	         <ul class="navbar-nav mx-auto">
-	        	<li class="nav-item"><a href="{% url 'home' %}" class="nav-link active">Home</a></li>
-	        	<li class="nav-item"><a href="{% url 'about' %}" class="nav-link">About</a></li>
-	        	<li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
-	        	<li class="nav-item"><a href="{% url 'payment_page' %}" class="nav-link">💳 Payment</a></li>
-	        	<li class="nav-item"><a href="{% url 'admin_dashboard' %}" class="nav-link">📊 Dashboard</a></li>
-	        	<li class="nav-item"><a href="{% url 'login' %}" class="nav-link btn btn-info text-white ml-3">Login</a></li>
+          	<li class="nav-item"><a href="{% url 'home' %}" class="nav-link active">Home</a></li>
+          	<li class="nav-item"><a href="{% url 'about' %}" class="nav-link">About</a></li>
+          	<li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
+          	<li class="nav-item"><a href="{% url 'parking_lot_status' %}" class="nav-link">🅿️ Parking Status</a></li>
+          	<li class="nav-item"><a href="{% url 'admin_dashboard' %}" class="nav-link">📊 Dashboard</a></li>
+          	<li class="nav-item"><a href="{% url 'login' %}" class="nav-link btn btn-info text-white ml-3">Login</a></li>
 	        </ul> 
 	      </div>
 	    </div>
@@ -80,35 +128,42 @@
     <!-- END nav -->
     <!--slider starts -->
     <div class="hero-wrap">
-	    <div class="home-slider owl-carousel">
-        <div class="slider-item" style="background-image:url({% static 'images/best.png' %});">
+      <div class="home-slider owl-carousel">
+        <div class="slider-item" style="background-image: url('{{ slide1 }}'); background-size: cover; background-position: center;">
           <div class="overlay"></div>
-	        <div class="container">
-	          <div class="row no-gutters slider-text align-items-center justify-content-start">
-		          <div class="col-md-6 ftco-animate">
-		          	 
-		          </div>
-		        </div>
-	        </div>
-	      </div>
-	      <div class="slider-item" style="background-image:url({% static 'images/smartslot.png' %});">
-	      	<div class="overlay"></div>
-	        <div class="container">
-	          <div class="row no-gutters slider-text align-items-center justify-content-start">
-		          
-		        </div>
-	        </div>
-	      </div>
-	      <div class="slider-item" style="background-image:url({% static 'images/image.png' %});">
-	      	<div class="overlay"></div>
-	        <div class="container">
-	          <div class="row no-gutters slider-text align-items-center justify-content-start">
-		          
-		        </div>
-	        </div>
-	      </div>
-	    </div>
-	  </div>
+          <div class="container">
+            <div class="row no-gutters slider-text align-items-center justify-content-start">
+              <div class="col-md-6 ftco-animate">
+                 <h1 class="mb-4">Welcome to SmartSlot</h1>
+                 <p class="mb-0">Real‑time parking solutions for smart cities</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slider-item" style="background-image: url('{{ slide2 }}'); background-size: cover; background-position: center;">
+          <div class="overlay"></div>
+          <div class="container">
+            <div class="row no-gutters slider-text align-items-center justify-content-start">
+              <div class="col-md-6 ftco-animate">
+                 <h1 class="mb-4">Easy Reservations</h1>
+                 <p class="mb-0">Secure your spot before you arrive</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slider-item" style="background-image: url('{{ slide3 }}'); background-size: cover; background-position: center;">
+          <div class="overlay"></div>
+          <div class="container">
+            <div class="row no-gutters slider-text align-items-center justify-content-start">
+              <div class="col-md-6 ftco-animate">
+                 <h1 class="mb-4">AI‑Powered Detection</h1>
+                 <p class="mb-0">Know which spots are free instantly</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 		
 		<section class="intro">
 			<div class="container intro-wrap">
@@ -118,7 +173,7 @@
 			</div>	
 		</section>
     <!--our services starts -->
-    <section class="ftco-section" style="background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%); padding: 100px 0;">
+    <section class="ftco-section bg-gradient" style="padding: 100px 0;">
     	<div class="container">
     		<div class="row justify-content-center pb-5 mb-5">
           <div class="col-md-8 heading-section text-center ftco-animate">
@@ -453,8 +508,9 @@
         </div>
       </div>
     </footer>
-
     
+    {% include 'partials/footer_strip.html' %}
+
       <script src="{% static 'js/jquery.min.js' %}"></script>
       <script src="{% static 'js/jquery-migrate-3.0.1.min.js' %}"></script>
       <script src="{% static 'js/popper.min.js' %}"></script>
@@ -471,6 +527,7 @@
       <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
       <script src="{% static 'js/google-map.js' %}"></script>
       <script src="{% static 'js/main.js' %}"></script>
+      <!-- dark mode toggle removed from homepage as per request -->
       {% if messages %}
       {% for message in messages %}
           {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}

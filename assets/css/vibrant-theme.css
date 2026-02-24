@@ -1,17 +1,155 @@
 /* ============================================
-   VIBRANT LIGHT THEME - SMART CAR PARKING
+   ELEVATED NEUTRALS + ECO-INSPIRED THEME
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ============================================
+   ELEVATED NEUTRALS + ECO-INSPIRED THEME
+   SMART CAR PARKING 2026
    ============================================ */
 
 :root {
-  --primary-color: #FF6B35;
-  --secondary-color: #004E89;
-  --accent-color: #1AC8ED;
-  --success-color: #06D6A0;
-  --warning-color: #F77F00;
-  --light-bg: #F8F9FA;
+  /* Base Palette - Elevated Neutrals */
+  --bg-primary: #F5F5F7;              /* Cloud Dancer off-white */
+  --bg-secondary: #FAFBFC;            /* Subtle warm white */
+  --neutral-base: #5A7A9A;            /* Smoky blue - new neutral */
+  --text-dark: #2C2C2C;               /* Softer black */
+  --text-light: #6B7280;              /* Neutral gray */
+  
+  /* Accent Colors - Soft Gradients 2.0 */
+  --primary-color: #6A1B9A;           /* Vivid purple */
+  --secondary-color: #2196F3;         /* Cool blue */
+  --accent-color: #5A7A9A;            /* Smoky blue */
+  
+  /* Status Indicators - Hyper-Saturated */
+  --success-color: #2E7D32;           /* Jade green (available) */
+  --warning-color: #E67E22;           /* Persimmon orange (occupied) */
+  --reserved-color: #BADA55;          /* Wasabi lime (reserved) */
+  
+  /* Eco-Inspired Elements */
+  --eco-olive: #556B2F;               /* Olive green for borders/icons */
+  --eco-plum: #4A235A;                /* Plum noir for highlights */
+  --eco-brown: #5D4037;               /* Brown for footers */
+  
+  /* Dark Mode Colors */
+  --dark-mode-bg: #1E2A3C;            /* Dark background */
+  --dark-mode-card: #2D3F52;          /* Card background in dark mode */
+  
+  /* Legacy compatibility (will be phased out) */
+  --light-bg: #F5F5F7;
   --white: #FFFFFF;
-  --text-dark: #1a1a1a;
-  --text-light: #666666;
 }
 
 * {
@@ -21,9 +159,16 @@
 }
 
 body {
-  background-color: var(--light-bg);
+  background-color: var(--bg-primary);
   color: var(--text-dark);
   font-family: 'Poppins', sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark Mode Support */
+body.dark-mode {
+  background-color: var(--dark-mode-bg);
+  color: #E0E0E0;
 }
 
 /* ============================================
@@ -31,9 +176,9 @@ body {
    ============================================ */
 
 .wrap {
-  background: linear-gradient(135deg, var(--secondary-color) 0%, #003d6b 100%);
+  background: linear-gradient(135deg, var(--neutral-base) 0%, #4A6885 100%);
   padding: 20px 0;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .wrap .top-wrap {
@@ -41,21 +186,22 @@ body {
   padding: 10px 15px;
   border-radius: 8px;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .wrap .top-wrap:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   transform: translateY(-2px);
 }
 
 .wrap .icon {
   width: 50px;
   height: 50px;
-  background: var(--accent-color);
+  background: var(--success-color);
   border-radius: 50%;
   color: var(--white);
   font-size: 18px;
-  box-shadow: 0 4px 10px rgba(26, 200, 237, 0.3);
+  box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
 }
 
 .wrap .text {
@@ -79,19 +225,19 @@ body {
 .navbar-brand {
   font-size: 24px !important;
   font-weight: 800 !important;
-  color: var(--accent-color) !important;
+  color: var(--white) !important;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
   letter-spacing: 1px;
 }
 
 .navbar-brand:hover {
-  color: var(--primary-color) !important;
+  color: var(--success-color) !important;
 }
 
 .social-media a {
   width: 40px;
   height: 40px;
-  background: var(--accent-color);
+  background: var(--success-color);
   border-radius: 50%;
   color: var(--white);
   transition: all 0.3s ease;
@@ -99,9 +245,9 @@ body {
 }
 
 .social-media a:hover {
-  background: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(255, 107, 53, 0.4);
+  box-shadow: 0 6px 15px rgba(106, 27, 154, 0.4);
 }
 
 /* ============================================
@@ -109,9 +255,10 @@ body {
    ============================================ */
 
 .ftco_navbar {
-  background: var(--white) !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  background: var(--bg-primary) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   padding: 15px 0 !important;
+  border-bottom: 1px solid rgba(90, 122, 154, 0.1);
 }
 
 .ftco_navbar .navbar-nav .nav-link {
@@ -136,7 +283,7 @@ body {
   left: 0;
   width: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
   transition: width 0.3s ease;
 }
 
@@ -145,7 +292,7 @@ body {
 }
 
 .searchform {
-  background: var(--light-bg);
+  background: var(--bg-secondary);
   border-radius: 25px;
   padding: 5px 15px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -159,7 +306,7 @@ body {
 }
 
 .searchform .search {
-  background: var(--primary-color);
+  background: var(--success-color);
   border: none;
   color: var(--white);
   border-radius: 50%;
@@ -169,18 +316,18 @@ body {
 }
 
 .searchform .search:hover {
-  background: var(--accent-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   transform: scale(1.1);
 }
 
 .navbar-toggler {
-  border: 2px solid var(--primary-color) !important;
+  border: 2px solid var(--neutral-base) !important;
   padding: 5px 10px !important;
 }
 
 .navbar-toggler:focus {
   box-shadow: none;
-  outline: 2px solid var(--accent-color);
+  outline: 2px solid var(--primary-color);
 }
 
 /* ============================================
@@ -200,7 +347,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(255, 107, 53, 0.7), rgba(26, 200, 237, 0.7));
+  background: linear-gradient(135deg, rgba(106, 27, 154, 0.65), rgba(33, 150, 243, 0.65));
   z-index: 1;
 }
 
@@ -216,8 +363,14 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(0, 78, 137, 0.6), rgba(255, 107, 53, 0.4));
+  /* make the overlay very light so that blue-heavy slides remain visible */
+  background: rgba(0, 0, 0, 0.15);
   z-index: 0;
+}
+/* slide-specific overlays to retain style for first item if needed */
+.hero-wrap .slider-item:nth-child(1) .overlay {
+  /* first slide keeps original light gradient for contrast */
+  background: linear-gradient(135deg, rgba(90, 122, 154, 0.25), rgba(106, 27, 154, 0.2));
 }
 
 /* ============================================
@@ -236,38 +389,38 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary-color), var(--warning-color));
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   color: var(--white);
-  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+  box-shadow: 0 4px 15px rgba(106, 27, 154, 0.3);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--warning-color), var(--primary-color));
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+  box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4);
   color: var(--white);
 }
 
 .btn-info {
-  background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
+  background: linear-gradient(135deg, var(--success-color), var(--eco-olive));
   color: var(--white);
-  box-shadow: 0 4px 15px rgba(26, 200, 237, 0.3);
+  box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);
 }
 
 .btn-info:hover {
-  background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+  background: linear-gradient(135deg, var(--eco-olive), var(--success-color));
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(26, 200, 237, 0.4);
+  box-shadow: 0 8px 25px rgba(46, 125, 50, 0.4);
   color: var(--white);
 }
 
 .btn-success {
-  background: linear-gradient(135deg, var(--success-color), #00a380);
+  background: linear-gradient(135deg, var(--success-color), #1B5E20);
   color: var(--white);
 }
 
 .btn-success:hover {
-  background: linear-gradient(135deg, #00a380, var(--success-color));
+  background: linear-gradient(135deg, #1B5E20, var(--success-color));
   transform: translateY(-3px);
 }
 
@@ -278,18 +431,19 @@ body {
 .form-control,
 .form-group input,
 .form-group textarea {
-  border: 2px solid #e0e0e0;
+  border: 2px solid rgba(90, 122, 154, 0.2);
   border-radius: 8px;
   padding: 12px 15px;
   font-size: 14px;
   transition: all 0.3s ease;
+  background-color: var(--bg-secondary);
 }
 
 .form-control:focus,
 .form-group input:focus,
 .form-group textarea:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.15);
+  box-shadow: 0 0 0 0.2rem rgba(106, 27, 154, 0.15);
   outline: none;
 }
 
@@ -299,6 +453,7 @@ body {
 
 .ftco-section {
   padding: 60px 0;
+  background-color: var(--bg-primary);
 }
 
 .heading-section {
@@ -310,7 +465,7 @@ body {
   font-weight: 800;
   color: var(--text-dark);
   margin-bottom: 20px;
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -328,18 +483,28 @@ body {
   line-height: 1.8;
 }
 
+/* Liquid Glass Effect for Cards */
+.card, .ftco-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
 /* ============================================
    FOOTER
    ============================================ */
 
 .footer {
-  background: linear-gradient(135deg, var(--secondary-color), #002a4a);
+  background: linear-gradient(135deg, #4A5F7F 0%, var(--eco-brown) 100%);
   color: var(--white);
   padding: 60px 0 20px;
 }
 
 .ftco-footer-widget h2 {
-  color: var(--accent-color);
+  color: var(--success-color);
   font-weight: 800;
   margin-bottom: 20px;
   font-size: 24px;
@@ -353,7 +518,7 @@ body {
 .ftco-footer-social a {
   width: 40px;
   height: 40px;
-  background: var(--accent-color);
+  background: var(--success-color);
   border-radius: 50%;
   color: var(--white);
   display: flex;
@@ -364,9 +529,9 @@ body {
 }
 
 .ftco-footer-social a:hover {
-  background: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+  box-shadow: 0 8px 20px rgba(106, 27, 154, 0.4);
 }
 
 .footer-link {
@@ -376,7 +541,7 @@ body {
 }
 
 .footer-link:hover {
-  color: var(--accent-color);
+  color: var(--success-color);
   margin-left: 5px;
 }
 
@@ -387,7 +552,7 @@ body {
 .divider {
   width: 60px;
   height: 4px;
-  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
   margin: 20px 0;
   border-radius: 2px;
 }
@@ -404,12 +569,21 @@ body {
   background: var(--success-color);
 }
 
+.badge-warning {
+  background: var(--warning-color);
+}
+
+.badge-reserved {
+  background: var(--reserved-color);
+  color: #1a1a1a;
+}
+
 /* ============================================
    FOOTER STYLING
    ============================================ */
 
 .footer {
-  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  background: linear-gradient(135deg, #3D4D61 0%, var(--eco-brown) 100%);
   padding: 50px 0;
 }
 
@@ -420,7 +594,7 @@ body {
 .footer .ftco-heading-2 {
   font-size: 18px;
   font-weight: 700;
-  color: var(--primary-color);
+  color: var(--success-color);
   margin-bottom: 20px;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -429,7 +603,7 @@ body {
 .footer .logo {
   font-size: 28px;
   font-weight: 800;
-  color: var(--accent-color);
+  color: var(--success-color);
   margin-bottom: 15px;
 }
 
@@ -444,7 +618,7 @@ body {
 }
 
 .footer .block-23 li a {
-  color: var(--accent-color);
+  color: var(--success-color);
   text-decoration: none;
   transition: color 0.3s ease;
 }
@@ -463,14 +637,14 @@ body {
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: var(--primary-color);
+  background: var(--success-color);
   border-radius: 50%;
   color: white;
   transition: all 0.3s ease;
 }
 
 .ftco-footer-social li a:hover {
-  background: var(--accent-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   transform: translateY(-3px);
 }
 
@@ -532,4 +706,150 @@ body {
 
 .navbar {
   animation: slideInDown 0.6s ease-out;
+}
+/* ============================================
+   DARK MODE SUPPORT (Deeper Shades #1E2A3C)
+   ============================================ */
+
+body.dark-mode {
+  background-color: var(--dark-mode-bg);
+  color: #E0E0E0;
+}
+
+body.dark-mode .wrap {
+  background: linear-gradient(135deg, #1E2A3C 0%, #162738 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .ftco_navbar {
+  background: #2D3F52 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .ftco_navbar .navbar-nav .nav-link {
+  color: #E0E0E0 !important;
+}
+
+body.dark-mode .ftco_navbar .navbar-nav .nav-link:hover,
+body.dark-mode .ftco_navbar .navbar-nav .nav-link.active {
+  color: var(--success-color) !important;
+}
+
+body.dark-mode .ftco-section {
+  background-color: var(--dark-mode-bg);
+}
+
+body.dark-mode .heading-section h1 {
+  color: #E0E0E0;
+  background: none;
+  -webkit-text-fill-color: unset;
+}
+
+body.dark-mode .heading-section p {
+  color: #B0B0B0;
+}
+
+body.dark-mode .card,
+body.dark-mode .ftco-card {
+  background: rgba(45, 63, 82, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-group input,
+body.dark-mode .form-group textarea {
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(30, 42, 60, 0.8);
+  color: #E0E0E0;
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode .form-group input:focus,
+body.dark-mode .form-group textarea:focus {
+  border-color: var(--success-color);
+  box-shadow: 0 0 0 0.2rem rgba(46, 125, 50, 0.15);
+}
+
+body.dark-mode .hero-wrap::before {
+  background: linear-gradient(135deg, rgba(106, 27, 154, 0.7), rgba(33, 150, 243, 0.7));
+}
+
+body.dark-mode .overlay {
+  background: linear-gradient(135deg, rgba(30, 42, 60, 0.6), rgba(106, 27, 154, 0.5));
+}
+
+body.dark-mode .footer {
+  background: linear-gradient(135deg, #1E2A3C 0%, #0F1823 100%);
+}
+
+body.dark-mode .footer .ftco-heading-2,
+body.dark-mode .footer .logo {
+  color: var(--success-color);
+}
+
+body.dark-mode .footer .block-23 li .text {
+  color: #B0B0B0;
+}
+
+body.dark-mode .footer .block-23 li a {
+  color: var(--success-color);
+}
+
+body.dark-mode .footer .block-23 li a:hover {
+  color: #FFD700;
+}
+
+body.dark-mode .searchform {
+  background: rgba(30, 42, 60, 0.8);
+}
+
+body.dark-mode .searchform .form-control {
+  color: #E0E0E0;
+}
+
+body.dark-mode .navbar-toggler {
+  border-color: var(--success-color) !important;
+}
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+  font-size: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(106, 27, 154, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark-mode-toggle:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(106, 27, 154, 0.4);
+}
+
+body.dark-mode .dark-mode-toggle {
+  background: linear-gradient(135deg, var(--success-color), #1B5E20);
+}
+
+@media (max-width: 768px) {
+  .dark-mode-toggle {
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
 }

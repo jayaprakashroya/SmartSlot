@@ -23,6 +23,33 @@
                         {% endfor %}
                     {% endif %}
                     
+                    <!-- Quick Vehicle Entry Section -->
+                    <div class="card mb-4 border-success">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">🚗 Quick Vehicle Entry</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="quickCheckinForm" class="row g-3">
+                                <div class="col-md-4">
+                                    <input type="text" id="checkinPlate" class="form-control" placeholder="License Plate" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <select id="checkinLotId" class="form-select" required>
+                                        <option value="">Select Parking Lot</option>
+                                        <option value="1">Lot A (Main)</option>
+                                        <option value="2">Lot B (North)</option>
+                                        <option value="3">Lot C (South)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="button" class="btn btn-success w-100" onclick="quickCheckin()">
+                                        <i class="bi bi-plus-circle"></i> Record Entry
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
                     <form method="POST" class="mb-4">
                         {% csrf_token %}
                         <div class="input-group input-group-lg">
@@ -48,6 +75,7 @@
                                         <th>⏱️ Duration</th>
                                         <th>💳 Fee</th>
                                         <th>✔️ Status</th>
+                                        <th>🎯 Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -85,6 +113,15 @@
                                                     <span class="badge bg-success">Active</span>
                                                 {% else %}
                                                     <span class="badge bg-secondary">Completed</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if record.is_active %}
+                                                    <button type="button" class="btn btn-sm btn-danger" onclick="quickCheckout({{ record.parking_record_id }})">
+                                                        <i class="bi bi-exit"></i> Exit
+                                                    </button>
+                                                {% else %}
+                                                    <span class="text-muted">—</span>
                                                 {% endif %}
                                             </td>
                                         </tr>
@@ -127,4 +164,85 @@
         </div>
     </div>
 </div>
+
+<script>
+async function quickCheckin() {
+    const plate = document.getElementById('checkinPlate').value.trim().toUpperCase();
+    const lotId = document.getElementById('checkinLotId').value;
+    
+    if (!plate || !lotId) {
+        alert('Please fill all fields');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/vehicle-checkin/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                license_plate: plate,
+                lot_id: parseInt(lotId)
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(`✅ Vehicle ${plate} checked in at ${new Date(data.checkin_time).toLocaleTimeString()}`);
+            document.getElementById('quickCheckinForm').reset();
+            location.reload();
+        } else {
+            alert(`❌ Error: ${data.error}`);
+        }
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    }
+}
+
+async function quickCheckout(recordId) {
+    if (!confirm('Are you sure you want to check out this vehicle?')) return;
+    
+    try {
+        const response = await fetch('/api/vehicle-checkout/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                record_id: recordId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(`✅ Vehicle checked out\nDuration: ${data.duration_minutes} min\nFee: ₹${data.parking_fee}`);
+            location.reload();
+        } else {
+            alert(`❌ Error: ${data.error}`);
+        }
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
 {% endblock %}

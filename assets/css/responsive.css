@@ -2,16 +2,21 @@
 /* This file adds mobile-first responsive design */
 
 :root {
-    --primary-color: #667eea;
-    --secondary-color: #764ba2;
-    --success-color: #28a745;
-    --warning-color: #ff9800;
-    --danger-color: #e74c3c;
-    --info-color: #3498db;
-    --light-bg: #f8f9fa;
-    --dark-text: #2c3e50;
-    --border-color: #ddd;
-    --shadow: 0 2px 10px rgba(0,0,0,0.1);
+    /* Base Palette - Elevated Neutrals */
+    --primary-color: #6A1B9A;        /* Vivid purple */
+    --secondary-color: #2196F3;      /* Cool blue */
+    --success-color: #2E7D32;        /* Jade green */
+    --warning-color: #E67E22;        /* Persimmon orange */
+    --danger-color: #D32F2F;         /* Deep red */
+    --info-color: #1976D2;           /* Info blue */
+    --light-bg: #F5F5F7;             /* Cloud Dancer off-white */
+    --dark-text: #2C2C2C;            /* Softer black */
+    --border-color: rgba(90, 122, 154, 0.15);
+    --shadow: 0 2px 10px rgba(0,0,0,0.08);
+    --reserved-color: #BADA55;       /* Wasabi lime */
+    --eco-olive: #556B2F;            /* Olive green */
+    --eco-plum: #4A235A;             /* Plum noir */
+    --eco-brown: #5D4037;            /* Brown */
 }
 
 /* Mobile-first base styles */
@@ -23,7 +28,7 @@
 
 html, body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #F5F5F7 0%, #FAFBFC 100%);
     min-height: 100vh;
 }
 
@@ -62,7 +67,7 @@ html, body {
 
 /* Navigation Bar Responsive */
 .navbar-custom {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: linear-gradient(135deg, #5A7A9A 0%, #4A6885 100%);
     padding: 10px 15px;
     display: flex;
     justify-content: space-between;
@@ -137,11 +142,14 @@ html, body {
 
 /* Card Component Responsive */
 .card-responsive {
-    background: white;
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
     box-shadow: var(--shadow);
     margin-bottom: 15px;
     overflow: hidden;
+    transition: all 0.3s ease;
 }
 
 @media (min-width: 768px) {
@@ -151,7 +159,7 @@ html, body {
 }
 
 .card-header {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: linear-gradient(135deg, #6A1B9A 0%, #2196F3 100%);
     color: white;
     padding: 15px;
     font-weight: bold;
@@ -223,27 +231,27 @@ html, body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: linear-gradient(135deg, #6A1B9A 0%, #2196F3 100%);
     color: white;
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow);
+    box-shadow: 0 8px 15px rgba(106, 27, 154, 0.3);
 }
 
 .btn-secondary {
-    background: var(--info-color);
+    background: #5A7A9A;
     color: white;
 }
 
 .btn-success {
-    background: var(--success-color);
+    background: #2E7D32;
     color: white;
 }
 
 .btn-danger {
-    background: var(--danger-color);
+    background: #D32F2F;
     color: white;
 }
 

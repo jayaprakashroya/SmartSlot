@@ -202,6 +202,14 @@ class ParkedVehicle(models.Model):
             models.Index(fields=['parking_spot', 'checkout_time']),
             models.Index(fields=['checkin_time']),
         ]
+        constraints = [
+            # Prevent a vehicle from being parked at multiple locations simultaneously
+            models.UniqueConstraint(
+                fields=['vehicle', 'checkout_time'],
+                condition=models.Q(checkout_time__isnull=True),
+                name='unique_active_vehicle_parking'
+            )
+        ]
     
     def __str__(self):
         spot_info = f" in {self.parking_spot.spot_number}" if self.parking_spot else " (no spot assigned)"
@@ -231,6 +239,20 @@ class ParkedVehicle(models.Model):
         hours = duration.seconds // 3600
         minutes = (duration.seconds % 3600) // 60
         return f"{hours}h {minutes}m"
+    
+    def calculate_fee(self):
+        """Calculate parking fee based on duration and rate"""
+        if not self.parking_spot or not self.parking_lot:
+            return 0
+        
+        if self.is_active():
+            duration = timezone.now() - self.checkin_time
+        else:
+            duration = self.checkout_time - self.checkin_time
+        
+        hours = max(1, duration.total_seconds() / 3600)  # minimum 1 hour
+        base_rate = 50  # ₹50 per hour, default
+        return round(hours * base_rate, 2)
 
 
 # ═══════════════════════════════════════════════════════════════════

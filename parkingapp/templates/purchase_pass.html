@@ -13,7 +13,7 @@
             <div class="card h-100 text-center border-primary">
                 <div class="card-body">
                     <h5 class="card-title">⏱️ Hourly Pass</h5>
-                    <p class="display-4 text-primary">₹212.50</p>
+                    <p class="display-4 text-primary">₹40</p>
                     <p class="text-muted">Per hour</p>
                     <hr>
                     <ul class="list-unstyled text-left">
@@ -21,11 +21,15 @@
                         <li>✓ Any parking lot</li>
                         <li>✓ Flexible timing</li>
                     </ul>
+                    {% if request.session.user_email %}
                     <form method="POST" class="mt-3">
                         {% csrf_token %}
                         <input type="hidden" name="pass_type" value="hourly">
                         <button type="submit" class="btn btn-primary btn-block">Buy Now</button>
                     </form>
+                    {% else %}
+                    <p class="mt-3 text-muted">Please <a href="{% url 'login' %}">log in</a> to purchase.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -34,7 +38,7 @@
             <div class="card h-100 text-center border-success">
                 <div class="card-body">
                     <h5 class="card-title">📅 Daily Pass</h5>
-                    <p class="display-4 text-success">₹1,275.00</p>
+                    <p class="display-4 text-success">₹200</p>
                     <p class="text-muted">Per day</p>
                     <div class="badge badge-success mb-2">Save 40%</div>
                     <hr>
@@ -43,11 +47,15 @@
                         <li>✓ Unlimited entries</li>
                         <li>✓ Any parking lot</li>
                     </ul>
+                    {% if request.session.user_email %}
                     <form method="POST" class="mt-3">
                         {% csrf_token %}
                         <input type="hidden" name="pass_type" value="daily">
                         <button type="submit" class="btn btn-success btn-block">Buy Now</button>
                     </form>
+                    {% else %}
+                    <p class="mt-3 text-muted">Please <a href="{% url 'login' %}">log in</a> to purchase.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -56,7 +64,7 @@
             <div class="card h-100 text-center border-info">
                 <div class="card-body">
                     <h5 class="card-title">📆 Weekly Pass</h5>
-                    <p class="display-4 text-info">₹6,800.00</p>
+                    <p class="display-4 text-info">₹1,000</p>
                     <p class="text-muted">Per week</p>
                     <div class="badge badge-info mb-2">Save 50%</div>
                     <hr>
@@ -65,11 +73,15 @@
                         <li>✓ Unlimited entries</li>
                         <li>✓ All lots</li>
                     </ul>
+                    {% if request.session.user_email %}
                     <form method="POST" class="mt-3">
                         {% csrf_token %}
                         <input type="hidden" name="pass_type" value="weekly">
                         <button type="submit" class="btn btn-info btn-block">Buy Now</button>
                     </form>
+                    {% else %}
+                    <p class="mt-3 text-muted">Please <a href="{% url 'login' %}">log in</a> to purchase.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -78,7 +90,7 @@
             <div class="card h-100 text-center border-warning">
                 <div class="card-body">
                     <h5 class="card-title">🎁 Monthly Pass</h5>
-                    <p class="display-4 text-warning">₹21,250.00</p>
+                    <p class="display-4 text-warning">₹3,500</p>
                     <p class="text-muted">Per month</p>
                     <div class="badge badge-warning mb-2">Save 60%</div>
                     <hr>
@@ -87,11 +99,15 @@
                         <li>✓ Unlimited entries</li>
                         <li>✓ Priority spots</li>
                     </ul>
+                    {% if request.session.user_email %}
                     <form method="POST" class="mt-3">
                         {% csrf_token %}
                         <input type="hidden" name="pass_type" value="monthly">
                         <button type="submit" class="btn btn-warning btn-block">Buy Now</button>
                     </form>
+                    {% else %}
+                    <p class="mt-3 text-muted">Please <a href="{% url 'login' %}">log in</a> to purchase.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -150,10 +166,10 @@
                     <tbody>
                         <tr>
                             <td><strong>Price</strong></td>
-                            <td>₹212.50</td>
-                            <td>₹1,275.00</td>
-                            <td>₹6,800.00</td>
-                            <td>₹21,250.00</td>
+                            <td>₹40</td>
+                            <td>₹200</td>
+                            <td>₹1,000</td>
+                            <td>₹3,500</td>
                         </tr>
                         <tr>
                             <td><strong>Duration</strong></td>

@@ -301,7 +301,8 @@
                     {% endfor %}
                 </div>
                 <div class="action-buttons">
-                    <button class="btn-custom btn-view">🔍 Search Vehicle</button>
+                    <input id="search-input" type="text" placeholder="Enter plate or slot" class="form-control" style="max-width:200px;">
+                    <button class="btn-custom btn-view" onclick="searchVehicle()">🔍 Search Vehicle</button>
                 </div>
             </div>
             
@@ -429,6 +430,49 @@
             return cookieValue;
         }
         
+        // utility functions for additional buttons
+        function forceSyncNow() {
+            fetch('/api/sync-pending-records/')
+                .then(r => r.json())
+                .then(data => {
+                    alert('Force sync triggered. Records pending: ' + (data.pending || 'unknown'));
+                })
+                .catch(err => {
+                    console.error('Sync error:', err);
+                    alert('Error triggering sync');
+                });
+        }
+        function checkDoubleParking() {
+            fetch('/api/check-double-parking/')
+                .then(r => r.json())
+                .then(data => {
+                    alert('Double parking check completed. Count: ' + (data.count || 0));
+                })
+                .catch(err => {
+                    console.error('Double parking error:', err);
+                    alert('Error checking double parking');
+                });
+        }
+        function viewHistory() {
+            window.location.href = '/search-by-details/';
+        }
+        function viewHeatmapData() {
+            // go to heatmap page; or could call API
+            window.location.href = '/heatmap/';
+        }
+
+        // add enter key handler for search field
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('search-input');
+            if (input) {
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        searchVehicle();
+                    }
+                });
+            }
+        });
+
         // Auto-refresh stats every 10 seconds
         function refreshDashboardMetrics() {
             fetch('/api/admin/dashboard-stats/')
@@ -637,6 +681,6 @@
             console.log('Admin Dashboard loaded successfully');
         });
     </script>
-
+    <script src="{% static 'js/dark-mode-toggle.js' %}"></script>
 </body>
 </html>

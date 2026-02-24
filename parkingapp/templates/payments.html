@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load currency_filters %}
 
 {% block title %}Payments{% endblock %}
 
@@ -26,7 +27,7 @@
                     <div class="card bg-success text-white">
                         <div class="card-body">
                             <h5 class="card-title">Total Paid</h5>
-                            <p class="card-text display-4">${{ total_paid }}</p>
+                            <p class="card-text display-4">{{ total_paid|inr_simple }}</p>
                         </div>
                     </div>
                 </div>
@@ -35,7 +36,7 @@
                         <div class="card-body">
                             <h5 class="card-title">Pending Payments</h5>
                             <p class="card-text display-4">{{ pending_count }}</p>
-                            <small>Amount: ${{ pending_amount }}</small>
+                            <small>Amount: {{ pending_amount|inr_simple }}</small>
                         </div>
                     </div>
                 </div>
@@ -55,7 +56,7 @@
             {% if pending_count > 0 %}
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
                 <h4 class="alert-heading">⚠️ Pending Payments</h4>
-                <p>You have <strong>{{ pending_count }}</strong> pending payment(s) totaling <strong>${{ pending_amount }}</strong></p>
+                <p>You have <strong>{{ pending_count }}</strong> pending payment(s) totaling <strong>{{ pending_amount|inr_simple }}</strong></p>
                 <hr>
                 <p class="mb-0">Please complete payment to avoid late fees.</p>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -78,7 +79,7 @@
                                     <th>Date</th>
                                     <th>Amount</th>
                                     <th>Method</th>
-                                    <th>Invoice ID</th>
+                                    <th>Transaction ID</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -87,28 +88,30 @@
                                 {% for payment in payments %}
                                 <tr>
                                     <td>{{ payment.created_at|date:"Y-m-d H:i" }}</td>
-                                    <td><strong>{{ payment.currency }} {{ payment.amount }}</strong></td>
+                                    <td><strong>{{ payment.amount|inr_simple }}</strong></td>
                                     <td>
                                         <span class="badge badge-info">
-                                            {{ payment.payment_method|default:"N/A" }}
+                                            {{ payment.get_payment_method_display|default:"N/A" }}
                                         </span>
                                     </td>
                                     <td>
-                                        {% if payment.invoice_id %}
-                                            <code>{{ payment.invoice_id }}</code>
+                                        {% if payment.transaction_id %}
+                                            <code>{{ payment.transaction_id }}</code>
                                         {% else %}
                                             <em>-</em>
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if payment.status == 'completed' %}
-                                            <span class="badge badge-success">✓ Completed</span>
-                                        {% elif payment.status == 'pending' %}
+                                        {% if payment.payment_status == 'success' %}
+                                            <span class="badge badge-success">✓ Success</span>
+                                        {% elif payment.payment_status == 'pending' %}
                                             <span class="badge badge-warning">⏳ Pending</span>
-                                        {% elif payment.status == 'failed' %}
+                                        {% elif payment.payment_status == 'failed' %}
                                             <span class="badge badge-danger">✗ Failed</span>
-                                        {% elif payment.status == 'refunded' %}
+                                        {% elif payment.payment_status == 'refunded' %}
                                             <span class="badge badge-secondary">↩️ Refunded</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">{{ payment.get_payment_status_display }}</span>
                                         {% endif %}
                                     </td>
                                     <td>

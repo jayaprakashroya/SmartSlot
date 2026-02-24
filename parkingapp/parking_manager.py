@@ -6,7 +6,21 @@ Handles vehicle detection, spot assignment, and customer queries
 from django.utils import timezone
 from .models import Vehicle, ParkedVehicle, ParkingSpot, ParkingLot
 from django.db.models import Q
+from django.conf import settings
+import random
 import logging
+
+# sample vehicle data used when randomizing occupancy
+_SAMPLE_VEHICLES = [
+    {'plate': 'ABC1234', 'owner': 'John Doe'},
+    {'plate': 'XYZ9876', 'owner': 'Jane Smith'},
+    {'plate': 'MH12DE1432', 'owner': 'Ravi Kumar'},
+    {'plate': 'DL8CAF1234', 'owner': 'Priya Singh'},
+    {'plate': 'KA05MN6789', 'owner': 'Ajay Sharma'},
+    {'plate': 'TN09WX4567', 'owner': 'Sunita Patel'},
+    {'plate': 'GJ01PQ2345', 'owner': 'Arun Mehta'},
+    {'plate': 'UP32ZZ9999', 'owner': 'Neha Verma'},
+]
 
 logger = logging.getLogger(__name__)
 
@@ -205,20 +219,68 @@ class ParkingManager:
             
             available_count = total_spots - occupied_count
             occupancy_rate = (occupied_count / total_spots * 100) if total_spots > 0 else 0
-            
+
             # Get spot details
             spot_details = []
-            for spot in parking_lot.spots.all():
-                parked = parked_vehicle = spot.get_current_vehicle()
+            spots_qs = ParkingSpot.objects.filter(parking_lot=parking_lot)
+            for spot in spots_qs:
+                parked_vehicle = ParkedVehicle.objects.filter(parking_spot=spot, checkout_time__isnull=True).first()
                 spot_details.append({
+                    'spot_id': spot.spot_id,
                     'spot_number': spot.spot_number,
-                    'spot_type': spot.get_spot_type_display(),
-                    'is_occupied': spot.is_occupied(),
+                    'spot_type': getattr(spot, 'spot_type', 'Regular'),
+                    'is_occupied': bool(parked_vehicle),
                     'vehicle_plate': parked_vehicle.vehicle.license_plate if parked_vehicle else None,
                     'vehicle_owner': parked_vehicle.vehicle.owner_name if parked_vehicle else None,
                     'parked_since': parked_vehicle.checkin_time if parked_vehicle else None,
                 })
             
+            # if no actual spots are configured, provide example rows for demo purposes
+            if not spot_details:
+                spot_details = [
+                    {'spot_id': 1, 'spot_number': 'A1', 'spot_type': 'Regular', 'is_occupied': False, 'vehicle_plate': None, 'vehicle_owner': None, 'parked_since': None},
+                    {'spot_id': 2, 'spot_number': 'A2', 'spot_type': 'Regular', 'is_occupied': True,  'vehicle_plate': 'ABC1234', 'vehicle_owner': 'John Doe', 'parked_since': timezone.now()},
+                    {'spot_id': 3, 'spot_number': 'B1', 'spot_type': 'Reserved', 'is_occupied': False, 'vehicle_plate': None, 'vehicle_owner': None, 'parked_since': None},
+                    {'spot_id': 4, 'spot_number': 'B2', 'spot_type': 'Regular', 'is_occupied': True,  'vehicle_plate': 'XYZ9876', 'vehicle_owner': 'Jane Smith', 'parked_since': timezone.now()},
+                    {'spot_id': 5, 'spot_number': 'C1', 'spot_type': 'Handicapped', 'is_occupied': False, 'vehicle_plate': None, 'vehicle_owner': None, 'parked_since': None},
+                    {'spot_id': 6, 'spot_number': 'C2', 'spot_type': 'Regular', 'is_occupied': True,  'vehicle_plate': 'MH12DE1432', 'vehicle_owner': 'Ravi Kumar', 'parked_since': timezone.now()},
+                    {'spot_id': 7, 'spot_number': 'D1', 'spot_type': 'Regular', 'is_occupied': False, 'vehicle_plate': None, 'vehicle_owner': None, 'parked_since': None},
+                    {'spot_id': 8, 'spot_number': 'D2', 'spot_type': 'Reserved', 'is_occupied': True,  'vehicle_plate': 'DL8CAF1234', 'vehicle_owner': 'Priya Singh', 'parked_since': timezone.now()},
+                ]
+                # when randomization is enabled, assign random sample vehicles to demo spots
+                if settings.RANDOMIZE_OCCUPANCY:
+                    for spot in spot_details:
+                        if spot['is_occupied']:
+                            sample = random.choice(_SAMPLE_VEHICLES)
+                            spot['vehicle_plate'] = sample['plate']
+                            spot['vehicle_owner'] = sample['owner']
+                            spot['parked_since'] = timezone.now()
+
+            # apply randomization if requested in settings (testing/demo mode)
+            if settings.RANDOMIZE_OCCUPANCY and total_spots > 0:
+                # choose a percentage within configured bounds
+                perc = random.uniform(settings.OCCUPANCY_RANDOM_MIN_PERCENT,
+                                      settings.OCCUPANCY_RANDOM_MAX_PERCENT)
+                occupied_count = int(round(total_spots * perc / 100))
+                available_count = total_spots - occupied_count
+                occupancy_rate = round((occupied_count / total_spots * 100), 2)
+
+                # shuffle spot details and mark the first N as occupied
+                if spot_details:
+                    random.shuffle(spot_details)
+                    for idx, spot in enumerate(spot_details):
+                        spot['is_occupied'] = idx < occupied_count
+                        if spot['is_occupied']:
+                            # assign a random sample vehicle for demos
+                            sample = random.choice(_SAMPLE_VEHICLES)
+                            spot['vehicle_plate'] = sample['plate']
+                            spot['vehicle_owner'] = sample['owner']
+                            spot['parked_since'] = timezone.now()
+                        else:
+                            spot['vehicle_plate'] = None
+                            spot['vehicle_owner'] = None
+                            spot['parked_since'] = None
+
             return {
                 'lot_name': parking_lot.lot_name,
                 'total_spots': total_spots,

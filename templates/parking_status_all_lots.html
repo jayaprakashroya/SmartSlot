@@ -182,6 +182,9 @@
         </div>
     </div>
     
+    {% if note %}
+    <div class="alert alert-warning">{{ note }}</div>
+    {% endif %}
     {% if parking_lots %}
         {% for lot in parking_lots %}
         <div class="lot-card">
