@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Parking Lot Heatmap - {{ heatmap.lot_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="heatmap-header">
+        <h1>🔥 {{ heatmap.lot_name }} - Parking Lot Heatmap</h1>
+        <p class="text-muted">Real-time occupancy visualization</p>
+    </div>
+
+    <!-- Lot Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">TOTAL SPOTS</div>
+                <div class="stat-value">{{ heatmap.total_spots }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">OCCUPIED</div>
+                <div class="stat-value occupied-text">{{ heatmap.occupied }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">AVAILABLE</div>
+                <div class="stat-value available-text">{{ heatmap.available }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">OCCUPANCY RATE</div>
+                <div class="stat-value">{{ heatmap.occupancy_rate }}%</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend mb-4">
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #28a745;"></div>
+            <span>Empty/Available</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #dc3545;"></div>
+            <span>Occupied</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #ffc107;"></div>
+            <span>Reserved</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #17a2b8;"></div>
+            <span>Handicap</span>
+        </div>
+    </div>
+
+    <!-- Parking Spots Grid -->
+    <div class="heatmap-grid">
+        {% for spot in heatmap.spots %}
+            <div class="parking-spot spot-{{ spot.color }} spot-type-{{ spot.spot_type }}" 
+                 data-spot-id="{{ spot.spot_id }}"
+                 title="Spot {{ spot.spot_number }} - {% if spot.is_occupied %}Occupied{% else %}Available{% endif %}">
+                <div class="spot-number">{{ spot.spot_number }}</div>
+                {% if spot.is_occupied and spot.vehicle_plate %}
+                    <div class="spot-plate">{{ spot.vehicle_plate }}</div>
+                    <div class="spot-duration">{{ spot.duration }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Refresh Button -->
+    <div class="text-center mt-5">
+        <button class="btn btn-primary" onclick="location.reload();">
+            🔄 Refresh Now
+        </button>
+    </div>
+
+</div>
+
+<style>
+    .heatmap-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        color: white;
+    }
+
+    .heatmap-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+    }
+
+    .heatmap-header p {
+        margin: 10px 0 0 0;
+        opacity: 0.9;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-left: 4px solid #007bff;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .occupied-text {
+        color: #dc3545 !important;
+    }
+
+    .available-text {
+        color: #28a745 !important;
+    }
+
+    .legend {
+        display: flex;
+        gap: 30px;
+        justify-content: center;
+        flex-wrap: wrap;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95rem;
+    }
+
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+    }
+
+    .heatmap-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 10px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .parking-spot {
+        aspect-ratio: 1;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Color coding based on occupancy status */
+    .parking-spot.spot-green {
+        background: #28a745;
+        color: white;
+    }
+
+    .parking-spot.spot-red {
+        background: #dc3545;
+        color: white;
+    }
+
+    .parking-spot.spot-yellow {
+        background: #ffc107;
+        color: #333;
+    }
+
+    /* Spot type specific styling */
+    .parking-spot.spot-type-handicap {
+        border-color: #17a2b8;
+        box-shadow: 0 2px 8px rgba(23, 162, 184, 0.4);
+    }
+
+    .parking-spot.spot-type-vip {
+        border-color: #ffc107;
+        box-shadow: 0 2px 8px rgba(255, 193, 7, 0.4);
+    }
+
+    .parking-spot.spot-type-reserved {
+        border-color: #6f42c1;
+        box-shadow: 0 2px 8px rgba(111, 66, 193, 0.4);
+    }
+
+    .parking-spot:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .spot-number {
+        font-size: 0.8rem;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .spot-plate {
+        font-size: 0.65rem;
+        margin-top: 2px;
+        background: rgba(0,0,0,0.2);
+        padding: 2px 4px;
+        border-radius: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+    }
+
+    .spot-duration {
+        font-size: 0.6rem;
+        margin-top: 2px;
+        opacity: 0.8;
+    }
+
+    @media (max-width: 768px) {
+        .heatmap-grid {
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 8px;
+        }
+
+        .heatmap-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .stat-card {
+            margin-bottom: 15px;
+        }
+    }
+</style>
+
+<script>
+    // Auto-refresh every 30 seconds
+    setTimeout(function() {
+        location.reload();
+    }, 30000);
+
+    // Click on a spot to show details
+    document.querySelectorAll('.parking-spot').forEach(spot => {
+        spot.addEventListener('click', function() {
+            const spotId = this.dataset.spotId;
+            console.log('Spot clicked:', spotId);
+            // You can add a modal or side panel here to show more details
+        });
+    });
+</script>
+
+{% endblock %}
