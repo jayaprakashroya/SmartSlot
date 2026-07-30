@@ -245,6 +245,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **AI Framework**: YOLOv8 by Ultralytics
 - **Framework**: Django by Django Software Foundation
 
+- **Author / Contributor**: Jayaprakash Roya — https://github.com/jayaprakashroya — manerijayaprakash@gmail.com
+
 ## 🙏 Acknowledgments
 
 - YOLOv8 by Ultralytics for the powerful object detection framework
