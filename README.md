@@ -146,7 +146,7 @@ SmartSlot/
 6. **View History**: Check your parking history and analytics
 
 ### For Administrators
-1. **Login**: Access admin dashboard with credentials
+1. **Login**: Access admin dashboard with credentials 
 2. **Monitor Parking**: Real-time occupancy monitoring
 3. **Manage Users**: User account management
 4. **View Analytics**: Parking patterns, revenue, and statistics
@@ -239,13 +239,18 @@ Contributions are welcome! Please follow these steps:
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 👥 Authors
+##  Authors
 
-- **Developer**: Jayaprakash Roya — https://github.com/jayaprakashroya — manerijayaprakash@gmail.com
+- **Developers**:  
+Shaik Baba Vali 22KF1A05B2
+Maneri Jaya Prakash 22KF1A0573           Jayaprakash Roya — https://github.com/jayaprakashroya — manerijayaprakash@gmail.com  
+Mallepogula Ganesh 22KF1A0571
+Nese Anil 22KF1A0586
+Palla Jayaprakash Babu 23KF5A0510 
 - **AI Framework**: YOLOv8 by Ultralytics
 - **Framework**: Django by Django Software Foundation
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - YOLOv8 by Ultralytics for the powerful object detection framework
 - Django community for the robust web framework
