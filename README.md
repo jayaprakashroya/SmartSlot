@@ -241,11 +241,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 👥 Authors
 
-- **Developer**: Developed as a BTech final year project
+- **Developer**: Jayaprakash Roya — https://github.com/jayaprakashroya — manerijayaprakash@gmail.com
 - **AI Framework**: YOLOv8 by Ultralytics
 - **Framework**: Django by Django Software Foundation
-
-- **Author / Contributor**: Jayaprakash Roya — https://github.com/jayaprakashroya — manerijayaprakash@gmail.com
 
 ## 🙏 Acknowledgments
 
