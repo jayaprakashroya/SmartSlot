@@ -1,6 +1,5 @@
-"""
+
 IMPLEMENTATION GUIDE: Adaptive Parking Space Detection
-=======================================================
 
 This guide shows how to integrate adaptive threshold detection
 into your existing Django views to replace the hardcoded 900 threshold.
