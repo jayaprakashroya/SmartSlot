@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}File Parking Dispute{% endblock %}
+
+{% block content %}
+<style>
+    .dispute-container {
+        max-width: 800px;
+        margin: 30px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .dispute-header {
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 20px;
+    }
+
+    .dispute-header h1 {
+        color: #333;
+        margin: 0;
+    }
+
+    .dispute-info {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .dispute-info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .dispute-info-row:last-child {
+        border-bottom: none;
+    }
+
+    .dispute-label {
+        font-weight: bold;
+        color: #666;
+    }
+
+    .dispute-value {
+        color: #333;
+    }
+
+    .entry-image-preview {
+        width: 100%;
+        max-width: 300px;
+        border-radius: 10px;
+        margin: 15px 0;
+        border: 2px solid #ddd;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-family: inherit;
+        font-size: 14px;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .dispute-type-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+    }
+
+    .type-option {
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .type-option:hover {
+        border-color: #667eea;
+        background: #f0f2ff;
+    }
+
+    .type-option input[type="radio"] {
+        display: none;
+    }
+
+    .type-option input[type="radio"]:checked + label {
+        color: #667eea;
+    }
+
+    .type-option input[type="radio"]:checked ~ .type-option-label {
+        color: #667eea;
+        font-weight: bold;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    .btn-submit {
+        flex: 1;
+        padding: 12px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-cancel {
+        flex: 1;
+        padding: 12px;
+        background: #ddd;
+        color: #333;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background: #ccc;
+    }
+
+    .alert {
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    .alert-info {
+        background: #d1ecf1;
+        border: 1px solid #bee5eb;
+        color: #0c5460;
+    }
+
+    .alert-warning {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+    }
+
+    .spot-history {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+
+    .history-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #ddd;
+        font-size: 14px;
+    }
+
+    .history-item:last-child {
+        border-bottom: none;
+    }
+</style>
+
+<div class="dispute-container">
+    <div class="dispute-header">
+        <h1>⚖️ File a Parking Dispute</h1>
+        <p>Report an issue with your parking record</p>
+    </div>
+
+    <div class="alert alert-info">
+        📌 We take disputes seriously. Please provide detailed information and we'll investigate within 24 hours.
+    </div>
+
+    <!-- Parking Record Information -->
+    <div class="dispute-info">
+        <h3>Parking Record Details</h3>
+        <div class="dispute-info-row">
+            <span class="dispute-label">Parking Spot:</span>
+            <span class="dispute-value">{{ parking_record.parking_spot.spot_number }}</span>
+        </div>
+        <div class="dispute-info-row">
+            <span class="dispute-label">Vehicle License Plate:</span>
+            <span class="dispute-value">{{ parking_record.vehicle.license_plate|slice:":2" }}****{{ parking_record.vehicle.license_plate|slice:"-2:" }}</span>
+        </div>
+        <div class="dispute-info-row">
+            <span class="dispute-label">Entry Time:</span>
+            <span class="dispute-value">{{ parking_record.checkin_time|date:"d M Y, h:i A" }}</span>
+        </div>
+        {% if parking_record.checkout_time %}
+        <div class="dispute-info-row">
+            <span class="dispute-label">Exit Time:</span>
+            <span class="dispute-value">{{ parking_record.checkout_time|date:"d M Y, h:i A" }}</span>
+        </div>
+        {% else %}
+        <div class="dispute-info-row">
+            <span class="dispute-label">Status:</span>
+            <span class="dispute-value" style="color: green;">Currently Parked</span>
+        </div>
+        {% endif %}
+        <div class="dispute-info-row">
+            <span class="dispute-label">Duration:</span>
+            <span class="dispute-value">{{ parking_record.get_duration_display }}</span>
+        </div>
+    </div>
+
+    <!-- Entry Image -->
+    {% if entry_image %}
+    <div style="text-align: center;">
+        <h4>Entry Image (for reference)</h4>
+        <img src="{{ entry_image }}" alt="Entry image" class="entry-image-preview">
+    </div>
+    {% endif %}
+
+    <!-- Dispute Form -->
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="customer_name">Your Name *</label>
+            <input type="text" id="customer_name" name="customer_name" required placeholder="Enter your full name">
+        </div>
+
+        <div class="form-group">
+            <label for="customer_phone">Your Phone Number *</label>
+            <input type="tel" id="customer_phone" name="customer_phone" required placeholder="Enter your phone number">
+        </div>
+
+        <div class="form-group">
+            <label>What is the issue? *</label>
+            <div class="dispute-type-options">
+                <label class="type-option">
+                    <input type="radio" name="dispute_type" value="car_not_found" required>
+                    <span class="type-option-label">🚗 Car Not Found</span>
+                </label>
+                <label class="type-option">
+                    <input type="radio" name="dispute_type" value="wrong_spot">
+                    <span class="type-option-label">📍 Wrong Spot</span>
+                </label>
+                <label class="type-option">
+                    <input type="radio" name="dispute_type" value="damage">
+                    <span class="type-option-label">💔 Vehicle Damage</span>
+                </label>
+                <label class="type-option">
+                    <input type="radio" name="dispute_type" value="double_charge">
+                    <span class="type-option-label">💰 Double Charged</span>
+                </label>
+                <label class="type-option">
+                    <input type="radio" name="dispute_type" value="other">
+                    <span class="type-option-label">❓ Other</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Detailed Description *</label>
+            <textarea id="description" name="description" required placeholder="Please describe the issue in detail. Include any relevant information that will help us investigate."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="notes">Additional Notes (optional)</label>
+            <textarea id="notes" name="notes" placeholder="Any additional information..."></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button type="submit" class="btn-submit">📤 Submit Dispute</button>
+            <button type="button" class="btn-cancel" onclick="window.history.back()">Cancel</button>
+        </div>
+    </form>
+
+    <!-- Spot History -->
+    <div class="spot-history">
+        <h4>📋 Spot History (Last 5 Vehicles)</h4>
+        <div class="history-item">
+            <strong>Loading parking history...</strong>
+        </div>
+    </div>
+</div>
+
+<script>
+// Add custom styling to radio buttons
+document.querySelectorAll('.type-option input[type="radio"]').forEach(input => {
+    input.addEventListener('change', function() {
+        document.querySelectorAll('.type-option').forEach(opt => {
+            opt.style.borderColor = '#ddd';
+            opt.style.background = 'white';
+        });
+        this.closest('.type-option').style.borderColor = '#667eea';
+        this.closest('.type-option').style.background = '#f0f2ff';
+    });
+});
+</script>
+
+{% endblock %}

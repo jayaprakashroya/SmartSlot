@@ -1,0 +1,469 @@
+<!-- Admin Dashboard - Extended Features Card -->
+
+<div class="dashboard-section">
+    <h2>🛡️ Edge Cases & Professional Solutions</h2>
+    
+    <div class="features-grid">
+        
+        <!-- Feature 1: Internet Outage Handling -->
+        <div class="feature-card">
+            <div class="feature-icon">🌐</div>
+            <h3>Internet Outage Mode</h3>
+            <p>Local database caching with automatic sync when connection returns</p>
+            <div class="feature-stats">
+                <div class="stat">
+                    <span id="pending-sync-count">0</span>
+                    <label>Pending Syncs</label>
+                </div>
+                <div class="stat">
+                    <span id="offline-status">Online</span>
+                    <label>System Status</label>
+                </div>
+            </div>
+            <div class="feature-actions">
+                <a href="/offline-mode/" class="btn btn-sm btn-info">View Pending</a>
+                <button class="btn btn-sm btn-success" onclick="forceSyncNow()" type="button">Force Sync Now</button>
+            </div>
+        </div>
+
+        <!-- Feature 2: Double Parking Detection -->
+        <div class="feature-card">
+            <div class="feature-icon">🚗🚗</div>
+            <h3>Double Parking Detection</h3>
+            <p>Confidence threshold + manual override for detection accuracy</p>
+            <div class="feature-stats">
+                <div class="stat">
+                    <span id="low-confidence-count">0</span>
+                    <label>Low Confidence</label>
+                </div>
+                <div class="stat">
+                    <span id="threshold-value">85%</span>
+                    <label>Confidence Threshold</label>
+                </div>
+            </div>
+            <div class="feature-actions">
+                <a href="/low-confidence-detections/" class="btn btn-sm btn-warning">Review Detections</a>
+                <button class="btn btn-sm btn-danger" onclick="checkDoubleParking()" type="button">Check Now</button>
+            </div>
+        </div>
+
+        <!-- Feature 3: Privacy Protection -->
+        <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3>Privacy Protection</h3>
+            <p>License plate masking + role-based access control</p>
+            <div class="feature-stats">
+                <div class="stat">
+                    <span id="plate-access-logs">0</span>
+                    <label>Access Events</label>
+                </div>
+                <div class="stat">
+                    <span>100%</span>
+                    <label>Compliance</label>
+                </div>
+            </div>
+            <div class="feature-actions">
+                <a href="/plate-access-logs/" class="btn btn-sm btn-info">View Audit Logs</a>
+            </div>
+        </div>
+
+        <!-- Feature 4: Dispute Handling -->
+        <div class="feature-card">
+            <div class="feature-icon">⚖️</div>
+            <h3>Dispute Resolution</h3>
+            <p>Complete audit trail with entry images and spot history</p>
+            <div class="feature-stats">
+                <div class="stat">
+                    <span id="pending-disputes">0</span>
+                    <label>Pending</label>
+                </div>
+                <div class="stat">
+                    <span id="resolved-disputes">0</span>
+                    <label>Resolved</label>
+                </div>
+            </div>
+            <div class="feature-actions">
+                <a href="/admin-dashboard/disputes/" class="btn btn-sm btn-warning">View Disputes</a>
+            </div>
+        </div>
+
+        <!-- Feature 5: Multi-Method Search -->
+        <div class="feature-card">
+            <div class="feature-icon">🔍</div>
+            <h3>Advanced Search</h3>
+            <p>Search by phone, ticket, vehicle details, or parking history</p>
+            <div class="feature-stats">
+                <div class="stat">
+                    <span>5</span>
+                    <label>Search Methods</label>
+                </div>
+                <div class="stat">
+                    <span>< 1 sec</span>
+                    <label>Avg Response</label>
+                </div>
+            </div>
+            <div class="feature-actions">
+                <a href="/search-by-phone/" class="btn btn-sm btn-primary">Search by Phone</a>
+                <button class="btn btn-sm btn-primary" onclick="viewHistory()" type="button">View History</button>
+            </div>
+        </div>
+
+        <!-- Bonus A: Admin Force Release -->
+        <div class="feature-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+            <div class="feature-icon">🔓</div>
+            <h3>Admin Force Release</h3>
+            <p>Manual override for stuck spots + complete logging</p>
+            <div class="feature-stats">
+                <div class="stat">
+                    <span id="admin-actions">0</span>
+                    <label>Recent Actions</label>
+                </div>
+            </div>
+            <div class="feature-actions">
+                <a href="/admin-action-history/" class="btn btn-sm btn-light">Audit Trail</a>
+            </div>
+        </div>
+
+        <!-- Bonus B: Parking Lot Heatmap -->
+        <div class="feature-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: #333;">
+            <div class="feature-icon">🔥</div>
+            <h3>Parking Lot Heatmap</h3>
+            <p>Real-time visual occupancy map (Red=Busy, Green=Free)</p>
+            <div class="feature-stats">
+                <div class="stat">
+                    <span id="heatmap-occupancy">0%</span>
+                    <label>Current Occupancy</label>
+                </div>
+                <div class="stat">
+                    <span id="heatmap-status">Good</span>
+                    <label>Status</label>
+                </div>
+            </div>
+            <div class="feature-actions">
+                <a href="/heatmap/" class="btn btn-sm btn-warning">View Heatmap</a>
+                <button class="btn btn-sm btn-info" onclick="viewHeatmapData()" type="button">Live Data</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+.dashboard-section {
+    margin: 40px 0;
+    padding: 30px;
+    background: #f8f9fa;
+    border-radius: 15px;
+}
+
+.dashboard-section h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 28px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.feature-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border-left: 5px solid #667eea;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.feature-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.feature-card h3 {
+    color: #333;
+    margin: 10px 0;
+    font-size: 18px;
+}
+
+.feature-card p {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.feature-stats {
+    display: flex;
+    gap: 15px;
+    margin: 15px 0;
+    padding: 15px 0;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+.stat {
+    flex: 1;
+    text-align: center;
+}
+
+.stat span:first-child {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.stat label {
+    display: block;
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+    margin-top: 5px;
+}
+
+.feature-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn {
+    flex: 1;
+    padding: 8px 12px;
+    text-align: center;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.btn-sm {
+    font-size: 11px;
+    padding: 6px 10px;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #5568d3;
+}
+
+.btn-success {
+    background: #10b981;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #059669;
+}
+
+.btn-warning {
+    background: #f59e0b;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #d97706;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+.btn-info {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-info:hover {
+    background: #2563eb;
+}
+
+.btn-light {
+    background: white;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.btn-light:hover {
+    background: #f3f4f6;
+}
+</style>
+
+<script>
+// Load statistics for edge case features
+async function loadEdgeCaseStats() {
+    try {
+        // Get offline status
+        const offlineRes = await fetch('/api/offline-status/');
+        if (offlineRes.ok) {
+            const offlineData = await offlineRes.json();
+            const pendingCount = offlineData.pending_count || offlineData.pending_syncs || 0;
+            document.getElementById('pending-sync-count').textContent = pendingCount;
+            document.getElementById('offline-status').textContent = offlineData.status === 'online' ? '✅ Online' : '⚠️ Offline';
+        }
+
+        // Get double parking checks
+        const dpRes = await fetch('/api/check-double-parking/');
+        if (dpRes.ok) {
+            const dpData = await dpRes.json();
+            const dpCount = dpData.double_parked_count || 0;
+            const dpElement = document.getElementById('low-confidence-count');
+            if (dpElement) {
+                dpElement.textContent = dpCount;
+            }
+        }
+
+        // Get heatmap data
+        const heatmapRes = await fetch('/api/heatmap-realtime/1/');
+        if (heatmapRes.ok) {
+            const heatmapData = await heatmapRes.json();
+            const occupancy = heatmapData.occupancy_rate || heatmapData.occupancy || 0;
+            document.getElementById('heatmap-occupancy').textContent = Math.round(occupancy) + '%';
+            document.getElementById('heatmap-status').textContent = occupancy >= 90 ? 'Full' : (occupancy >= 70 ? 'Busy' : 'Good');
+        }
+    } catch (error) {
+        console.error('Error loading edge case stats:', error);
+        // Set default values on error
+        document.getElementById('pending-sync-count').textContent = '0';
+        document.getElementById('offline-status').textContent = 'Unknown';
+        document.getElementById('heatmap-occupancy').textContent = '0%';
+        document.getElementById('heatmap-status').textContent = 'Unknown';
+    }
+}
+
+// Force Sync button handler
+async function forceSyncNow() {
+    try {
+        alert('Starting force sync...');
+        const response = await fetch('/api/sync-pending-records/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            alert(`✅ Sync Complete!\nStatus: ${data.status}\nTimestamp: ${data.timestamp}`);
+            loadEdgeCaseStats(); // Reload stats
+        } else {
+            alert('❌ Sync failed');
+        }
+    } catch (error) {
+        alert(`❌ Error: ${error.message}`);
+    }
+}
+
+// Check Double Parking button handler
+async function checkDoubleParking() {
+    try {
+        const response = await fetch('/api/check-double-parking/');
+        
+        if (response.ok) {
+            const data = await response.json();
+            let message = `✅ Check Complete!\n\nDouble Parked Spots: ${data.double_parked_count}`;
+            
+            if (data.spots && data.spots.length > 0) {
+                message += '\n\nRisk Spots:\n';
+                data.spots.slice(0, 3).forEach(spot => {
+                    message += `- Spot ${spot.spot_number}: ${spot.risk_level} Risk\n`;
+                });
+            }
+            
+            alert(message);
+            loadEdgeCaseStats();
+        } else {
+            alert('❌ Check failed');
+        }
+    } catch (error) {
+        alert(`❌ Error: ${error.message}`);
+    }
+}
+
+// View History button handler
+async function viewHistory() {
+    const phone = prompt('Enter phone number:');
+    if (!phone) return;
+    
+    try {
+        const response = await fetch(`/api/parking-history/?phone=${encodeURIComponent(phone)}`);
+        
+        if (response.ok) {
+            const data = await response.json();
+            let message = `✅ History Loaded!\n\nPhone: ${data.phone}\nTotal Records: ${data.total_records}`;
+            
+            if (data.current_parking) {
+                message += '\n\nCurrent Parking:\n';
+                message += `- Lot: ${data.current_parking.lot}\n`;
+                message += `- Spot: ${data.current_parking.spot}\n`;
+            }
+            
+            alert(message);
+        } else {
+            alert('❌ Phone not found or invalid');
+        }
+    } catch (error) {
+        alert(`❌ Error: ${error.message}`);
+    }
+}
+
+// View Heatmap Data button handler
+async function viewHeatmapData() {
+    try {
+        const response = await fetch('/api/heatmap-realtime/1/');
+        
+        if (response.ok) {
+            const data = await response.json();
+            const message = `✅ Heatmap Live Data!\n\nOccupancy: ${Math.round(data.occupancy_rate || data.occupancy || 0)}%\nOccupied: ${data.occupied}\nAvailable: ${data.available}\nTotal Spots: ${data.total}\nUpdated: ${new Date(data.updated_at).toLocaleTimeString()}`;
+            alert(message);
+            loadEdgeCaseStats();
+        } else {
+            alert('❌ Could not load heatmap data');
+        }
+    } catch (error) {
+        alert(`❌ Error: ${error.message}`);
+    }
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Load stats on page load
+document.addEventListener('DOMContentLoaded', loadEdgeCaseStats);
+
+// Refresh stats every 30 seconds
+setInterval(loadEdgeCaseStats, 30000);
+</script>

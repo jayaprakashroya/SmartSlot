@@ -1,0 +1,806 @@
+{% load tz %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#007bff">
+    <meta name="description" content="Smart Parking System - Find, reserve, and pay for parking spots with real-time availability">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SmartParking">
+    
+        <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+    
+    <!-- App Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="/static/images/apple-touch-icon.png">
+    
+    <title>{% block title %}Smart Parking System{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- Leaflet CSS (for maps) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --secondary-color: #6c757d;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 75px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            background: #5B9D92 !important;
+            border: none;
+            padding: 0;
+            height: auto;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            z-index: 1050; /* stay on top of map and other content */
+        }
+
+        .navbar.navbar-expand-lg {
+            background: #4A8B80 !important;
+        }
+
+        .navbar.navbar-dark {
+            background: #4A8B80 !important;
+        }
+
+        .navbar > div[style*="display: flex"] {
+            background: #4A8B80 !important;
+            width: 100% !important;
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            color: #fff !important;
+            background: rgba(0,0,0,0.08) !important;
+            padding: 18px 30px !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            min-width: 160px !important;
+            transition: all 0.18s ease !important;
+            height: 70px;
+            line-height: 1;
+        }
+
+        .navbar-brand:hover {
+            opacity: 0.95;
+            background: rgba(0,0,0,0.12) !important;
+        }
+        
+        .navbar-collapse {
+            background: #5B9D92 !important;
+            padding: 0 !important;
+            display: flex !important;
+            justify-content: flex-end !important;
+            flex-grow: 1 !important;
+        }
+        
+        .navbar-nav {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
+            background: #5B9D92 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            height: 70px;
+        }
+        
+        .nav-link {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin: 0 !important;
+            transition: all 0.22s ease !important;
+            color: rgba(255,255,255,0.95) !important;
+            padding: 25px 18px !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            text-transform: none !important;
+            letter-spacing: 0.5px !important;
+            position: relative !important;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: rgba(0,184,212,0.95);
+            transition: width 0.28s ease;
+        }
+
+        /* keep hover backgrounds behind the brand/logo */
+        .navbar-brand {
+            position: relative;
+            z-index: 2;
+        }
+        .navbar .nav-link {
+            z-index: 1;
+        }
+
+        .navbar.navbar-expand-lg {
+            background: #4A8B80 !important;
+        }
+
+        .navbar.navbar-dark {
+            background: #4A8B80 !important;
+        }
+
+        .navbar > div[style*="display: flex"] {
+            background: #4A8B80 !important;
+            width: 100% !important;
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            color: #fff !important;
+            background: rgba(0,0,0,0.08) !important;
+            padding: 18px 30px !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            min-width: 160px !important;
+            transition: all 0.18s ease !important;
+            height: 70px;
+            line-height: 1;
+        }
+
+        .navbar-brand:hover {
+            opacity: 0.95;
+            background: rgba(0,0,0,0.12) !important;
+        }
+        
+        .navbar-collapse {
+            background: #5B9D92 !important;
+            padding: 0 !important;
+            display: flex !important;
+            justify-content: flex-end !important;
+            flex-grow: 1 !important;
+        }
+        
+        .navbar-nav {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
+            background: #5B9D92 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            height: 70px;
+        }
+        
+        .nav-link {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin: 0 !important;
+            transition: all 0.22s ease !important;
+            color: rgba(255,255,255,0.95) !important;
+            padding: 25px 18px !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            text-transform: none !important;
+            letter-spacing: 0.5px !important;
+            position: relative !important;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: rgba(0,184,212,0.95);
+            transition: width 0.28s ease;
+        }
+        
+        /* global nav-link hover default (no background) */
+        .nav-link:hover {
+            color: #fff !important;
+            background: transparent !important;
+            text-decoration: none;
+        }
+        
+        /* underline stretches on hover for all nav-links */
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* active state default
+           (no background unless overridden by narrower selector) */
+        .nav-link.active {
+            color: #fff !important;
+            background: transparent !important;
+        }
+        
+        .nav-link.active::after {
+            /* keep underline visible only, no full block */
+            width: 100%;
+            height: 3px;
+        }
+        
+        /* specific styling for the top fixed navbar links */
+        .navbar .nav-link:hover {
+            color: #fff !important;
+            /* light orange highlight on hover for better visibility */
+            background: rgba(0,184,212,0.95) !important;
+            text-decoration: none;
+        }
+        
+        .navbar .nav-link.active {
+            color: #fff !important;
+            background: rgba(0,234,212,0.95) !important;  /* stronger orange to mark open page */
+        }
+        .navbar .nav-link.active::after {
+            width: 100%;
+            height: 2px;
+            background: #5B9D92 !important;;
+        }
+        
+        /* override for pill-style internal navs (e.g. parking status tabs) */
+        .nav.nav-pills .nav-link {
+            color: #000; /* default dark text so hover works well */
+            background: transparent;
+            position: relative; /* enable underline effect */
+        }
+        .nav.nav-pills .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            /* underline uses the same orange as login button for consistency */
+            background: #ffb347;
+            transition: width 0.28s ease;
+        }
+        .nav.nav-pills .nav-link:hover {
+            /* light orange overlay and underline like the top navbar but warmer */
+            background: rgba(255,179,71,0.08) !important;
+            color: #000 !important;
+        }
+        .nav.nav-pills .nav-link:hover::after {
+            width: 100%;
+        }
+        .nav.nav-pills .nav-link.active {
+            background: rgba(255,179,71,0.15) !important; /* subtle orange */
+            color: #000 !important;
+        }
+        .nav.nav-pills .nav-link.active::after {
+            width: 100%;
+        }
+
+        /* Payment link styling */
+        .nav-link.payment-link {
+            color: #ffb347 !important;
+        }
+        
+        /* Login button styling */
+        .nav-link.login-btn {
+            background: #00bfa6 !important;
+            color: #fff !important;
+            border: none !important;
+            padding: 18px 22px !important;
+            margin: 0 8px !important;
+            border-radius: 4px !important;
+            box-shadow: none !important;
+            font-weight: 700 !important;
+            transition: all 0.3s ease !important;
+            height: auto !important;
+            display: inline-flex !important;
+            align-items: center !important;
+        }
+        
+        .nav-link.login-btn:hover {
+            background: #009987 !important;
+            color: #fff !important;
+            transform: none !important;
+        }
+        
+        .nav-link.login-btn::after {
+            display: none !important;
+        }
+        
+        .dropdown-menu {
+            background: #0d2a33;
+            border: 1px solid #17a2b8;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            padding: 10px 0;
+        }
+        
+        .dropdown-item {
+            color: #7dd9e6;
+            font-size: 0.95rem;
+            padding: 12px 20px;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background: #00bfa6;
+            color: #fff;
+        }
+        
+        .dropdown-divider {
+            border-color: #1a3a47;
+        }
+        
+        .card {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        /* Make main content grow so footer stays at bottom */
+        .main-content {
+            flex: 1 0 auto;
+        }
+
+        footer.footer {
+            flex-shrink: 0;
+        }
+
+        .copyright-bottom {
+            text-align: center;
+            color: #fff;
+            font-size: 14px;
+            padding-top: 14px;
+            opacity: 0.95;
+        }
+        
+        .btn {
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.65rem 1.5rem;
+            border: 2px solid transparent;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.95rem;
+            background: #17a2b8 !important;
+            color: #fff !important;
+            border-color: #138496 !important;
+            box-shadow: 0 5px 15px rgba(23,162,184,0.4) !important;
+        }
+        
+        .btn-primary, .btn-secondary, .btn-success, .btn-danger, .btn-warning, .btn-info {
+            background: #17a2b8 !important;
+            color: #fff !important;
+            border-color: #138496 !important;
+            box-shadow: 0 5px 15px rgba(23, 162, 184, 0.5) !important;
+        }
+        
+        .btn-primary:hover, .btn-secondary:hover, .btn-success:hover, .btn-danger:hover, .btn-warning:hover, .btn-info:hover {
+            background: #138496 !important;
+            box-shadow: 0 7px 22px rgba(23, 162, 184, 0.7) !important;
+            transform: translateY(-2px) !important;
+            color: #fff !important;
+        }
+        
+        .btn {
+            background: #17a2b8 !important;
+            color: #fff !important;
+            border: 2px solid #138496 !important;
+        }
+        
+        .btn:hover {
+            background: #138496 !important;
+            box-shadow: 0 7px 22px rgba(23, 162, 184, 0.7) !important;
+        }
+        
+        .alert {
+            border-radius: 6px;
+            border: none;
+        }
+        
+        .badge {
+            padding: 0.5em 0.75em;
+            font-weight: 500;
+        }
+        
+        .footer {
+            background-color: #343a40;
+            color: #fff;
+            padding: 30px 0;
+            margin-top: 50px;
+            text-align: center;
+        }
+        
+        .footer-gradient-strip {
+            background: linear-gradient(135deg, #00bfa6, #00796b);
+            color: white;
+            padding: 20px 0;
+            margin-top: 40px;
+        }
+        
+        .brand-label {
+            font-size: 12px;
+            letter-spacing: 2px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+        
+        .copyright-text {
+            margin: 5px 0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .footer-links a {
+            color: white;
+            font-size: 13px;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        
+        .pwa-install-prompt {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            padding: 15px;
+            z-index: 1000;
+            max-width: 300px;
+            display: none;
+        }
+        
+        .pwa-install-prompt.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .online-status {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            padding: 10px;
+            text-align: center;
+            background-color: #ffc107;
+            color: #333;
+            display: none;
+            z-index: 999;
+            font-weight: 500;
+        }
+        
+        .online-status.offline {
+            display: block;
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding-top: 75px;
+            }
+            
+            .navbar {
+                padding: 0;
+            }
+            
+            .navbar-brand {
+                padding: 12px 18px;
+                font-size: 1rem;
+                min-width: auto;
+            }
+            
+            .navbar-collapse {
+                background: #1a3a47;
+                margin-top: 0;
+            }
+            
+            .nav-link {
+                padding: 12px 15px !important;
+                font-size: 0.9rem;
+                color: #7dd9e6 !important;
+            }
+            
+            .nav-link.login-btn {
+                padding: 10px 18px !important;
+                margin: 5px 5px;
+                font-size: 0.9rem;
+            }
+            
+            .pwa-install-prompt {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+        
+        /* Loading animation */
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Dark mode toggle button disabled globally */
+        .dark-mode-toggle { display: none !important; }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Online/Offline Status -->
+    <div id="onlineStatus" class="online-status">
+        ⚠️ You are currently offline. Some features may be limited.
+    </div>
+    
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div style="display: flex; width: 100%; padding: 0;">
+            <a class="navbar-brand" href="/">🅿️ SmartParking</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" style="margin-right: 15px;">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav" style="flex: 1;">
+                <ul class="navbar-nav ml-auto">
+                    <!-- All features accessible to everyone -->
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/heatmap/' %}active{% endif %}" href="/heatmap/">🔥 Heatmap</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/parking-lot-status/' %}active{% endif %}" href="/parking-lot-status/">📊 Parking Status</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/parking-map/' %}active{% endif %}" href="/parking-map/">🗺️ Find Parking</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/parking-history/' %}active{% endif %}" href="/parking-history/">📋 My History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/my-reservations/' %}active{% endif %}" href="/my-reservations/">📅 Reservations</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link payment-link {% if request.path == '/payments/' %}active{% endif %}" href="/payments/">💳 Payments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/purchase-pass/' %}active{% endif %}" href="/purchase-pass/">🎟️ Passes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/notifications/' %}active{% endif %}" href="/notifications/">🔔 Alerts</a>
+                    </li>
+                    
+                    {% if request.session.is_admin %}
+                        <!-- Admin Menu -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown">
+                                👨‍💼 Admin
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="adminDropdown">
+                                <a class="dropdown-item" href="/admin-dashboard/">📊 Dashboard</a>
+                                <a class="dropdown-item" href="/staff-dashboard/">👥 Staff</a>
+                                <a class="dropdown-item" href="/analytics-dashboard/">📈 Analytics</a>
+                                <a class="dropdown-item" href="/revenue-report/">💰 Revenue</a>
+                                <a class="dropdown-item" href="/peak-hours-forecast/">📉 Forecast</a>
+                                <a class="dropdown-item" href="/report-sensor-fault/">⚠️ Faults</a>
+                                <hr class="dropdown-divider">
+                                <a class="dropdown-item" href="/admin/">Django Admin</a>
+                            </div>
+                        </li>
+                    {% endif %}
+                    
+                    {% if request.session.user_email %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout/">🚪 Logout</a>
+                        </li>
+                    {% endif %}
+                    {% if not hide_auth_buttons %}
+                        {% if not request.session.user_email %}
+                            <li class="nav-item">
+                                <a class="nav-link login-btn" href="/login/">🔐 Login</a>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link login-btn" href="/signup/">✍️ Sign Up</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container-fluid main-content">
+        {% block content %}{% endblock %}
+    </div>
+    
+    <!-- Footer (shared partial) -->
+    {% include 'partials/footer_strip.html' %}
+    
+    <!-- PWA Install Prompt -->
+    <div id="pwaPrompt" class="pwa-install-prompt">
+        <h6>📲 Install SmartParking?</h6>
+        <p class="small mb-2">Get quick access from your home screen</p>
+        <div class="d-flex gap-2">
+            <button id="pwaInstall" class="btn btn-primary btn-sm flex-grow-1">Install</button>
+            <button id="pwaDismiss" class="btn btn-secondary btn-sm">Not Now</button>
+        </div>
+    </div>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Leaflet JS (for maps) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/service-worker.js').then(registration => {
+                    console.log('Service Worker registered:', registration);
+                }).catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+            });
+        }
+        
+        // PWA Install Prompt
+        let deferredPrompt;
+        const pwaPrompt = document.getElementById('pwaPrompt');
+        const pwaInstall = document.getElementById('pwaInstall');
+        const pwaDismiss = document.getElementById('pwaDismiss');
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            pwaPrompt.classList.add('show');
+        });
+        
+        pwaInstall?.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to the install prompt: ${outcome}`);
+                deferredPrompt = null;
+                pwaPrompt.classList.remove('show');
+            }
+        });
+        
+        pwaDismiss?.addEventListener('click', () => {
+            pwaPrompt.classList.remove('show');
+        });
+        
+        // Online/Offline Status
+        const onlineStatus = document.getElementById('onlineStatus');
+        
+        window.addEventListener('online', () => {
+            onlineStatus.classList.remove('offline');
+        });
+        
+        window.addEventListener('offline', () => {
+            onlineStatus.classList.add('offline');
+        });
+        
+        // Check initial connection
+
+        // remove any rogue sign-up widgets that may be injected by third‑party libs
+        function pruneSignUpElements(root=document.body) {
+            root.querySelectorAll('.signup-banner, .signup-prompt, .btn-signup').forEach(el => el.remove());
+            root.querySelectorAll('*').forEach(el => {
+                if (el.children.length === 0) {
+                    const txt = el.textContent.trim();
+                    if (txt === 'Sign Up' || txt.toLowerCase().includes('sign up')) {
+                        el.remove();
+                    }
+                }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            pruneSignUpElements();
+            const observer = new MutationObserver(muts => {
+                muts.forEach(m => {
+                    m.addedNodes.forEach(n => {
+                        if (n.nodeType === Node.ELEMENT_NODE) pruneSignUpElements(n);
+                    });
+                });
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        });
+        if (!navigator.onLine) {
+            onlineStatus.classList.add('offline');
+        }
+        
+        // Sync message handler
+        if ('serviceWorker' in navigator && 'SyncManager' in window) {
+            navigator.serviceWorker.ready.then(registration => {
+                navigator.serviceWorker.controller?.postMessage({
+                    type: 'REGISTER_BACKGROUND_SYNC'
+                });
+            });
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

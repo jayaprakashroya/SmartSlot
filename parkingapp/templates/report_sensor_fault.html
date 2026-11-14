@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Report Sensor Fault{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">⚠️ Report Sensor Fault</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Help us improve our parking system by reporting sensor issues and faults.</p>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Fault Type -->
+                        <div class="form-group">
+                            <label for="fault_type"><strong>Fault Type</strong></label>
+                            <select class="form-control form-control-lg" id="fault_type" name="fault_type" required>
+                                <option value="">-- Select Type --</option>
+                                <option value="sensor_offline">Sensor Offline/Not Detecting</option>
+                                <option value="false_positive">False Positive (incorrect detection)</option>
+                                <option value="false_negative">False Negative (missed vehicle)</option>
+                                <option value="camera_blocked">Camera Blocked/Obstructed</option>
+                                <option value="light_issue">Lighting Issue</option>
+                                <option value="hardware_damage">Hardware Damage</option>
+                                <option value="connectivity">Connectivity Issue</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Location -->
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="parking_zone"><strong>Parking Zone</strong></label>
+                                <select class="form-control" id="parking_zone" name="parking_zone" required>
+                                    <option value="">-- Select Zone --</option>
+                                    <option value="A">Zone A</option>
+                                    <option value="B">Zone B</option>
+                                    <option value="C">Zone C</option>
+                                    <option value="D">Zone D</option>
+                                    <option value="E">Zone E</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="spot_number"><strong>Parking Spot Number</strong></label>
+                                <input type="text" class="form-control" id="spot_number" name="spot_number" placeholder="e.g., A-15" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Severity -->
+                        <div class="form-group">
+                            <label for="severity"><strong>Severity Level</strong></label>
+                            <div class="custom-control custom-radio">
+                                <input type="radio" id="severity_low" name="severity" value="low" class="custom-control-input" checked>
+                                <label class="custom-control-label" for="severity_low">
+                                    🟢 Low (Minor issue, partial functionality)
+                                </label>
+                            </div>
+                            <div class="custom-control custom-radio">
+                                <input type="radio" id="severity_medium" name="severity" value="medium" class="custom-control-input">
+                                <label class="custom-control-label" for="severity_medium">
+                                    🟡 Medium (Significant problem, irregular behavior)
+                                </label>
+                            </div>
+                            <div class="custom-control custom-radio">
+                                <input type="radio" id="severity_high" name="severity" value="high" class="custom-control-input">
+                                <label class="custom-control-label" for="severity_high">
+                                    🔴 High (Critical, complete failure)
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label for="description"><strong>Description</strong></label>
+                            <textarea class="form-control" id="description" name="description" rows="5" placeholder="Please provide detailed description of the issue..." required></textarea>
+                            <small class="form-text text-muted">Include when you first noticed the issue and any relevant details.</small>
+                        </div>
+                        
+                        <!-- Evidence/Images -->
+                        <div class="form-group">
+                            <label for="photo"><strong>Attach Photo/Video (Optional)</strong></label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="photo" name="photo" accept="image/*,video/*">
+                                <label class="custom-file-label" for="photo">Choose file</label>
+                            </div>
+                            <small class="form-text text-muted">Upload a screenshot or photo showing the issue. Max 5MB.</small>
+                        </div>
+                        
+                        <!-- Contact Info -->
+                        <div class="form-group">
+                            <label for="contact_email"><strong>Your Email</strong></label>
+                            <input type="email" class="form-control" id="contact_email" name="contact_email" value="{{ request.session.user_email|default:'' }}" required>
+                            <small class="form-text text-muted">We'll use this to update you on the repair status.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contact_phone"><strong>Phone Number (Optional)</strong></label>
+                            <input type="tel" class="form-control" id="contact_phone" name="contact_phone" placeholder="+1 (555) 000-0000">
+                        </div>
+                        
+                        <!-- Consent -->
+                        <div class="form-group">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="consent" name="consent" required>
+                                <label class="custom-control-label" for="consent">
+                                    I confirm that this information is accurate and I authorize the parking management to use this report for system improvement.
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit -->
+                        <button type="submit" class="btn btn-danger btn-lg btn-block">📤 Submit Fault Report</button>
+                        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary btn-lg btn-block mt-2">Cancel</a>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Info Box -->
+            <div class="alert alert-info mt-4">
+                <h6>📋 How We Handle Reports</h6>
+                <ul class="mb-0">
+                    <li><strong>Immediate Response:</strong> Critical issues reviewed within 15 minutes</li>
+                    <li><strong>Updates:</strong> You'll receive email/SMS updates on repair progress</li>
+                    <li><strong>Verification:</strong> Our team will verify and prioritize reported issues</li>
+                    <li><strong>Follow-up:</strong> We'll confirm resolution once the issue is fixed</li>
+                </ul>
+            </div>
+            
+            <!-- Recent Reports -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">📊 Recent Fault Reports</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Location</th>
+                                    <th>Severity</th>
+                                    <th>Status</th>
+                                    <th>Reported</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Sensor Offline</td>
+                                    <td>Zone A-15</td>
+                                    <td><span class="badge badge-danger">High</span></td>
+                                    <td><span class="badge badge-success">Fixed</span></td>
+                                    <td>2 hours ago</td>
+                                </tr>
+                                <tr>
+                                    <td>False Positive</td>
+                                    <td>Zone C-08</td>
+                                    <td><span class="badge badge-warning">Medium</span></td>
+                                    <td><span class="badge badge-info">In Review</span></td>
+                                    <td>1 hour ago</td>
+                                </tr>
+                                <tr>
+                                    <td>Camera Blocked</td>
+                                    <td>Zone B-20</td>
+                                    <td><span class="badge badge-warning">Medium</span></td>
+                                    <td><span class="badge badge-success">Fixed</span></td>
+                                    <td>30 minutes ago</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border: none;
+        border-radius: 8px;
+    }
+    
+    .custom-file-label::after {
+        content: "Browse";
+    }
+    
+    .form-control:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+</style>
+
+<script>
+    // File input label update
+    document.getElementById('photo').addEventListener('change', function(e) {
+        const fileName = e.target.files[0].name;
+        const label = document.querySelector('.custom-file-label');
+        label.textContent = fileName;
+    });
+    
+    // Form submission with validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const fileInput = document.getElementById('photo');
+        if (fileInput.files.length > 0) {
+            const fileSize = fileInput.files[0].size / 1024 / 1024; // MB
+            if (fileSize > 5) {
+                e.preventDefault();
+                alert('File size must be less than 5MB');
+            }
+        }
+    });
+</script>
+{% endblock %}

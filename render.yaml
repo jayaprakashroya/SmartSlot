@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: smartslot
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput
+    startCommand: gunicorn ParkingProject.wsgi --log-file -
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: ParkingProject.settings
