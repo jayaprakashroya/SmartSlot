@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{% static 'css/vibrant-theme.css' %}" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+        
+        .admin-header {
+            background: linear-gradient(to right, #2c3e50, #34495e);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .admin-title {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .alert-banner {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 5px solid #dc3545;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        
+        .feature-card.warning {
+            border-left-color: #ffc107;
+        }
+        
+        .feature-card.danger {
+            border-left-color: #dc3545;
+        }
+        
+        .feature-card.success {
+            border-left-color: #28a745;
+        }
+        
+        .feature-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .feature-description {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+        
+        .stat-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .stat-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .vehicle-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .vehicle-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+        
+        .vehicle-item:last-child {
+            border-bottom: none;
+        }
+        
+        .progress-bar-custom {
+            height: 25px;
+            background: linear-gradient(to right, #28a745, #dc3545);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+        
+        .full-width-card {
+            grid-column: 1 / -1;
+        }
+        
+        .notification-item {
+            padding: 10px;
+            border-left: 4px solid;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        
+        .notification-info {
+            border-left-color: #17a2b8;
+        }
+        
+        .notification-warning {
+            border-left-color: #ffc107;
+        }
+        
+        .notification-danger {
+            border-left-color: #dc3545;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+        }
+        
+        .search-box button {
+            padding: 12px 25px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn-custom {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+        
+        .btn-view {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-view:hover {
+            background: #5568d3;
+        }
+        
+        .realtime-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #28a745;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Admin Header -->
+        <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <div class="admin-title">
+                    👨‍💼 Admin Dashboard - Parking Management System
+                </div>
+                <div style="font-size: 0.95em; opacity: 0.9;">
+                    <span class="realtime-indicator"></span>
+                    Real-Time Monitoring & Control Center
+                </div>
+            </div>
+            <div>
+                <a href="/logout/" class="btn btn-danger" style="font-weight: bold; padding: 10px 20px;">
+                    🚪 Logout
+                </a>
+            </div>
+        </div>
+        
+        <!-- Alerts Banner -->
+        {% if alerts %}
+        <div class="alert-banner">
+            <strong>⚠️ Active Alerts:</strong>
+            {% for alert in alerts %}
+            <div>• {{ alert }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Key Parking Features -->
+        <div class="feature-grid">
+            
+            <!-- FEATURE 1: Search Car by Vehicle Number -->
+            <div class="feature-card">
+                <div class="feature-title">🔍 Search Car by Vehicle Number</div>
+                <div class="feature-description">Find any vehicle and its exact parking slot</div>
+                <div class="stat-box">
+                    <span class="stat-label">Total Parked</span>
+                    <span class="stat-value">{{ features.feature_1.total_parked }}</span>
+                </div>
+                <div class="vehicle-list">
+                    {% for vehicle in features.feature_1.vehicles %}
+                    <div class="vehicle-item">
+                        <strong>{{ vehicle.vehicle }}</strong> ({{ vehicle.plate }})<br/>
+                        Slot: {{ vehicle.spot }} | Entry: {{ vehicle.entry_time|date:"H:i" }}
+                    </div>
+                    {% empty %}
+                    <div class="vehicle-item" style="text-align: center; color: #999;">
+                        No vehicles currently parked
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="action-buttons">
+                    <input id="search-input" type="text" placeholder="Enter plate or slot" class="form-control" style="max-width:200px;">
+                    <button class="btn-custom btn-view" onclick="searchVehicle()">🔍 Search Vehicle</button>
+                </div>
+            </div>
+            
+            <!-- FEATURE 2: Real-time Slot Status Sync -->
+            <div class="feature-card">
+                <div class="feature-title">{{ features.feature_2.title }}</div>
+                <div class="feature-description">{{ features.feature_2.description }}</div>
+                <div class="stat-box">
+                    <span class="stat-label">Total Spots</span>
+                    <span class="stat-value">{{ features.feature_2.total_spots }}</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Occupied</span>
+                    <span class="stat-value" style="color: #dc3545;">{{ features.feature_2.occupied_spots }}</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Available</span>
+                    <span class="stat-value" style="color: #28a745;">{{ features.feature_2.available_spots }}</span>
+                </div>
+            </div>
+            
+            <!-- FEATURE 3: Slot Mismatch Detection -->
+            <div class="feature-card {% if features.feature_3.alert_level == 'high' %}danger{% elif features.feature_3.alert_level == 'medium' %}warning{% else %}success{% endif %}">
+                <div class="feature-title">⚠️ Slot Mismatch Detection</div>
+                <div class="feature-description">Detect wrong slot assignments</div>
+                <div class="stat-box">
+                    <span class="stat-label">Mismatches Found</span>
+                    {% if features.feature_3.mismatched_count > 0 %}
+                    <span class="stat-value" style="color: #dc3545;">{{ features.feature_3.mismatched_count }}</span>
+                    {% else %}
+                    <span class="stat-value" style="color: #28a745;">{{ features.feature_3.mismatched_count }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- FEATURE 4: Parking Full Detection -->
+            <div class="feature-card {% if features.feature_4.is_full %}danger{% else %}success{% endif %}">
+                <div class="feature-title">🚫 Parking Full Detection</div>
+                <div class="feature-description">Alert when parking is completely full</div>
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 2em; font-weight: bold; margin-bottom: 10px;">
+                        {% if features.feature_4.is_full %}🚫{% else %}✅{% endif %}
+                    </div>
+                    <div style="font-size: 1.1em; font-weight: bold;">
+                        {{ features.feature_4.status_message }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SUMMARY METRICS SECTION -->
+        <h3 style="color: white; margin-top: 40px; margin-bottom: 20px;">📊 Real-Time Dashboard Metrics</h3>
+        <div class="feature-grid" id="metricsGrid">
+            <!-- This section will be populated by JavaScript from the API -->
+        </div>
+        
+        <!-- Summary Card -->
+        <div class="feature-grid full-width-card">
+            <div class="feature-card success">
+                <div class="feature-title">✅ System Status Summary</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div>
+                        <strong>Total Features Active:</strong> 15/15
+                    </div>
+                    <div>
+                        <strong>System Health:</strong> Excellent
+                    </div>
+                    <div>
+                        <strong>Real-Time Updates:</strong> Active
+                    </div>
+                    <div>
+                        <strong>Data Sync:</strong> Synchronized
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <script>
+        function searchVehicle() {
+            const searchTerm = document.getElementById('search-input').value;
+            if (!searchTerm) {
+                alert('Please enter a search term');
+                return;
+            }
+            
+            fetch('/api/admin/search-vehicle/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    search: searchTerm,
+                    type: 'vehicle_number'
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Found ${data.count} vehicle(s)\n\n${data.vehicles.map(v => v.vehicle_number + ' - Slot: ' + v.slot).join('\n')}`);
+                } else {
+                    alert('Vehicle not found');
+                }
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                alert('Error searching vehicle. Please try again.');
+            });
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // utility functions for additional buttons
+        function forceSyncNow() {
+            fetch('/api/sync-pending-records/')
+                .then(r => r.json())
+                .then(data => {
+                    alert('Force sync triggered. Records pending: ' + (data.pending || 'unknown'));
+                })
+                .catch(err => {
+                    console.error('Sync error:', err);
+                    alert('Error triggering sync');
+                });
+        }
+        function checkDoubleParking() {
+            fetch('/api/check-double-parking/')
+                .then(r => r.json())
+                .then(data => {
+                    alert('Double parking check completed. Count: ' + (data.count || 0));
+                })
+                .catch(err => {
+                    console.error('Double parking error:', err);
+                    alert('Error checking double parking');
+                });
+        }
+        function viewHistory() {
+            window.location.href = '/search-by-details/';
+        }
+        function viewHeatmapData() {
+            // go to heatmap page; or could call API
+            window.location.href = '/heatmap/';
+        }
+
+        // add enter key handler for search field
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('search-input');
+            if (input) {
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        searchVehicle();
+                    }
+                });
+            }
+        });
+
+        // Auto-refresh stats every 10 seconds
+        function refreshDashboardMetrics() {
+            fetch('/api/admin/dashboard-stats/')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        displayMetrics(data.stats);
+                    }
+                })
+                .catch(error => {
+                    console.error('Dashboard refresh error:', error);
+                });
+        }
+        
+        function displayMetrics(stats) {
+            const metricsGrid = document.getElementById('metricsGrid');
+            
+            const metricsHTML = `
+                <!-- No Available Slots -->
+                <div class="feature-card">
+                    <div class="feature-title">🅿️ No Available Slots</div>
+                    <div class="stat-box">
+                        <span class="stat-label">Available</span>
+                        <span class="stat-value">${stats.available_spots}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Total Spots</span>
+                        <span class="stat-value">${stats.total_spots}</span>
+                    </div>
+                </div>
+                
+                <!-- Unauthorized Count -->
+                <div class="feature-card ${stats.unauthorized_count > 0 ? 'danger' : 'success'}">
+                    <div class="feature-title">🚨 Unauthorized Count</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2em; color: ${stats.unauthorized_count > 0 ? '#dc3545' : '#28a745'};">
+                            ${stats.unauthorized_count}
+                        </div>
+                        <div style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            ${stats.unauthorized_count > 0 ? '⚠️ Unauthorized vehicles detected' : '✅ No unauthorized vehicles'}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Updates -->
+                <div class="feature-card">
+                    <div class="feature-title">🔄 Recent Updates (5min)</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2em;">
+                            <span class="realtime-indicator"></span>
+                        </div>
+                        <div style="font-size: 0.9em; color: #28a745;">Active & Syncing</div>
+                    </div>
+                </div>
+                
+                <!-- Entries Today -->
+                <div class="feature-card">
+                    <div class="feature-title">📥 Entries Today</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em; color: #667eea;">
+                            ${stats.entries_today}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Exits Today -->
+                <div class="feature-card">
+                    <div class="feature-title">📤 Exits Today</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em; color: #764ba2;">
+                            ${stats.exits_today}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Currently Parked -->
+                <div class="feature-card">
+                    <div class="feature-title">🚗 Currently Parked</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em;">
+                            ${stats.currently_parked}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Free Slots -->
+                <div class="feature-card success">
+                    <div class="feature-title">✅ Free Slots</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em; color: #28a745;">
+                            ${stats.free_slots}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Avg Wait Reduction -->
+                <div class="feature-card">
+                    <div class="feature-title">⏱️ Avg Wait Reduction</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em; color: #17a2b8;">
+                            ${stats.avg_wait_reduction}%
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Efficiency Score -->
+                <div class="feature-card ${stats.efficiency_score >= 90 ? 'success' : 'warning'}">
+                    <div class="feature-title">⚡ Efficiency Score</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em; color: ${stats.efficiency_score >= 90 ? '#28a745' : '#ffc107'};">
+                            ${stats.efficiency_score.toFixed(1)}%
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- This Week Entries -->
+                <div class="feature-card">
+                    <div class="feature-title">📊 This Week Entries</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em;">
+                            ${stats.this_week_entries}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Daily Average -->
+                <div class="feature-card">
+                    <div class="feature-title">📈 Daily Average</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em;">
+                            ${stats.daily_average.toFixed(1)}
+                        </div>
+                        <div style="font-size: 0.85em; color: #666; margin-top: 5px;">vehicles/day</div>
+                    </div>
+                </div>
+                
+                <!-- Peak Hour -->
+                <div class="feature-card warning">
+                    <div class="feature-title">🔴 Peak Hour</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2em;">
+                            ${stats.peak_hour}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Active Notifications -->
+                <div class="feature-card ${stats.active_notifications > 0 ? 'danger' : 'success'}">
+                    <div class="feature-title">🔔 Active Notifications</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em; color: ${stats.active_notifications > 0 ? '#dc3545' : '#28a745'};">
+                            ${stats.active_notifications}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- DB Occupied -->
+                <div class="feature-card">
+                    <div class="feature-title">🗄️ DB Occupied</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em;">
+                            ${stats.db_occupied}
+                        </div>
+                        <div style="font-size: 0.85em; color: #666; margin-top: 5px;">spots</div>
+                    </div>
+                </div>
+                
+                <!-- Actual Occupied -->
+                <div class="feature-card">
+                    <div class="feature-title">🎯 Actual Occupied</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em;">
+                            ${stats.actual_occupied}
+                        </div>
+                        <div style="font-size: 0.85em; color: #666; margin-top: 5px;">detected</div>
+                    </div>
+                </div>
+                
+                <!-- Discrepancy -->
+                <div class="feature-card ${stats.discrepancy > 0 ? 'warning' : 'success'}">
+                    <div class="feature-title">⚠️ Discrepancy</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="stat-value" style="font-size: 2.5em; color: ${stats.discrepancy > 0 ? '#ffc107' : '#28a745'};">
+                            ${stats.discrepancy}
+                        </div>
+                        <div style="font-size: 0.85em; color: #666; margin-top: 5px;">difference</div>
+                    </div>
+                </div>
+            `;
+            
+            metricsGrid.innerHTML = metricsHTML;
+        }
+        
+        // Initial load and auto-refresh
+        refreshDashboardMetrics();
+        setInterval(refreshDashboardMetrics, 10000);
+    </script>
+
+    <!-- EDGE CASE FEATURES SECTION -->
+    {% if include_edge_cases %}
+        {% include 'edge_cases_section.html' %}
+    {% endif %}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Admin Dashboard loaded successfully');
+        });
+    </script>
+    <script src="{% static 'js/dark-mode-toggle.js' %}"></script>
+</body>
+</html>

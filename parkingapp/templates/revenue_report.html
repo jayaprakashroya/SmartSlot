@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Revenue Report{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">💰 Revenue Report (Admin)</h2>
+
+            <!-- Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Revenue (30 Days)</h5>
+                            <p class="card-text display-4">${{ total_revenue }}</p>
+                            <small>{{ thirty_days_ago }} to Today</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Payment Methods</h5>
+                            <p class="card-text">
+                                {% for method in by_method %}
+                                <span class="badge badge-light">
+                                    {{ method.payment_method }}: ${{ method.total }} ({{ method.count }})
+                                </span>
+                                {% endfor %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Methods Breakdown -->
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">📊 Revenue by Payment Method</h5>
+                </div>
+                <div class="card-body">
+                    {% if by_method %}
+                    <div class="row">
+                        {% for method in by_method %}
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-primary">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ method.payment_method|title }}</h6>
+                                    <p class="card-text display-5">${{ method.total }}</p>
+                                    <small class="text-muted">{{ method.count }} transactions</small>
+                                    <div class="progress mt-2" style="height: 20px;">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: {% widthratio method.total total_revenue 100 %}%"
+                                             aria-valuenow="{% widthratio method.total total_revenue 100 %}" 
+                                             aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">No payment data available.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Detailed Payments Table -->
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">📋 Payment Transactions (Last 30 Days)</h5>
+                </div>
+                <div class="card-body">
+                    {% if payments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>User Email</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Transaction ID</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in payments %}
+                                <tr>
+                                    <td>{{ payment.created_at|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        <strong>{{ payment.user.Email }}</strong>
+                                    </td>
+                                    <td><strong>${{ payment.amount }}</strong></td>
+                                    <td>
+                                        <span class="badge badge-info">
+                                            {{ payment.get_payment_method_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if payment.transaction_id %}
+                                            <code>{{ payment.transaction_id }}</code>
+                                        {% else %}
+                                            <em>-</em>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if payment.payment_status == 'success' %}
+                                            <span class="badge badge-success">✓ Success</span>
+                                        {% elif payment.payment_status == 'pending' %}
+                                            <span class="badge badge-warning">⏳ Pending</span>
+                                        {% elif payment.payment_status == 'failed' %}
+                                            <span class="badge badge-danger">✗ Failed</span>
+                                        {% elif payment.payment_status == 'refunded' %}
+                                            <span class="badge badge-secondary">↩️ Refunded</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Info -->
+                    <small class="text-muted">Showing 100 most recent transactions</small>
+                    {% else %}
+                    <div class="alert alert-info">No payment records found.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Export Options -->
+            <div class="mt-4">
+                <button class="btn btn-success" onclick="exportToCSV()">
+                    📥 Export to CSV
+                </button>
+                <button class="btn btn-primary" onclick="window.print()">
+                    🖨️ Print Report
+                </button>
+                <a href="{% url 'analytics_dashboard' %}" class="btn btn-secondary">
+                    ⬅️ Back to Analytics
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function exportToCSV() {
+    // Get table data
+    const table = document.querySelector('table');
+    let csv = 'Date,User,Amount,Method,Transaction ID,Status\n';
+    
+    table.querySelectorAll('tbody tr').forEach(row => {
+        const cells = row.querySelectorAll('td');
+        csv += `${cells[0].textContent},${cells[1].textContent},${cells[2].textContent},${cells[3].textContent},${cells[4].textContent},${cells[5].textContent}\n`;
+    });
+    
+    // Download CSV
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `revenue_report_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+}
+</script>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: none;
+        margin-bottom: 20px;
+    }
+    
+    code {
+        background-color: #f4f4f4;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.85em;
+    }
+    
+    .display-5 {
+        font-size: 1.75rem;
+        font-weight: 600;
+    }
+    
+    @media print {
+        .btn, .alert-dismissible { display: none; }
+    }
+</style>
+{% endblock %}

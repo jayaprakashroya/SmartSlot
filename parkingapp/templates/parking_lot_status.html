@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Parking Lot Status - {{ lot.lot_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- internal nav for selecting lots -->
+    <nav class="nav nav-pills mb-4">
+        {% for l in all_lots %}
+        <a class="nav-link {% if l.lot_id == current_lot_id %}active{% endif %}" href="/parking-lot-status/{{ l.lot_id }}/">{{ l.lot_name }}</a>
+        {% endfor %}
+    </nav>
+
+    <h1>{{ lot.lot_name }} Status</h1>
+    <p>Occupied: {{ status.occupied_spots }} / {{ status.total_spots }}</p>
+    <!-- rest of status information omitted for brevity -->
+</div>
+{% endblock %}
